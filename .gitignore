@@ -1,0 +1,54 @@
+# ================================
+# ARCHIVOS DE CONFIGURACIÓN DEL IDE (Android Studio / IntelliJ)
+# ================================
+.idea/
+*.iml
+*.ipr
+*.iws
+/.idea/caches
+/.idea/libraries
+/.idea/modules.xml
+/.idea/workspace.xml
+/.idea/navEditor.xml
+/.idea/assetWizardSettings.xml
+
+# ================================
+# ARCHIVOS DE GRADLE Y COMPILACIÓN
+# ================================
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+
+# ================================
+# ARCHIVOS DE CONFIGURACIÓN LOCAL
+# ================================
+local.properties
+/local.properties
+
+# ================================
+# ARCHIVOS Y CARPETAS GENERADAS AUTOMÁTICAMENTE
+# ================================
+captures/
+outputs/
+.externalNativeBuild/
+.cxx/
+
+# ================================
+# ARCHIVOS TEMPORALES / BACKUPS / LOGS
+# ================================
+*.log
+*.tmp
+*.bak
+*.swp
+*.orig
+
+# ================================
+# CONFIGURACIONES DE EJECUCIÓN
+# ================================
+.run/
+
+# ================================
+# ARCHIVOS DEL SISTEMA OPERATIVO
+# ================================
+.DS_Store
+Thumbs.db
