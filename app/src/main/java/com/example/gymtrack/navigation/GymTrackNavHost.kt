@@ -8,6 +8,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.gymtrack.ui.screens.ForgotPasswordScreen
 import com.example.gymtrack.ui.screens.HomeScreen
 import com.example.gymtrack.ui.screens.LoginScreen
 import com.example.gymtrack.ui.screens.ProgressScreen
@@ -25,14 +26,19 @@ fun GymTrackNavHost(
 
     NavHost(
         navController = navController,
-        startDestination = Screen.Register.route,
+        startDestination = Screen.Login.route,
         modifier = Modifier.padding(paddingValues)
     ) {
         composable(Screen.Login.route) {
             LoginScreen(
+                navController,
                 authViewModel = authViewModel,
                 onLoginSuccess = { navController.navigate(Screen.Home.route) }
             )
+        }
+
+        composable(Screen.ForgotPassword.route) {
+            ForgotPasswordScreen(navController, authViewModel)
         }
 
         composable(Screen.Register.route) {

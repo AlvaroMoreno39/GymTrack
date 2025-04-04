@@ -8,10 +8,13 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavHostController
+import com.example.gymtrack.navigation.Screen
 import com.example.gymtrack.viewmodel.AuthViewModel
 
 @Composable
 fun LoginScreen(
+    navController: NavHostController,
     authViewModel: AuthViewModel = viewModel(), // ViewModel compartido
     onLoginSuccess: () -> Unit // Acción a ejecutar tras login correcto
 ) {
@@ -36,6 +39,15 @@ fun LoginScreen(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text("Iniciar Sesión", style = MaterialTheme.typography.headlineMedium)
+
+        Spacer(modifier = Modifier.height(12.dp))
+
+        TextButton(
+            onClick = { navController.navigate(Screen.ForgotPassword.route) },
+            modifier = Modifier.align(Alignment.End)
+        ) {
+            Text("¿Olvidaste tu contraseña?")
+        }
 
         Spacer(modifier = Modifier.height(24.dp))
 

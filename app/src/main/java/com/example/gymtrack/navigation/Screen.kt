@@ -7,6 +7,8 @@ sealed class Screen(val route: String, val title: String) {
     object Progress : Screen("progress", "Progreso")
     object Timer : Screen("timer", "Temporizador")
     object Settings : Screen("settings", "Ajustes")
+    object ForgotPassword : Screen("forgot_password", "Recuperar contraseña")
+
 
     companion object {
         val bottomBarScreens = listOf(Home, Progress, Timer, Settings)
