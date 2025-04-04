@@ -1,9 +1,8 @@
 plugins {
-    alias(libs.plugins.android.application)
-    alias(libs.plugins.kotlin.android)
-    alias(libs.plugins.kotlin.compose)
-    id("com.google.gms.google-services") // 🔥 Necesario para que Firebase funcione
-
+    alias(libs.plugins.android.application)        // Plugin principal para apps Android
+    alias(libs.plugins.kotlin.android)             // Permite usar Kotlin en Android
+    alias(libs.plugins.kotlin.compose)             // Soporte para Jetpack Compose
+    alias(libs.plugins.google.services)            // Necesario para usar Firebase (lee google-services.json)
 }
 
 android {
@@ -42,12 +41,15 @@ android {
 }
 
 dependencies {
-    // Plataforma BOM de Firebase para gestionar versiones
-    implementation(libs.firebase.bom)
+    // Import the Firebase BoM
+    implementation(platform(libs.firebase.bom))
 
-    // Servicios de Firebase que usaremos:
-    implementation(libs.firebase.auth)      // Autenticación de usuarios (login, registro, etc.)
-    implementation(libs.firebase.firestore) // Base de datos NoSQL en la nube para guardar rutinas, progreso, etc.
+    // Add the dependencies for the Firebase modules you want to use
+    implementation(libs.firebase.auth)
+    implementation(libs.firebase.firestore)
+    implementation(libs.firebase.storage)
+    implementation(libs.firebase.analytics)
+    implementation(libs.firebase.messaging)
 
     // Librerías para arquitectura moderna (MVVM):
     implementation(libs.androidx.lifecycle.runtime.ktx)        // Ciclo de vida con soporte para corrutinas
@@ -86,3 +88,4 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)                // Herramientas de UI en modo debug
     debugImplementation(libs.androidx.ui.test.manifest)          // Manifesto de pruebas para UI
 }
+
