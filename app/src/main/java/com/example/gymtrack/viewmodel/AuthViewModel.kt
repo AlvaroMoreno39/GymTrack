@@ -1,24 +1,38 @@
 package com.example.gymtrack.viewmodel
 
+// ViewModel y corrutinas
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+
+// Firebase Auth
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
+
+// Estado reactivo (StateFlow)
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
+/**
+ * ViewModel que gestiona la autenticación de usuario con Firebase.
+ * Exponer estado reactivo para usuario actual y posibles errores.
+ */
 class AuthViewModel : ViewModel() {
 
+    // Instancia de FirebaseAuth
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
 
+    // Estado reactivo del usuario actual (null si no hay sesión)
     private val _user = MutableStateFlow<FirebaseUser?>(auth.currentUser)
     val user: StateFlow<FirebaseUser?> get() = _user
 
+    // Estado reactivo para errores en login/registro/etc
     private val _error = MutableStateFlow<String?>(null)
     val error: StateFlow<String?> get() = _error
 
-    // Login
+    /**
+     * Inicia sesión con correo y contraseña.
+     */
     fun login(email: String, password: String) {
         viewModelScope.launch {
             auth.signInWithEmailAndPassword(email, password)
@@ -33,7 +47,9 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-    // Registro
+    /**
+     * Registra un nuevo usuario con correo y contraseña.
+     */
     fun register(email: String, password: String) {
         viewModelScope.launch {
             auth.createUserWithEmailAndPassword(email, password)
@@ -48,7 +64,9 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-    // Recuperar contraseña
+    /**
+     * Envía un correo para recuperar la contraseña.
+     */
     fun resetPassword(email: String) {
         viewModelScope.launch {
             auth.sendPasswordResetEmail(email)
@@ -62,7 +80,9 @@ class AuthViewModel : ViewModel() {
         }
     }
 
-    // Logout
+    /**
+     * Cierra la sesión actual.
+     */
     fun logout() {
         auth.signOut()
         _user.value = null
