@@ -13,11 +13,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.gymtrack.navigation.GymTrackApp
 import com.example.gymtrack.ui.theme.GymTrackTheme
+import com.google.firebase.auth.FirebaseAuth
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // ❗ Cierra sesión si hay un usuario cacheado
+        FirebaseAuth.getInstance().signOut()
+
         enableEdgeToEdge()
+
         setContent {
             GymTrackTheme {
                 GymTrackApp() // <- Este composable debería estar llamando a tu Scaffold con la navegación
