@@ -87,4 +87,12 @@ class AuthViewModel : ViewModel() {
         auth.signOut()
         _user.value = null
     }
+
+    /**
+     * Muestra error.
+     */
+    fun setError(message: String) {
+        _error.value = message
+    }
+
 }
