@@ -8,7 +8,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import com.example.gymtrack.ui.screens.*
+import com.example.gymtrack.ui.screens.HomeScreen
+import com.example.gymtrack.ui.screens.LoginScreen
+import com.example.gymtrack.ui.screens.ProgressScreen
+import com.example.gymtrack.ui.screens.RegisterScreen
+import com.example.gymtrack.ui.screens.SettingsScreen
+import com.example.gymtrack.ui.screens.TimerScreen
 import com.example.gymtrack.viewmodel.AuthViewModel
 
 @Composable
@@ -20,7 +25,7 @@ fun GymTrackNavHost(
 
     NavHost(
         navController = navController,
-        startDestination = Screen.Login.route,
+        startDestination = Screen.Register.route,
         modifier = Modifier.padding(paddingValues)
     ) {
         composable(Screen.Login.route) {
@@ -31,7 +36,9 @@ fun GymTrackNavHost(
         }
 
         composable(Screen.Register.route) {
-            RegisterScreen(navController)
+            RegisterScreen(
+                navController,
+                authViewModel = authViewModel)
         }
 
         composable(Screen.Home.route) {
