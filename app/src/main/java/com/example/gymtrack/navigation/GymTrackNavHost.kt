@@ -12,10 +12,12 @@ import com.example.gymtrack.ui.screens.ForgotPasswordScreen
 import com.example.gymtrack.ui.screens.HomeScreen
 import com.example.gymtrack.ui.screens.LoginScreen
 import com.example.gymtrack.ui.screens.ProgressScreen
+import com.example.gymtrack.ui.screens.RegisterRoutineScreen
 import com.example.gymtrack.ui.screens.RegisterScreen
 import com.example.gymtrack.ui.screens.SettingsScreen
 import com.example.gymtrack.ui.screens.TimerScreen
 import com.example.gymtrack.viewmodel.AuthViewModel
+import com.example.gymtrack.viewmodel.RoutineViewModel
 
 @Composable
 fun GymTrackNavHost(
@@ -45,6 +47,11 @@ fun GymTrackNavHost(
             RegisterScreen(
                 navController,
                 authViewModel = authViewModel)
+        }
+
+        composable(Screen.RegisterRoutine.route) {
+            val routineViewModel: RoutineViewModel = viewModel()
+            RegisterRoutineScreen(viewModel = routineViewModel)
         }
 
         composable(Screen.Home.route) {
