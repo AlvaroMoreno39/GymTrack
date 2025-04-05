@@ -16,6 +16,7 @@ import com.example.gymtrack.ui.screens.RegisterRoutineScreen
 import com.example.gymtrack.ui.screens.RegisterScreen
 import com.example.gymtrack.ui.screens.SettingsScreen
 import com.example.gymtrack.ui.screens.TimerScreen
+import com.example.gymtrack.ui.screens.ViewRoutinesScreen
 import com.example.gymtrack.viewmodel.AuthViewModel
 import com.example.gymtrack.viewmodel.RoutineViewModel
 
@@ -25,10 +26,11 @@ fun GymTrackNavHost(
     paddingValues: PaddingValues
 ) {
     val authViewModel: AuthViewModel = viewModel()
+    val routineViewModel: RoutineViewModel = viewModel()
 
     NavHost(
         navController = navController,
-        startDestination = Screen.Login.route,
+        startDestination = Screen.ViewRoutinesScreen.route,
         modifier = Modifier.padding(paddingValues)
     ) {
         composable(Screen.Login.route) {
@@ -46,16 +48,20 @@ fun GymTrackNavHost(
         composable(Screen.Register.route) {
             RegisterScreen(
                 navController,
-                authViewModel = authViewModel)
+                authViewModel = authViewModel
+            )
         }
 
         composable(Screen.RegisterRoutine.route) {
-            val routineViewModel: RoutineViewModel = viewModel()
             RegisterRoutineScreen(viewModel = routineViewModel)
         }
 
         composable(Screen.Home.route) {
             HomeScreen(navController)
+        }
+
+        composable(Screen.ViewRoutinesScreen.route) {
+            ViewRoutinesScreen(viewModel = routineViewModel)
         }
 
         composable(Screen.Progress.route) {
