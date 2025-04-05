@@ -51,4 +51,24 @@ class RoutineViewModel : ViewModel() {
                 Toast.makeText(context, "❌ Error al guardar rutina: ${it.message}", Toast.LENGTH_SHORT).show()
             }
     }
+
+    // Añade esta función en tu RoutineViewModel
+    fun getUserRoutines(onResult: (List<Map<String, Any>>) -> Unit) {
+        val currentUser = auth.currentUser ?: return
+        val uid = currentUser.uid
+
+        db.collection("rutinas")
+            .whereEqualTo("userId", uid)
+            .get()
+            .addOnSuccessListener { result ->
+                val routines = result.documents.mapNotNull { it.data }
+                onResult(routines)
+            }
+            .addOnFailureListener {
+                println("❌ Error al obtener rutinas: ${it.message}")
+                onResult(emptyList())
+            }
+    }
+
+
 }
