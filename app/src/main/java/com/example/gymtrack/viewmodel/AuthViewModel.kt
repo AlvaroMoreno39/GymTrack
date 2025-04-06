@@ -1,6 +1,8 @@
 package com.example.gymtrack.viewmodel
 
 // ViewModel y corrutinas
+import android.content.Context
+import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 
@@ -83,10 +85,11 @@ class AuthViewModel : ViewModel() {
     /**
      * Cierra la sesión actual.
      */
-    fun logout() {
-        auth.signOut()
-        _user.value = null
+    fun logout(context: Context) {
+        FirebaseAuth.getInstance().signOut()
+        Toast.makeText(context, "Sesión cerrada", Toast.LENGTH_SHORT).show()
     }
+
 
     /**
      * Muestra error.

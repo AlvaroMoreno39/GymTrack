@@ -86,7 +86,8 @@ fun GymTrackNavHost(
         }
 
         composable(Screen.Settings.route) {
-            SettingsScreen(navController)
+            SettingsScreen(authViewModel, navController)
         }
+
     }
 }
