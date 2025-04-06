@@ -11,6 +11,7 @@ import androidx.navigation.compose.composable
 import com.example.gymtrack.ui.screens.ForgotPasswordScreen
 import com.example.gymtrack.ui.screens.HomeScreen
 import com.example.gymtrack.ui.screens.LoginScreen
+import com.example.gymtrack.ui.screens.PredefinedRoutinesScreen
 import com.example.gymtrack.ui.screens.ProgressScreen
 import com.example.gymtrack.ui.screens.RegisterRoutineScreen
 import com.example.gymtrack.ui.screens.RegisterScreen
@@ -18,7 +19,9 @@ import com.example.gymtrack.ui.screens.SettingsScreen
 import com.example.gymtrack.ui.screens.TimerScreen
 import com.example.gymtrack.ui.screens.ViewRoutinesScreen
 import com.example.gymtrack.viewmodel.AuthViewModel
+import com.example.gymtrack.viewmodel.PredefinedRoutinesViewModel
 import com.example.gymtrack.viewmodel.RoutineViewModel
+
 
 @Composable
 fun GymTrackNavHost(
@@ -41,6 +44,11 @@ fun GymTrackNavHost(
             )
         }
 
+        composable(Screen.PredefinedRoutines.route) {
+            val viewModel: PredefinedRoutinesViewModel = viewModel()
+            PredefinedRoutinesScreen(viewModel = viewModel)
+        }
+
         composable(Screen.ForgotPassword.route) {
             ForgotPasswordScreen(navController, authViewModel)
         }
@@ -53,6 +61,7 @@ fun GymTrackNavHost(
         }
 
         composable(Screen.RegisterRoutine.route) {
+            val routineViewModel: RoutineViewModel = viewModel()
             RegisterRoutineScreen(viewModel = routineViewModel)
         }
 
