@@ -55,20 +55,50 @@ class RoutineViewModel : ViewModel() {
     // Añade esta función en tu RoutineViewModel
     fun getUserRoutines(onResult: (List<Map<String, Any>>) -> Unit) {
         val currentUser = auth.currentUser ?: return
-        val uid = currentUser.uid
 
         db.collection("rutinas")
-            .whereEqualTo("userId", uid)
+            .whereEqualTo("userId", currentUser.uid)
             .get()
             .addOnSuccessListener { result ->
-                val routines = result.documents.mapNotNull { it.data }
+                val routines = result.documents.map { doc ->
+                    val routine = doc.data ?: emptyMap()
+                    routine + mapOf("id" to doc.id) // ⬅️ Añadimos el ID del documento
+                }
                 onResult(routines)
             }
+    }
+
+    fun deleteRoutine(routineId: String, onResult: (Boolean) -> Unit) {
+        db.collection("rutinas").document(routineId)
+            .delete()
+            .addOnSuccessListener {
+                onResult(true)
+            }
             .addOnFailureListener {
-                println("❌ Error al obtener rutinas: ${it.message}")
-                onResult(emptyList())
+                onResult(false)
             }
     }
+
+    fun copyPredefinedRoutineToUser(routine: Map<String, Any>, onResult: (Boolean) -> Unit) {
+        val currentUser = auth.currentUser ?: return
+
+        val userRoutine = hashMapOf(
+            "exerciseName" to routine["exerciseName"],
+            "muscleGroup" to routine["muscleGroup"],
+            "type" to routine["type"],
+            "series" to routine["series"],
+            "reps" to routine["reps"],
+            "duration" to routine["duration"],
+            "intensity" to routine["intensity"],
+            "userId" to currentUser.uid
+        )
+
+        db.collection("rutinas")
+            .add(userRoutine)
+            .addOnSuccessListener { onResult(true) }
+            .addOnFailureListener { onResult(false) }
+    }
+
 
 
 }

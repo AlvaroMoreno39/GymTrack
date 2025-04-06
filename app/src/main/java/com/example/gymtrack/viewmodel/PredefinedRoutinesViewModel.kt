@@ -26,24 +26,19 @@ class PredefinedRoutinesViewModel : ViewModel() {
     private val _routines = MutableStateFlow<List<Routine>>(emptyList())
     val routines: StateFlow<List<Routine>> get() = _routines
 
-    init {
-        fetchRoutines()
-    }
-
     // Obtener todas las rutinas de la colección rutinasPredefinidas
-    private fun fetchRoutines() {
-        viewModelScope.launch {
-            db.collection("rutinasPredefinidas")
-                .get()
-                .addOnSuccessListener { result ->
-                    val loadedRoutines = result.mapNotNull { doc ->
-                        doc.toObject(Routine::class.java)
-                    }
-                    _routines.value = loadedRoutines
+    fun fetchRoutines(onResult: (List<Routine>) -> Unit) {
+        db.collection("rutinasPredefinidas")
+            .get()
+            .addOnSuccessListener { result ->
+                val routines = result.mapNotNull { doc ->
+                    doc.toObject(Routine::class.java)
                 }
-                .addOnFailureListener {
-                    println("❌ Error al cargar rutinas predefinidas: ${it.message}")
-                }
-        }
+                onResult(routines)
+            }
+            .addOnFailureListener {
+                println("❌ Error al cargar rutinas predefinidas: ${it.message}")
+                onResult(emptyList())
+            }
     }
 }

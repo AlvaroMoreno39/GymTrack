@@ -33,7 +33,7 @@ fun GymTrackNavHost(
 
     NavHost(
         navController = navController,
-        startDestination = Screen.ViewRoutinesScreen.route,
+        startDestination = Screen.Home.route,
         modifier = Modifier.padding(paddingValues)
     ) {
         composable(Screen.Login.route) {
@@ -46,8 +46,12 @@ fun GymTrackNavHost(
 
         composable(Screen.PredefinedRoutines.route) {
             val viewModel: PredefinedRoutinesViewModel = viewModel()
-            PredefinedRoutinesScreen(viewModel = viewModel)
+            PredefinedRoutinesScreen(
+                viewModel = viewModel,
+                routineViewModel = routineViewModel
+            )
         }
+
 
         composable(Screen.ForgotPassword.route) {
             ForgotPasswordScreen(navController, authViewModel)
