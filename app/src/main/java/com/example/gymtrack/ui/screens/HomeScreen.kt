@@ -2,6 +2,7 @@ package com.example.gymtrack.ui.screens
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material3.Button
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -27,6 +28,14 @@ fun HomeScreen(navController: NavHostController) {
         }) {
             Text("Ver rutinas predefinidas")
         }
+
+        Button(
+            onClick = { navController.navigate(Screen.ViewRoutinesScreen.route) },
+            modifier = Modifier.fillMaxWidth()
+        ) {
+            Text("Ver mis rutinas")
+        }
+
     }
 
 
