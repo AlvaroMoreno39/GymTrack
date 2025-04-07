@@ -33,7 +33,7 @@ fun GymTrackNavHost(
 
     NavHost(
         navController = navController,
-        startDestination = Screen.Home.route,
+        startDestination = Screen.Login.route,
         modifier = Modifier.padding(paddingValues)
     ) {
         composable(Screen.Login.route) {

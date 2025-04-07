@@ -5,100 +5,112 @@ import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
+import com.google.firebase.Timestamp
+
+// Modelo de datos para representar un ejercicio
+data class Exercise(
+    val nombre: String = "",
+    val grupoMuscular: String = "",
+    val tipo: String = "",
+    val series: Int = 0,
+    val reps: Int = 0,
+    val duracion: Int = 0,
+    val intensidad: String = ""
+)
+
+// Modelo de datos para una rutina completa
+data class RoutineData(
+    val nombreRutina: String = "",
+    val userId: String = "",
+    val fechaCreacion: Timestamp = Timestamp.now(),
+    val ejercicios: List<Exercise> = emptyList()
+)
 
 class RoutineViewModel : ViewModel() {
 
-    private val db = FirebaseFirestore.getInstance()       // Acceso a Firestore
-    private val auth = FirebaseAuth.getInstance()          // Acceso a Firebase Auth
+    private val db = FirebaseFirestore.getInstance()
+    private val auth = FirebaseAuth.getInstance()
 
-    // Guarda una rutina en Firestore
-    fun addRoutine(
-        context: Context,                                  // Contexto para mostrar Toast
-        name: String,
-        group: String,
-        type: String,
-        series: String,
-        reps: String,
-        duration: String,
-        intensity: String
+    /**
+     * Guarda una rutina completa con varios ejercicios en Firestore.
+     */
+    fun saveFullRoutine(
+        context: Context,
+        nombreRutina: String,
+        ejercicios: List<Exercise>
     ) {
-        val currentUser = auth.currentUser ?: run {
+        val currentUser = auth.currentUser
+        if (currentUser == null) {
             Toast.makeText(context, "⚠️ Usuario no logueado", Toast.LENGTH_SHORT).show()
             return
         }
 
-        val uid = currentUser.uid
-
-        // Creamos el mapa de datos
-        val routine = hashMapOf(
-            "exerciseName" to name,
-            "muscleGroup" to group,
-            "type" to type,
-            "series" to series,
-            "reps" to reps,
-            "duration" to duration,
-            "intensity" to intensity,
-            "userId" to uid
+        val rutina = RoutineData(
+            nombreRutina = nombreRutina,
+            userId = currentUser.uid,
+            fechaCreacion = Timestamp.now(),
+            ejercicios = ejercicios
         )
 
-        // Guardamos en Firestore
         db.collection("rutinas")
-            .add(routine)
+            .add(rutina)
             .addOnSuccessListener {
-                Toast.makeText(context, "✅ Rutina guardada", Toast.LENGTH_SHORT).show()
+                Toast.makeText(context, "✅ Rutina guardada con éxito", Toast.LENGTH_SHORT).show()
             }
             .addOnFailureListener {
                 Toast.makeText(context, "❌ Error al guardar rutina: ${it.message}", Toast.LENGTH_SHORT).show()
             }
     }
 
-    // Añade esta función en tu RoutineViewModel
-    fun getUserRoutines(onResult: (List<Map<String, Any>>) -> Unit) {
+    /**
+     * Obtiene todas las rutinas del usuario actual.
+     */
+    fun getUserRoutines(onResult: (List<Pair<String, RoutineData>>) -> Unit) {
         val currentUser = auth.currentUser ?: return
 
         db.collection("rutinas")
             .whereEqualTo("userId", currentUser.uid)
             .get()
             .addOnSuccessListener { result ->
-                val routines = result.documents.map { doc ->
-                    val routine = doc.data ?: emptyMap()
-                    routine + mapOf("id" to doc.id) // ⬅️ Añadimos el ID del documento
+                val routines = result.mapNotNull { doc ->
+                    val rutina = doc.toObject(RoutineData::class.java)
+                    doc.id to rutina
                 }
                 onResult(routines)
             }
     }
 
+    /**
+     * Elimina una rutina por su ID.
+     */
     fun deleteRoutine(routineId: String, onResult: (Boolean) -> Unit) {
-        db.collection("rutinas").document(routineId)
-            .delete()
-            .addOnSuccessListener {
-                onResult(true)
-            }
-            .addOnFailureListener {
-                onResult(false)
-            }
-    }
-
-    fun copyPredefinedRoutineToUser(routine: Map<String, Any>, onResult: (Boolean) -> Unit) {
-        val currentUser = auth.currentUser ?: return
-
-        val userRoutine = hashMapOf(
-            "exerciseName" to routine["exerciseName"],
-            "muscleGroup" to routine["muscleGroup"],
-            "type" to routine["type"],
-            "series" to routine["series"],
-            "reps" to routine["reps"],
-            "duration" to routine["duration"],
-            "intensity" to routine["intensity"],
-            "userId" to currentUser.uid
-        )
-
         db.collection("rutinas")
-            .add(userRoutine)
+            .document(routineId)
+            .delete()
             .addOnSuccessListener { onResult(true) }
             .addOnFailureListener { onResult(false) }
     }
 
+    /**
+     * Copia una rutina predefinida completa a la colección del usuario actual.
+     */
+    fun copyPredefinedRoutineToUser(
+        nombreRutina: String,
+        ejercicios: List<Exercise>,
+        onResult: (Boolean) -> Unit
+    ) {
+        val currentUser = auth.currentUser ?: return
 
+        val rutina = RoutineData(
+            nombreRutina = nombreRutina,
+            userId = currentUser.uid,
+            fechaCreacion = Timestamp.now(),
+            ejercicios = ejercicios
+        )
 
+        db.collection("rutinas")
+            .add(rutina)
+            .addOnSuccessListener { onResult(true) }
+            .addOnFailureListener { onResult(false) }
+    }
 }
