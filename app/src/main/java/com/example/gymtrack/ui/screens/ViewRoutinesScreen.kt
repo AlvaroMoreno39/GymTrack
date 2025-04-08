@@ -56,6 +56,7 @@ fun ViewRoutinesScreen(viewModel: RoutineViewModel) {
                                 if (ejercicio.reps > 0) Text("Reps: ${ejercicio.reps}")
                                 if (ejercicio.duracion > 0) Text("Duración: ${ejercicio.duracion} min")
                                 Text("Intensidad: ${ejercicio.intensidad}")
+                                Text("Peso: ${ejercicio.peso}")
                             }
                         }
 

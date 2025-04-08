@@ -1,5 +1,6 @@
 package com.example.gymtrack.ui.screens
 
+import android.net.Uri
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -36,7 +37,19 @@ fun HomeScreen(navController: NavHostController) {
             Text("Ver mis rutinas")
         }
 
-    }
+        Button(onClick = {
+            navController.navigate(Screen.ProgressGeneral.route)
+        }) {
+            Text("Ver reps de ejercicios gafico")
+        }
 
+        Button(onClick = {
+            navController.navigate(Screen.ExerciseDashboard.route)
+        }) {
+            Text("Evolucion de carga por ejercicio")
+        }
+
+
+    }
 
 }

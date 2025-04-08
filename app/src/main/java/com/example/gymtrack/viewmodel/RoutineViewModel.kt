@@ -15,7 +15,8 @@ data class Exercise(
     val series: Int = 0,
     val reps: Int = 0,
     val duracion: Int = 0,
-    val intensidad: String = ""
+    val intensidad: String = "",
+    val peso: Int = 0
 )
 
 // Modelo de datos para una rutina completa

@@ -3,12 +3,14 @@ package com.example.gymtrack.ui.screens
 import android.widget.Toast
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.gymtrack.viewmodel.Exercise
 import com.example.gymtrack.viewmodel.RoutineViewModel
@@ -28,8 +30,8 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
     var reps by remember { mutableStateOf("") }
     var duracion by remember { mutableStateOf("") }
     var intensidad by remember { mutableStateOf("") }
+    var peso by remember { mutableStateOf("") }
 
-    // Lista de ejercicios añadidos hasta ahora
     var ejercicios by remember { mutableStateOf(mutableListOf<Exercise>()) }
 
     // Comprobación para mostrar campos distintos si es cardio
@@ -113,6 +115,15 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
             modifier = Modifier.fillMaxWidth()
         )
 
+        // Campo: peso
+        OutlinedTextField(
+            value = peso,
+            onValueChange = { peso = it },
+            label = { Text("Peso (kg)") },
+            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+            modifier = Modifier.fillMaxWidth()
+        )
+
         // Botón para añadir un ejercicio a la lista
         Button(
             onClick = {
@@ -130,7 +141,8 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
                     series = series.toIntOrNull() ?: 0,
                     reps = reps.toIntOrNull() ?: 0,
                     duracion = duracion.toIntOrNull() ?: 0,
-                    intensidad = intensidad
+                    intensidad = intensidad,
+                    peso = peso.toIntOrNull() ?: 0,
                 )
 
                 ejercicios.add(nuevoEjercicio)
@@ -143,6 +155,7 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
                 reps = ""
                 duracion = ""
                 intensidad = ""
+                peso = ""
 
                 Toast.makeText(context, "✅ Ejercicio añadido", Toast.LENGTH_SHORT).show()
             },
