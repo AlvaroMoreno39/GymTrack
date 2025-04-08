@@ -8,11 +8,12 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import com.example.gymtrack.ui.screens.ExerciseProgressDashboardScreen
 import com.example.gymtrack.ui.screens.ForgotPasswordScreen
 import com.example.gymtrack.ui.screens.HomeScreen
 import com.example.gymtrack.ui.screens.LoginScreen
 import com.example.gymtrack.ui.screens.PredefinedRoutinesScreen
-import com.example.gymtrack.ui.screens.ProgressScreen
+import com.example.gymtrack.ui.screens.ProgresoGeneralScreen
 import com.example.gymtrack.ui.screens.RegisterRoutineScreen
 import com.example.gymtrack.ui.screens.RegisterScreen
 import com.example.gymtrack.ui.screens.SettingsScreen
@@ -21,6 +22,7 @@ import com.example.gymtrack.ui.screens.ViewRoutinesScreen
 import com.example.gymtrack.viewmodel.AuthViewModel
 import com.example.gymtrack.viewmodel.PredefinedRoutinesViewModel
 import com.example.gymtrack.viewmodel.RoutineViewModel
+import com.google.firebase.auth.FirebaseAuth
 
 
 @Composable
@@ -33,7 +35,7 @@ fun GymTrackNavHost(
 
     NavHost(
         navController = navController,
-        startDestination = Screen.Login.route,
+        startDestination = Screen.Progress.route,
         modifier = Modifier.padding(paddingValues)
     ) {
         composable(Screen.Login.route) {
@@ -52,6 +54,11 @@ fun GymTrackNavHost(
             )
         }
 
+        composable(Screen.ExerciseDashboard.route) {
+            ExerciseProgressDashboardScreen(
+                userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+            )
+        }
 
         composable(Screen.ForgotPassword.route) {
             ForgotPasswordScreen(navController, authViewModel)
@@ -73,12 +80,14 @@ fun GymTrackNavHost(
             HomeScreen(navController)
         }
 
-        composable(Screen.ViewRoutinesScreen.route) {
-            ViewRoutinesScreen(viewModel = routineViewModel)
+        composable(Screen.ProgressGeneral.route) {
+            ProgresoGeneralScreen(
+                userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
+            )
         }
 
-        composable(Screen.Progress.route) {
-            ProgressScreen(navController)
+        composable(Screen.ViewRoutinesScreen.route) {
+            ViewRoutinesScreen(viewModel = routineViewModel)
         }
 
         composable(Screen.Timer.route) {

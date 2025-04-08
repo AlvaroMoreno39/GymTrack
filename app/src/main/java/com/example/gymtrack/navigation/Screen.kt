@@ -11,6 +11,9 @@ sealed class Screen(val route: String, val title: String) {
     object RegisterRoutine : Screen("register_routine", "Registrar rutina")
     object ViewRoutinesScreen : Screen("view_routines", "Ver rutinas")
     object PredefinedRoutines : Screen("predefined_routines", "Rutinas Predefinidas")
+    object ProgressGeneral : Screen("progreso_general", "Progreso General")
+    object ExerciseDashboard : Screen("exercise_dashboard", "Progreso por ejercicio")
+
 
     companion object {
         val bottomBarScreens = listOf(Home, Progress, Timer, Settings)
