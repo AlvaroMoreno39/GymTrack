@@ -15,52 +15,17 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
+import com.example.gymtrack.viewmodel.GeneralProgressViewModel
 import com.github.mikephil.charting.charts.BarChart
 import com.github.mikephil.charting.components.XAxis
 import com.github.mikephil.charting.data.*
 import com.github.mikephil.charting.formatter.IndexAxisValueFormatter
 
-class ProgresoGeneralViewModel : ViewModel() {
-    private val db = FirebaseFirestore.getInstance()
-
-    private val _pesoTotalPorRutina = MutableStateFlow<List<Pair<String, Float>>>(emptyList())
-    val pesoTotalPorRutina: StateFlow<List<Pair<String, Float>>> = _pesoTotalPorRutina
-
-    private val _datosPorGrupoMuscular = MutableStateFlow<Map<String, Float>>(emptyMap())
-    val datosPorGrupoMuscular: StateFlow<Map<String, Float>> = _datosPorGrupoMuscular
-
-    fun cargarDatos(userId: String) {
-        viewModelScope.launch {
-            db.collection("rutinas")
-                .whereEqualTo("userId", userId)
-                .get()
-                .addOnSuccessListener { result ->
-                    val mapa = mutableMapOf<String, Float>()
-
-                    for (doc in result) {
-                        val ejercicios = doc.get("ejercicios") as? List<Map<String, Any>> ?: continue
-
-                        for (ejercicio in ejercicios) {
-                            val grupo = ejercicio["grupoMuscular"] as? String ?: continue
-                            val series = (ejercicio["series"] as? Long)?.toFloat() ?: 0f
-
-                            mapa[grupo] = mapa.getOrDefault(grupo, 0f) + series
-                        }
-                    }
-
-                    _datosPorGrupoMuscular.value = mapa
-                }
-        }
-    }
-
-
-}
-
 
 @Composable
-fun ProgresoGeneralScreen(
+fun GeneralProgressScreen(
     userId: String,
-    viewModel: ProgresoGeneralViewModel = ProgresoGeneralViewModel()
+    viewModel: GeneralProgressViewModel = GeneralProgressViewModel()
 ) {
     val datos by viewModel.datosPorGrupoMuscular.collectAsState()
     val context = LocalContext.current
