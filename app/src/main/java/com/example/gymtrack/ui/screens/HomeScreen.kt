@@ -38,16 +38,17 @@ fun HomeScreen(navController: NavHostController) {
         }
 
         Button(onClick = {
-            navController.navigate(Screen.ProgressGeneral.route)
+            navController.navigate(Screen.GeneralProgress.route)
         }) {
-            Text("Ver reps de ejercicios gafico")
+            Text("Ver reps de ejercicios gaficos")
         }
 
         Button(onClick = {
-            navController.navigate(Screen.ExerciseDashboard.route)
+            navController.navigate(Screen.Timer.route)
         }) {
-            Text("Evolucion de carga por ejercicio")
+            Text("Timer")
         }
+
 
 
     }

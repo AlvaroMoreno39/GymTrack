@@ -10,10 +10,10 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.example.gymtrack.ui.screens.ExerciseProgressDashboardScreen
 import com.example.gymtrack.ui.screens.ForgotPasswordScreen
+import com.example.gymtrack.ui.screens.GeneralProgressScreen
 import com.example.gymtrack.ui.screens.HomeScreen
 import com.example.gymtrack.ui.screens.LoginScreen
 import com.example.gymtrack.ui.screens.PredefinedRoutinesScreen
-import com.example.gymtrack.ui.screens.ProgresoGeneralScreen
 import com.example.gymtrack.ui.screens.RegisterRoutineScreen
 import com.example.gymtrack.ui.screens.RegisterScreen
 import com.example.gymtrack.ui.screens.SettingsScreen
@@ -35,7 +35,7 @@ fun GymTrackNavHost(
 
     NavHost(
         navController = navController,
-        startDestination = Screen.Progress.route,
+        startDestination = Screen.Login.route,
         modifier = Modifier.padding(paddingValues)
     ) {
         composable(Screen.Login.route) {
@@ -80,8 +80,8 @@ fun GymTrackNavHost(
             HomeScreen(navController)
         }
 
-        composable(Screen.ProgressGeneral.route) {
-            ProgresoGeneralScreen(
+        composable(Screen.GeneralProgress.route) {
+            GeneralProgressScreen(
                 userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
             )
         }
