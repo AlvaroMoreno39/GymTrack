@@ -15,7 +15,6 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -31,6 +30,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.gymtrack.R
+import com.example.gymtrack.navigation.AnimatedAccessButton
 import com.example.gymtrack.navigation.Screen
 import com.example.gymtrack.viewmodel.AuthViewModel
 import kotlinx.coroutines.launch
@@ -41,25 +41,30 @@ fun RegisterScreen(
     navController: NavHostController,
     authViewModel: AuthViewModel = viewModel()
 ) {
+    // Limpia cualquier error previo al entrar a la pantalla
+    LaunchedEffect(Unit) {
+        authViewModel.clearError()
+    }
+
     val context = LocalContext.current
     val error by authViewModel.error.collectAsState()
 
-    // Campos del formulario
+    // Variables que almacenan los valores de los campos del formulario
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
 
-    // Estados para mostrar errores visuales en campos
+    // Variables que controlan si se muestran errores visuales en los campos
     var showEmailError by remember { mutableStateOf(false) }
     var showPasswordEmptyError by remember { mutableStateOf(false) }
     var showConfirmEmptyError by remember { mutableStateOf(false) }
     var showConfirmPasswordError by remember { mutableStateOf(false) }
 
-    // Snackbar para mostrar mensajes temporales
+    // Snackbar para mostrar mensajes temporales como errores o confirmaciones
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    // Validaciones automáticas de la contraseña y del email
+    // Validaciones automáticas para verificar que la contraseña cumple requisitos mínimos
     val passwordLengthValid by derivedStateOf { password.length >= 6 }
     val passwordDigitValid by derivedStateOf { password.any { it.isDigit() } }
     val passwordSpecialCharValid by derivedStateOf { password.any { !it.isLetterOrDigit() } }
@@ -67,30 +72,35 @@ fun RegisterScreen(
         passwordLengthValid && passwordDigitValid && passwordSpecialCharValid
     }
 
+    // Validación de formato de email
     val isValidEmail by derivedStateOf {
         android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
     }
 
+    // Verifica si las contraseñas coinciden
     val passwordsMatch by derivedStateOf { confirmPassword == password }
 
+    // Estructura principal visual
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize()) {
 
-            // CABECERA VISUAL CON FONDO Y TÍTULO
+            // CABECERA DE IMAGEN CON TÍTULO
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(250.dp)
             ) {
+                // Imagen de fondo decorativa
                 Image(
-                    painter = painterResource(id = R.drawable.loginphoto),
+                    painter = painterResource(id = R.drawable.registerphoto),
                     contentDescription = null,
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
                 )
 
+                // Capa translúcida sobre la parte inferior de la imagen
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -99,6 +109,7 @@ fun RegisterScreen(
                         .background(Color.White.copy(alpha = 0.65f))
                 )
 
+                // Título del formulario
                 Column(
                     modifier = Modifier
                         .align(Alignment.BottomStart)
@@ -109,7 +120,7 @@ fun RegisterScreen(
                 }
             }
 
-            // FORMULARIO DE REGISTRO
+            // FORMULARIO DE ENTRADA DE DATOS
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -118,12 +129,12 @@ fun RegisterScreen(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
-                // CAMPO CORREO ELECTRÓNICO
+                // CAMPO EMAIL
                 OutlinedTextField(
                     value = email,
                     onValueChange = {
                         email = it
-                        showEmailError = false
+                        showEmailError = false // oculta el error al escribir
                     },
                     label = { Text("Correo electrónico") },
                     isError = showEmailError,
@@ -137,7 +148,7 @@ fun RegisterScreen(
                     )
                 )
 
-                // Mensaje de error si el correo no es válido
+                // Texto de error si el correo no es válido
                 if (showEmailError) {
                     Text(
                         text = "Introduce un correo electrónico válido",
@@ -171,23 +182,11 @@ fun RegisterScreen(
                     )
                 )
 
-                // Validación visual de requisitos de contraseña
+                // Requisitos que debe cumplir la contraseña
                 Column(modifier = Modifier.align(Alignment.Start).padding(top = 4.dp)) {
-                    Text(
-                        "• Mínimo 6 caracteres",
-                        fontSize = 12.sp,
-                        color = if (passwordLengthValid) Color(0xFF00C853) else Color.Gray
-                    )
-                    Text(
-                        "• Al menos un número",
-                        fontSize = 12.sp,
-                        color = if (passwordDigitValid) Color(0xFF00C853) else Color.Gray
-                    )
-                    Text(
-                        "• Al menos un símbolo especial",
-                        fontSize = 12.sp,
-                        color = if (passwordSpecialCharValid) Color(0xFF00C853) else Color.Gray
-                    )
+                    Text("• Mínimo 6 caracteres", fontSize = 12.sp, color = if (passwordLengthValid) Color(0xFF00C853) else Color.Gray)
+                    Text("• Al menos un número", fontSize = 12.sp, color = if (passwordDigitValid) Color(0xFF00C853) else Color.Gray)
+                    Text("• Al menos un símbolo especial", fontSize = 12.sp, color = if (passwordSpecialCharValid) Color(0xFF00C853) else Color.Gray)
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -213,6 +212,7 @@ fun RegisterScreen(
                     )
                 )
 
+                // Error si las contraseñas no coinciden
                 if (showConfirmPasswordError) {
                     Text(
                         text = "Las contraseñas no coinciden",
@@ -226,9 +226,8 @@ fun RegisterScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // BOTÓN REGISTRARSE
+                // BOTÓN PARA REGISTRARSE
                 AnimatedAccessButton(buttonText = "Registrarse") {
-                    // Validaciones visuales por campo
                     val emailError = email.isBlank() || !isValidEmail
                     val passwordEmpty = password.isBlank()
                     val confirmEmpty = confirmPassword.isBlank()
@@ -254,7 +253,7 @@ fun RegisterScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // ENLACE PARA IR A INICIAR SESIÓN
+                // ENLACE PARA IR A INICIAR SESIÓN SI YA TIENE CUENTA
                 Row(
                     modifier = Modifier.fillMaxSize(),
                     horizontalArrangement = Arrangement.Center,

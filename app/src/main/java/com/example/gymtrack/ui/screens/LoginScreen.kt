@@ -7,12 +7,13 @@ Esta pantalla permite al usuario iniciar sesión en GymTrack mediante:
 - Correo electrónico y contraseña.
 - Inicio de sesión con Google (integrado con Firebase Auth).
 También ofrece:
-- Validación de campos vacíos.
-- Mostrar errores mediante Snackbar.
+- Validación de campos vacíos y errores.
+- Mostrar mensajes de error mediante Snackbar.
 - Navegación a las pantallas de registro y recuperación de contraseña.
 - Un diseño atractivo con imagen de cabecera y estilos personalizados.
 */
 
+import android.annotation.SuppressLint
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -40,6 +41,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.gymtrack.R
+import com.example.gymtrack.navigation.AnimatedAccessButton
 import com.example.gymtrack.navigation.Screen
 import com.example.gymtrack.viewmodel.AuthViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -50,29 +52,43 @@ import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+@SuppressLint("UnrememberedMutableState")
 @Composable
 fun LoginScreen(
     navController: NavHostController,
     authViewModel: AuthViewModel = viewModel(),
     onLoginSuccess: () -> Unit
 ) {
+    // Limpiar errores previos al cargar la pantalla
+    LaunchedEffect(Unit) {
+        authViewModel.clearError()
+    }
+
+    // Contexto actual de la app (para navegación, recursos, etc.)
     val context = LocalContext.current
+
+    // Observadores de usuario autenticado y errores desde el ViewModel
     val user by authViewModel.user.collectAsState()
     val error by authViewModel.error.collectAsState()
 
+    // Estados locales para email y contraseña ingresados por el usuario
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
+    // Estados para mostrar errores visuales en los campos
     var showEmailError by remember { mutableStateOf(false) }
     var showPasswordError by remember { mutableStateOf(false) }
 
+    // Validación de formato de email
     val isValidEmail by derivedStateOf {
         android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
     }
 
+    // Snackbar para mostrar errores y mensajes
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
+    // Configuración de login con Google
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -93,7 +109,7 @@ fun LoginScreen(
         }
     }
 
-    // Lógica para login o mostrar error
+    // Manejo de éxito o error en login
     LaunchedEffect(user, error) {
         if (user != null) {
             onLoginSuccess()
@@ -104,10 +120,11 @@ fun LoginScreen(
         }
     }
 
+    // Estructura visual general
     Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) { padding ->
         Column(modifier = Modifier.fillMaxSize()) {
 
-            // CABECERA
+            // Cabecera con imagen y título
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -136,7 +153,7 @@ fun LoginScreen(
                 }
             }
 
-            // FORMULARIO
+            // Formulario principal
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -144,7 +161,7 @@ fun LoginScreen(
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // EMAIL
+                // Campo de correo electrónico con validación
                 OutlinedTextField(
                     value = email,
                     onValueChange = {
@@ -175,7 +192,7 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // CONTRASEÑA
+                // Campo de contraseña con validación
                 OutlinedTextField(
                     value = password,
                     onValueChange = {
@@ -207,6 +224,7 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // Enlace a recuperación de contraseña
                 Text(
                     "¿Olvidaste tu contraseña?",
                     fontSize = 15.sp,
@@ -220,6 +238,7 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // Botón de login con validación previa
                 AnimatedAccessButton {
                     showEmailError = email.isBlank() || !isValidEmail
                     showPasswordError = password.isBlank()
@@ -235,6 +254,7 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
+                // Separador visual
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
@@ -246,6 +266,7 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // Botón de login con Google
                 Button(
                     onClick = {
                         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -277,6 +298,7 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(32.dp))
 
+                // Enlace a registro
                 Row(
                     modifier = Modifier.fillMaxSize(),
                     horizontalArrangement = Arrangement.Center,
@@ -295,52 +317,5 @@ fun LoginScreen(
                 }
             }
         }
-    }
-}
-
-// BOTÓN DE ACCESO CON ANIMACIÓN PERSONALIZADA
-@Composable
-fun AnimatedAccessButton(buttonText: String = "Acceder", onClick: () -> Unit) {
-    var pressed by remember { mutableStateOf(false) }
-
-    val animationSpec = tween<Color>(
-        durationMillis = 350,
-        easing = FastOutSlowInEasing
-    )
-
-    val backgroundColor by animateColorAsState(
-        targetValue = if (pressed) Color.White else Color.Black,
-        animationSpec = animationSpec,
-        label = "ButtonBackgroundColor"
-    )
-
-    val contentColor by animateColorAsState(
-        targetValue = if (pressed) Color.Black else Color.White,
-        animationSpec = animationSpec,
-        label = "ButtonContentColor"
-    )
-
-    LaunchedEffect(pressed) {
-        if (pressed) {
-            delay(200)
-            pressed = false
-            onClick()
-        }
-    }
-
-    Button(
-        onClick = { pressed = true },
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(56.dp),
-        shape = RoundedCornerShape(8.dp),
-        border = BorderStroke(1.dp, Color.Black),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = backgroundColor,
-            contentColor = contentColor
-        ),
-        contentPadding = PaddingValues()
-    ) {
-        Text(buttonText, fontSize = 16.sp)
     }
 }
