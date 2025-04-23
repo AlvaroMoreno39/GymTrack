@@ -1,5 +1,18 @@
 package com.example.gymtrack.ui.screens
 
+/*
+LoginScreen.kt
+
+Esta pantalla permite al usuario iniciar sesión en GymTrack mediante:
+- Correo electrónico y contraseña.
+- Inicio de sesión con Google (integrado con Firebase Auth).
+También ofrece:
+- Validación de campos vacíos.
+- Mostrar errores mediante Snackbar.
+- Navegación a las pantallas de registro y recuperación de contraseña.
+- Un diseño atractivo con imagen de cabecera y estilos personalizados.
+*/
+
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -44,15 +57,20 @@ fun LoginScreen(
     onLoginSuccess: () -> Unit
 ) {
     val context = LocalContext.current
+
+    // Estados que vienen del ViewModel
     val user by authViewModel.user.collectAsState()
     val error by authViewModel.error.collectAsState()
 
+    // Campos controlados por el usuario
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
+    // Snackbar para mostrar mensajes de error
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
+    // Launcher para Google Sign-In
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -73,7 +91,7 @@ fun LoginScreen(
         }
     }
 
-    // NUEVO: Mostrar error si las credenciales son incorrectas
+    // Si login fue exitoso o hay error, muestra mensaje
     LaunchedEffect(user, error) {
         if (user != null) {
             onLoginSuccess()
@@ -88,6 +106,8 @@ fun LoginScreen(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize()) {
+
+            // CABECERA CON IMAGEN Y TEXTO
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -99,7 +119,7 @@ fun LoginScreen(
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
                 )
-
+                // Lona blanca translúcida
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -107,27 +127,18 @@ fun LoginScreen(
                         .align(Alignment.BottomCenter)
                         .background(Color.White.copy(alpha = 0.65f))
                 )
-
+                // Texto sobre la imagen
                 Column(
                     modifier = Modifier
                         .align(Alignment.BottomStart)
                         .padding(horizontal = 24.dp, vertical = 16.dp)
                 ) {
-                    Text(
-                        "Inicia sesión en tu",
-                        fontSize = 28.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black
-                    )
-                    Text(
-                        "cuenta",
-                        fontSize = 28.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = Color.Black
-                    )
+                    Text("Inicia sesión en tu", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+                    Text("cuenta", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.Black)
                 }
             }
 
+            // FORMULARIO DE LOGIN
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -135,7 +146,7 @@ fun LoginScreen(
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-
+                // Email
                 OutlinedTextField(
                     value = email,
                     onValueChange = { email = it },
@@ -152,6 +163,7 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // Contraseña
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
@@ -169,6 +181,7 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // Enlace recuperación de contraseña
                 Text(
                     "¿Olvidaste tu contraseña?",
                     fontSize = 15.sp,
@@ -182,6 +195,7 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // BOTÓN PERSONALIZADO
                 AnimatedAccessButton {
                     if (email.isBlank() || password.isBlank()) {
                         scope.launch {
@@ -194,21 +208,19 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(24.dp))
 
+                // SEPARADOR "O INICIA CON"
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     HorizontalDivider(modifier = Modifier.weight(1f), color = Color.Gray)
-                    Text(
-                        text = "  O inicia sesión con  ",
-                        color = Color.Gray,
-                        fontSize = 14.sp
-                    )
+                    Text("  O inicia sesión con  ", color = Color.Gray, fontSize = 14.sp)
                     HorizontalDivider(modifier = Modifier.weight(1f), color = Color.Gray)
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
+                // BOTÓN DE GOOGLE
                 Button(
                     onClick = {
                         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -240,16 +252,13 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(32.dp))
 
+                // ENLACE PARA REGISTRARSE
                 Row(
                     modifier = Modifier.fillMaxSize(),
                     horizontalArrangement = Arrangement.Center,
                     verticalAlignment = Alignment.Bottom
                 ) {
-                    Text(
-                        text = "¿No tienes una cuenta? ",
-                        color = Color.Gray,
-                        fontSize = 15.sp
-                    )
+                    Text("¿No tienes una cuenta? ", color = Color.Gray, fontSize = 15.sp)
                     Text(
                         text = "Regístrate",
                         fontSize = 15.sp,
@@ -265,6 +274,7 @@ fun LoginScreen(
     }
 }
 
+// BOTÓN DE ACCESO CON ANIMACIÓN PERSONALIZADA
 @Composable
 fun AnimatedAccessButton(onClick: () -> Unit) {
     var pressed by remember { mutableStateOf(false) }
