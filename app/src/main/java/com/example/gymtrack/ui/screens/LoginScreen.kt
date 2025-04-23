@@ -57,20 +57,22 @@ fun LoginScreen(
     onLoginSuccess: () -> Unit
 ) {
     val context = LocalContext.current
-
-    // Estados que vienen del ViewModel
     val user by authViewModel.user.collectAsState()
     val error by authViewModel.error.collectAsState()
 
-    // Campos controlados por el usuario
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
-    // Snackbar para mostrar mensajes de error
+    var showEmailError by remember { mutableStateOf(false) }
+    var showPasswordError by remember { mutableStateOf(false) }
+
+    val isValidEmail by derivedStateOf {
+        android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
+    }
+
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    // Launcher para Google Sign-In
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -91,7 +93,7 @@ fun LoginScreen(
         }
     }
 
-    // Si login fue exitoso o hay error, muestra mensaje
+    // Lógica para login o mostrar error
     LaunchedEffect(user, error) {
         if (user != null) {
             onLoginSuccess()
@@ -102,12 +104,10 @@ fun LoginScreen(
         }
     }
 
-    Scaffold(
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
-    ) { padding ->
+    Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) { padding ->
         Column(modifier = Modifier.fillMaxSize()) {
 
-            // CABECERA CON IMAGEN Y TEXTO
+            // CABECERA
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -119,7 +119,6 @@ fun LoginScreen(
                     contentScale = ContentScale.Crop,
                     modifier = Modifier.fillMaxSize()
                 )
-                // Lona blanca translúcida
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -127,7 +126,6 @@ fun LoginScreen(
                         .align(Alignment.BottomCenter)
                         .background(Color.White.copy(alpha = 0.65f))
                 )
-                // Texto sobre la imagen
                 Column(
                     modifier = Modifier
                         .align(Alignment.BottomStart)
@@ -138,7 +136,7 @@ fun LoginScreen(
                 }
             }
 
-            // FORMULARIO DE LOGIN
+            // FORMULARIO
             Column(
                 modifier = Modifier
                     .fillMaxSize()
@@ -146,42 +144,69 @@ fun LoginScreen(
                 verticalArrangement = Arrangement.Top,
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                // Email
+                // EMAIL
                 OutlinedTextField(
                     value = email,
-                    onValueChange = { email = it },
+                    onValueChange = {
+                        email = it
+                        showEmailError = false
+                    },
                     label = { Text("Correo electrónico") },
+                    isError = showEmailError,
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color.Black,
-                        unfocusedBorderColor = Color.Black,
+                        focusedBorderColor = if (showEmailError) Color.Red else Color.Black,
+                        unfocusedBorderColor = if (showEmailError) Color.Red else Color.Black,
                         focusedLabelColor = Color.Black,
                         unfocusedLabelColor = Color.Black,
                         cursorColor = Color.Black
                     )
                 )
+                if (showEmailError) {
+                    Text(
+                        text = "Introduce un correo electrónico válido",
+                        fontSize = 12.sp,
+                        color = Color.Red,
+                        modifier = Modifier
+                            .padding(top = 4.dp, start = 4.dp)
+                            .align(Alignment.Start)
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Contraseña
+                // CONTRASEÑA
                 OutlinedTextField(
                     value = password,
-                    onValueChange = { password = it },
+                    onValueChange = {
+                        password = it
+                        showPasswordError = false
+                    },
                     label = { Text("Contraseña") },
                     visualTransformation = PasswordVisualTransformation(),
+                    isError = showPasswordError,
                     modifier = Modifier.fillMaxWidth(),
                     colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = Color.Black,
-                        unfocusedBorderColor = Color.Black,
+                        focusedBorderColor = if (showPasswordError) Color.Red else Color.Black,
+                        unfocusedBorderColor = if (showPasswordError) Color.Red else Color.Black,
                         focusedLabelColor = Color.Black,
                         unfocusedLabelColor = Color.Black,
                         cursorColor = Color.Black
                     )
                 )
+                if (showPasswordError) {
+                    Text(
+                        text = "Introduce tu contraseña",
+                        fontSize = 12.sp,
+                        color = Color.Red,
+                        modifier = Modifier
+                            .padding(top = 4.dp, start = 4.dp)
+                            .align(Alignment.Start)
+                    )
+                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // Enlace recuperación de contraseña
                 Text(
                     "¿Olvidaste tu contraseña?",
                     fontSize = 15.sp,
@@ -195,20 +220,21 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // BOTÓN PERSONALIZADO
                 AnimatedAccessButton {
-                    if (email.isBlank() || password.isBlank()) {
-                        scope.launch {
-                            snackbarHostState.showSnackbar("Por favor, completa todos los campos")
-                        }
-                    } else {
+                    showEmailError = email.isBlank() || !isValidEmail
+                    showPasswordError = password.isBlank()
+
+                    if (!showEmailError && !showPasswordError) {
                         authViewModel.login(email, password)
+                    } else {
+                        scope.launch {
+                            snackbarHostState.showSnackbar("Por favor, completa todos los campos correctamente")
+                        }
                     }
                 }
 
                 Spacer(modifier = Modifier.height(24.dp))
 
-                // SEPARADOR "O INICIA CON"
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     modifier = Modifier.fillMaxWidth()
@@ -220,7 +246,6 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // BOTÓN DE GOOGLE
                 Button(
                     onClick = {
                         val gso = GoogleSignInOptions.Builder(GoogleSignInOptions.DEFAULT_SIGN_IN)
@@ -252,7 +277,6 @@ fun LoginScreen(
 
                 Spacer(modifier = Modifier.height(32.dp))
 
-                // ENLACE PARA REGISTRARSE
                 Row(
                     modifier = Modifier.fillMaxSize(),
                     horizontalArrangement = Arrangement.Center,
@@ -276,7 +300,7 @@ fun LoginScreen(
 
 // BOTÓN DE ACCESO CON ANIMACIÓN PERSONALIZADA
 @Composable
-fun AnimatedAccessButton(onClick: () -> Unit) {
+fun AnimatedAccessButton(buttonText: String = "Acceder", onClick: () -> Unit) {
     var pressed by remember { mutableStateOf(false) }
 
     val animationSpec = tween<Color>(
@@ -317,6 +341,6 @@ fun AnimatedAccessButton(onClick: () -> Unit) {
         ),
         contentPadding = PaddingValues()
     ) {
-        Text("Acceder", fontSize = 16.sp)
+        Text(buttonText, fontSize = 16.sp)
     }
 }
