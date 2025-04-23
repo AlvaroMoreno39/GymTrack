@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">GymTrack</string>
+    <string name="default_web_client_id">455223456749-a7jpp72ovdd1f7hm1kosbm19sj1ihjcs.apps.googleusercontent.com</string>
 </resources>

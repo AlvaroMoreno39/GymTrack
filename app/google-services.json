@@ -12,7 +12,20 @@
           "package_name": "com.example.gymtrack"
         }
       },
-      "oauth_client": [],
+      "oauth_client": [
+        {
+          "client_id": "455223456749-rgb9ujq0ts3n5otatrc34qng6dd6d34b.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.gymtrack",
+            "certificate_hash": "4fd0e3f2a1b9413912e7ee6c860fc1f9340968dc"
+          }
+        },
+        {
+          "client_id": "455223456749-a7jpp72ovdd1f7hm1kosbm19sj1ihjcs.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
       "api_key": [
         {
           "current_key": "AIzaSyBazX9f-pm2Qz6_WrOdc5bfgkNqbwbVn8g"
@@ -20,7 +33,12 @@
       ],
       "services": {
         "appinvite_service": {
-          "other_platform_oauth_client": []
+          "other_platform_oauth_client": [
+            {
+              "client_id": "455223456749-a7jpp72ovdd1f7hm1kosbm19sj1ihjcs.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
         }
       }
     }
