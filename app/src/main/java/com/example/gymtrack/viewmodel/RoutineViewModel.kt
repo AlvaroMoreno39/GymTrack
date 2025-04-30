@@ -47,18 +47,16 @@ class RoutineViewModel : ViewModel() {
      * Si no hay usuario logueado, muestra un mensaje de advertencia.
      */
     fun saveFullRoutine(
-        context: Context,
         nombreRutina: String,
-        ejercicios: List<Exercise>
+        ejercicios: List<Exercise>,
+        onResult: (Boolean) -> Unit
     ) {
-        val currentUser = auth.currentUser // Obtiene el usuario actual
+        val currentUser = auth.currentUser
         if (currentUser == null) {
-            // Si no hay usuario autenticado, muestra un aviso
-            Toast.makeText(context, "⚠️ Usuario no logueado", Toast.LENGTH_SHORT).show()
+            onResult(false) // No hay usuario
             return
         }
 
-        // Crea el objeto rutina con los datos del formulario
         val rutina = RoutineData(
             nombreRutina = nombreRutina,
             userId = currentUser.uid,
@@ -66,17 +64,10 @@ class RoutineViewModel : ViewModel() {
             ejercicios = ejercicios
         )
 
-        // Añade la rutina a la colección "rutinas" en Firestore
         db.collection("rutinas")
             .add(rutina)
-            .addOnSuccessListener {
-                // Muestra un mensaje de éxito si se guarda correctamente
-                Toast.makeText(context, "✅ Rutina guardada con éxito", Toast.LENGTH_SHORT).show()
-            }
-            .addOnFailureListener {
-                // Muestra mensaje de error si falla
-                Toast.makeText(context, "❌ Error al guardar rutina: ${it.message}", Toast.LENGTH_SHORT).show()
-            }
+            .addOnSuccessListener { onResult(true) } // Éxito
+            .addOnFailureListener { onResult(false) } // Error
     }
 
     /**

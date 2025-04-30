@@ -15,6 +15,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -25,12 +28,14 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.gymtrack.R
 import com.example.gymtrack.navigation.AnimatedAccessButton
+import com.example.gymtrack.navigation.AnimatedEntrance
 import com.example.gymtrack.navigation.Screen
 import com.example.gymtrack.viewmodel.AuthViewModel
 import kotlinx.coroutines.launch
@@ -41,30 +46,29 @@ fun RegisterScreen(
     navController: NavHostController,
     authViewModel: AuthViewModel = viewModel()
 ) {
-    // Limpia cualquier error previo al entrar a la pantalla
     LaunchedEffect(Unit) {
         authViewModel.clearError()
     }
 
     val context = LocalContext.current
     val error by authViewModel.error.collectAsState()
+    val user by authViewModel.user.collectAsState()
 
-    // Variables que almacenan los valores de los campos del formulario
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
 
-    // Variables que controlan si se muestran errores visuales en los campos
+    var passwordVisible by remember { mutableStateOf(false) }
+    var confirmPasswordVisible by remember { mutableStateOf(false) }
+
     var showEmailError by remember { mutableStateOf(false) }
     var showPasswordEmptyError by remember { mutableStateOf(false) }
     var showConfirmEmptyError by remember { mutableStateOf(false) }
     var showConfirmPasswordError by remember { mutableStateOf(false) }
 
-    // Snackbar para mostrar mensajes temporales como errores o confirmaciones
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    // Validaciones automáticas para verificar que la contraseña cumple requisitos mínimos
     val passwordLengthValid by derivedStateOf { password.length >= 6 }
     val passwordDigitValid by derivedStateOf { password.any { it.isDigit() } }
     val passwordSpecialCharValid by derivedStateOf { password.any { !it.isLetterOrDigit() } }
@@ -72,209 +76,236 @@ fun RegisterScreen(
         passwordLengthValid && passwordDigitValid && passwordSpecialCharValid
     }
 
-    // Validación de formato de email
     val isValidEmail by derivedStateOf {
         android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
     }
 
-    // Verifica si las contraseñas coinciden
     val passwordsMatch by derivedStateOf { confirmPassword == password }
 
-    // Estructura principal visual
     Scaffold(
         snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize()) {
-
-            // CABECERA DE IMAGEN CON TÍTULO
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(250.dp)
-            ) {
-                // Imagen de fondo decorativa
-                Image(
-                    painter = painterResource(id = R.drawable.registerphoto),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
-                )
-
-                // Capa translúcida sobre la parte inferior de la imagen
+            AnimatedEntrance {
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(120.dp)
-                        .align(Alignment.BottomCenter)
-                        .background(Color.White.copy(alpha = 0.65f))
-                )
-
-                // Título del formulario
-                Column(
-                    modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .padding(horizontal = 24.dp, vertical = 16.dp)
+                        .height(250.dp)
                 ) {
-                    Text("Crea tu", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.Black)
-                    Text("cuenta", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+                    Image(
+                        painter = painterResource(id = R.drawable.registerphoto),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(120.dp)
+                            .align(Alignment.BottomCenter)
+                            .background(Color.White.copy(alpha = 0.65f))
+                    )
+                    Column(
+                        modifier = Modifier
+                            .align(Alignment.BottomStart)
+                            .padding(horizontal = 24.dp, vertical = 16.dp)
+                    ) {
+                        Text(
+                            "Crea tu",
+                            fontSize = 28.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
+                        )
+                        Text(
+                            "cuenta",
+                            fontSize = 28.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
+                        )
+                    }
                 }
             }
 
-            // FORMULARIO DE ENTRADA DE DATOS
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(horizontal = 24.dp, vertical = 32.dp),
-                verticalArrangement = Arrangement.Top,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-
-                // CAMPO EMAIL
-                OutlinedTextField(
-                    value = email,
-                    onValueChange = {
-                        email = it
-                        showEmailError = false // oculta el error al escribir
-                    },
-                    label = { Text("Correo electrónico") },
-                    isError = showEmailError,
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = if (showEmailError) Color.Red else Color.Black,
-                        unfocusedBorderColor = if (showEmailError) Color.Red else Color.Black,
-                        focusedLabelColor = Color.Black,
-                        unfocusedLabelColor = Color.Black,
-                        cursorColor = Color.Black
+            AnimatedEntrance {
+                Column(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 24.dp, vertical = 32.dp),
+                    verticalArrangement = Arrangement.Top,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    OutlinedTextField(
+                        value = email,
+                        onValueChange = {
+                            email = it
+                            showEmailError = false
+                        },
+                        label = { Text("Correo electrónico") },
+                        isError = showEmailError,
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = if (showEmailError) Color.Red else Color.Black,
+                            unfocusedBorderColor = if (showEmailError) Color.Red else Color.Black,
+                            focusedLabelColor = Color.Black,
+                            unfocusedLabelColor = Color.Black,
+                            cursorColor = Color.Black
+                        )
                     )
-                )
+                    if (showEmailError) {
+                        Text(
+                            text = "Introduce un correo electrónico válido",
+                            fontSize = 12.sp,
+                            color = Color.Red,
+                            modifier = Modifier
+                                .padding(top = 4.dp, start = 4.dp)
+                                .align(Alignment.Start)
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                // Texto de error si el correo no es válido
-                if (showEmailError) {
-                    Text(
-                        text = "Introduce un correo electrónico válido",
-                        fontSize = 12.sp,
-                        color = Color.Red,
+                    OutlinedTextField(
+                        value = password,
+                        onValueChange = {
+                            password = it
+                            showPasswordEmptyError = false
+                        },
+                        label = { Text("Contraseña") },
+                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        trailingIcon = {
+                            val icon =
+                                if (confirmPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+                            val description =
+                                if (confirmPasswordVisible) "Mostrar contraseña" else "Ocultar contraseña"
+                            IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                Icon(imageVector = icon, contentDescription = description)
+                            }
+                        },
+                        isError = showPasswordEmptyError,
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = if (showPasswordEmptyError) Color.Red else Color.Black,
+                            unfocusedBorderColor = if (showPasswordEmptyError) Color.Red else Color.Black,
+                            focusedLabelColor = Color.Black,
+                            unfocusedLabelColor = Color.Black,
+                            cursorColor = Color.Black
+                        )
+                    )
+
+
+                    Column(
                         modifier = Modifier
-                            .padding(top = 4.dp, start = 4.dp)
                             .align(Alignment.Start)
+                            .padding(top = 4.dp)
+                    ) {
+                        Text(
+                            "• Mínimo 6 caracteres",
+                            fontSize = 12.sp,
+                            color = if (passwordLengthValid) Color(0xFF00C853) else Color.Gray
+                        )
+                        Text(
+                            "• Al menos un número",
+                            fontSize = 12.sp,
+                            color = if (passwordDigitValid) Color(0xFF00C853) else Color.Gray
+                        )
+                        Text(
+                            "• Al menos un símbolo especial",
+                            fontSize = 12.sp,
+                            color = if (passwordSpecialCharValid) Color(0xFF00C853) else Color.Gray
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(16.dp))
+
+                    OutlinedTextField(
+                        value = confirmPassword,
+                        onValueChange = {
+                            confirmPassword = it
+                            showConfirmPasswordError = false
+                            showConfirmEmptyError = false
+                        },
+                        label = { Text("Confirmar contraseña") },
+                        visualTransformation = if (confirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                        trailingIcon = {
+                            val icon =
+                                if (confirmPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+                            val description =
+                                if (confirmPasswordVisible) "Mostrar contraseña" else "Ocultar contraseña"
+                            IconButton(onClick = {
+                                confirmPasswordVisible = !confirmPasswordVisible
+                            }) {
+                                Icon(imageVector = icon, contentDescription = description)
+                            }
+                        },
+                        isError = showConfirmEmptyError || showConfirmPasswordError,
+                        modifier = Modifier.fillMaxWidth(),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = if (showConfirmEmptyError || showConfirmPasswordError) Color.Red else Color.Black,
+                            unfocusedBorderColor = if (showConfirmEmptyError || showConfirmPasswordError) Color.Red else Color.Black,
+                            focusedLabelColor = Color.Black,
+                            unfocusedLabelColor = Color.Black,
+                            cursorColor = Color.Black
+                        )
                     )
-                }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                    if (showConfirmPasswordError) {
+                        Text(
+                            text = "Las contraseñas no coinciden",
+                            fontSize = 12.sp,
+                            color = Color.Red,
+                            modifier = Modifier
+                                .padding(top = 4.dp, start = 4.dp)
+                                .align(Alignment.Start)
+                        )
+                    }
+                    Spacer(modifier = Modifier.height(24.dp))
 
-                // CAMPO CONTRASEÑA
-                OutlinedTextField(
-                    value = password,
-                    onValueChange = {
-                        password = it
-                        showPasswordEmptyError = false
-                    },
-                    label = { Text("Contraseña") },
-                    visualTransformation = PasswordVisualTransformation(),
-                    isError = showPasswordEmptyError,
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = if (showPasswordEmptyError) Color.Red else Color.Black,
-                        unfocusedBorderColor = if (showPasswordEmptyError) Color.Red else Color.Black,
-                        focusedLabelColor = Color.Black,
-                        unfocusedLabelColor = Color.Black,
-                        cursorColor = Color.Black
-                    )
-                )
+                    AnimatedAccessButton(buttonText = "Registrarse") {
+                        val emailError = email.isBlank() || !isValidEmail
+                        val passwordEmpty = password.isBlank()
+                        val confirmEmpty = confirmPassword.isBlank()
+                        val confirmMismatch = confirmPassword != password
 
-                // Requisitos que debe cumplir la contraseña
-                Column(modifier = Modifier.align(Alignment.Start).padding(top = 4.dp)) {
-                    Text("• Mínimo 6 caracteres", fontSize = 12.sp, color = if (passwordLengthValid) Color(0xFF00C853) else Color.Gray)
-                    Text("• Al menos un número", fontSize = 12.sp, color = if (passwordDigitValid) Color(0xFF00C853) else Color.Gray)
-                    Text("• Al menos un símbolo especial", fontSize = 12.sp, color = if (passwordSpecialCharValid) Color(0xFF00C853) else Color.Gray)
-                }
+                        showEmailError = emailError
+                        showPasswordEmptyError = passwordEmpty
+                        showConfirmEmptyError = confirmEmpty
+                        showConfirmPasswordError = !confirmEmpty && confirmMismatch
 
-                Spacer(modifier = Modifier.height(16.dp))
-
-                // CAMPO CONFIRMAR CONTRASEÑA
-                OutlinedTextField(
-                    value = confirmPassword,
-                    onValueChange = {
-                        confirmPassword = it
-                        showConfirmPasswordError = false
-                        showConfirmEmptyError = false
-                    },
-                    label = { Text("Confirmar contraseña") },
-                    visualTransformation = PasswordVisualTransformation(),
-                    isError = showConfirmEmptyError || showConfirmPasswordError,
-                    modifier = Modifier.fillMaxWidth(),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedBorderColor = if (showConfirmEmptyError || showConfirmPasswordError) Color.Red else Color.Black,
-                        unfocusedBorderColor = if (showConfirmEmptyError || showConfirmPasswordError) Color.Red else Color.Black,
-                        focusedLabelColor = Color.Black,
-                        unfocusedLabelColor = Color.Black,
-                        cursorColor = Color.Black
-                    )
-                )
-
-                // Error si las contraseñas no coinciden
-                if (showConfirmPasswordError) {
-                    Text(
-                        text = "Las contraseñas no coinciden",
-                        fontSize = 12.sp,
-                        color = Color.Red,
-                        modifier = Modifier
-                            .padding(top = 4.dp, start = 4.dp)
-                            .align(Alignment.Start)
-                    )
-                }
-
-                Spacer(modifier = Modifier.height(24.dp))
-
-                // BOTÓN PARA REGISTRARSE
-                AnimatedAccessButton(buttonText = "Registrarse") {
-                    val emailError = email.isBlank() || !isValidEmail
-                    val passwordEmpty = password.isBlank()
-                    val confirmEmpty = confirmPassword.isBlank()
-                    val confirmMismatch = confirmPassword != password
-
-                    showEmailError = emailError
-                    showPasswordEmptyError = passwordEmpty
-                    showConfirmEmptyError = confirmEmpty
-                    showConfirmPasswordError = !confirmEmpty && confirmMismatch
-
-                    if (!emailError && !passwordEmpty && !confirmEmpty && passwordValid && !confirmMismatch) {
-                        authViewModel.register(email, password)
-                    } else if (!passwordValid && !passwordEmpty) {
-                        scope.launch {
-                            snackbarHostState.showSnackbar("La contraseña no cumple los requisitos")
-                        }
-                    } else {
-                        scope.launch {
-                            snackbarHostState.showSnackbar("Por favor, completa todos los campos correctamente")
+                        if (!emailError && !passwordEmpty && !confirmEmpty && passwordValid && !confirmMismatch) {
+                            authViewModel.register(email, password)
+                        } else if (!passwordValid && !passwordEmpty) {
+                            scope.launch {
+                                snackbarHostState.showSnackbar("La contraseña no cumple los requisitos")
+                            }
+                        } else {
+                            scope.launch {
+                                snackbarHostState.showSnackbar("Por favor, completa todos los campos correctamente")
+                            }
                         }
                     }
-                }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                // ENLACE PARA IR A INICIAR SESIÓN SI YA TIENE CUENTA
-                Row(
-                    modifier = Modifier.fillMaxSize(),
-                    horizontalArrangement = Arrangement.Center,
-                    verticalAlignment = Alignment.Bottom
-                ) {
-                    Text("¿Ya tienes una cuenta? ", color = Color.Gray, fontSize = 15.sp)
-                    Text(
-                        text = "Inicia sesión",
-                        fontSize = 15.sp,
-                        color = Color.Black,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.clickable {
-                            navController.navigate(Screen.Login.route)
-                        }
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.Bottom
+                    ) {
+                        Text("¿Ya tienes una cuenta? ", color = Color.Gray, fontSize = 15.sp)
+                        Text(
+                            text = "Inicia sesión",
+                            fontSize = 15.sp,
+                            color = Color.Black,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.clickable {
+                                navController.navigate(Screen.Login.route)
+                            }
+                        )
+                    }
                 }
             }
         }
     }
 
-    // MOSTRAR MENSAJE DE ERROR GLOBAL SI LLEGA DESDE EL VIEWMODEL
+    // Mostrar error si viene
     LaunchedEffect(error) {
         error?.let {
             scope.launch {
@@ -282,4 +313,16 @@ fun RegisterScreen(
             }
         }
     }
+
+    // Mostrar éxito cuando el usuario no sea null (registro correcto)
+    LaunchedEffect(user) {
+        user?.let {
+            scope.launch {
+                snackbarHostState.showSnackbar("Registro completado con éxito")
+                // Opcional: navegar automáticamente al inicio si quieres
+                // navController.navigate(Screen.Home.route)
+            }
+        }
+    }
 }
+
