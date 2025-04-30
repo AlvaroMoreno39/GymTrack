@@ -117,8 +117,6 @@ fun LoginScreen(
     LaunchedEffect(user, error) {
         if (user != null) {
             scope.launch {
-                snackbarHostState.showSnackbar("Inicio de sesión exitoso")
-                delay(1000)
                 onLoginSuccess()
             }
         } else if (!email.isBlank() && !password.isBlank() && error != null) {
