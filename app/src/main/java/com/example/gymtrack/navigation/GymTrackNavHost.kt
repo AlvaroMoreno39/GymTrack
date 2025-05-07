@@ -6,19 +6,22 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navArgument
 import com.example.gymtrack.ui.screens.ExerciseProgressDashboardScreen
 import com.example.gymtrack.ui.screens.ForgotPasswordScreen
 import com.example.gymtrack.ui.screens.GeneralProgressScreen
 import com.example.gymtrack.ui.screens.HomeScreen
 import com.example.gymtrack.ui.screens.LoginScreen
+import com.example.gymtrack.ui.screens.MyRoutineScreen
 import com.example.gymtrack.ui.screens.PredefinedRoutinesScreen
 import com.example.gymtrack.ui.screens.RegisterRoutineScreen
 import com.example.gymtrack.ui.screens.RegisterScreen
+import com.example.gymtrack.ui.screens.RoutineDetailScreen
 import com.example.gymtrack.ui.screens.SettingsScreen
 import com.example.gymtrack.ui.screens.TimerScreen
-import com.example.gymtrack.ui.screens.ViewRoutinesScreen
 import com.example.gymtrack.viewmodel.AuthViewModel
 import com.example.gymtrack.viewmodel.PredefinedRoutinesViewModel
 import com.example.gymtrack.viewmodel.RoutineViewModel
@@ -86,8 +89,23 @@ fun GymTrackNavHost(
             )
         }
 
-        composable(Screen.ViewRoutinesScreen.route) {
-            ViewRoutinesScreen(viewModel = routineViewModel)
+        composable(Screen.MyRoutines.route) {
+            MyRoutineScreen(
+                viewModel = viewModel(),
+                navController = navController
+            )
+        }
+
+        composable(
+            route = Screen.RoutineDetail.route,
+            arguments = listOf(navArgument("routineId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val routineId = backStackEntry.arguments?.getString("routineId") ?: ""
+            RoutineDetailScreen(
+                routineId = routineId,
+                viewModel = routineViewModel, // usa uno compartido
+                navController = navController
+            )
         }
 
         composable(Screen.Timer.route) {
