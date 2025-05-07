@@ -88,7 +88,7 @@ fun ShareMenuSample(navController: NavHostController) {
                         showSheet = false
                     }
                     ShareOption(Icons.Filled.FitnessCenter, "Mis rutinas") {
-                        navController.navigate(Screen.ViewRoutinesScreen.route)
+                        navController.navigate(Screen.MyRoutines.route)
                         showSheet = false
                     }
 

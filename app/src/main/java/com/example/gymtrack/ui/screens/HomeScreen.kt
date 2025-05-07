@@ -106,7 +106,7 @@ fun HomeScreen(navController: NavHostController) {
                             when (title) {
                                 "Registrar nueva rutina" -> navController.navigate(Screen.RegisterRoutine.route)
                                 "Ver rutinas predefinidas" -> navController.navigate(Screen.PredefinedRoutines.route)
-                                "Ver mis rutinas" -> navController.navigate(Screen.ViewRoutinesScreen.route)
+                                "Ver mis rutinas" -> navController.navigate(Screen.MyRoutines.route)
                                 "Ver progreso de ejercicios" -> navController.navigate(Screen.GeneralProgress.route)
                                 "Temporizador" -> navController.navigate(Screen.Timer.route)
                             }

@@ -10,6 +10,7 @@ Todas las operaciones están asociadas al usuario autenticado mediante FirebaseA
 */
 
 import android.content.Context
+import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -127,4 +128,50 @@ class RoutineViewModel : ViewModel() {
             .addOnSuccessListener { onResult(true) } // Indica éxito
             .addOnFailureListener { onResult(false) } // Indica fallo
     }
+
+    /**
+     * Añade un ejercicio a una rutina existente, manteniendo los ejercicios anteriores.
+     */
+    fun addExerciseToRoutine(routineId: String, nuevoEjercicio: Exercise) {
+        val docRef = db.collection("rutinas").document(routineId)
+
+        docRef.get()
+            .addOnSuccessListener { document ->
+                val rutina = document.toObject(RoutineData::class.java)
+                if (rutina != null) {
+                    val ejerciciosActualizados = rutina.ejercicios.toMutableList().apply {
+                        add(nuevoEjercicio)
+                    }
+
+                    docRef.update("ejercicios", ejerciciosActualizados)
+                }
+            }
+            .addOnFailureListener {
+                Log.e("RoutineViewModel", "Error al añadir ejercicio: ${it.message}")
+            }
+    }
+
+    /**
+     * Elimina un ejercicio específico de una rutina, identificada por su ID y el índice del ejercicio.
+     */
+    fun deleteExerciseFromRoutine(routineId: String, ejercicioIndex: Int) {
+        val docRef = db.collection("rutinas").document(routineId)
+
+        docRef.get()
+            .addOnSuccessListener { document ->
+                val rutina = document.toObject(RoutineData::class.java)
+                if (rutina != null && rutina.ejercicios.size > ejercicioIndex) {
+                    val ejerciciosActualizados = rutina.ejercicios.toMutableList().apply {
+                        removeAt(ejercicioIndex)
+                    }
+
+                    docRef.update("ejercicios", ejerciciosActualizados)
+                }
+            }
+            .addOnFailureListener {
+                Log.e("RoutineViewModel", "Error al eliminar ejercicio: ${it.message}")
+            }
+    }
+
+
 }
