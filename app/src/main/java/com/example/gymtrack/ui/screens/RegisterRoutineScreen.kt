@@ -55,7 +55,7 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
     val isCardio = tipo.lowercase() == "cardio"
 
     val gruposMusculares =
-        listOf("Pecho", "Espalda", "Piernas", "Hombros", "Bíceps", "Tríceps", "Abdomen", "Cardio")
+        listOf("Pecho", "Espalda", "Piernas", "Hombros", "Bíceps", "Tríceps", "Abdomen")
     val tipos = listOf("Fuerza", "Cardio", "Mixto")
     val intensidades = listOf("Baja", "Media", "Alta")
 
@@ -246,13 +246,15 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
                     }
 
                     // Campo peso
-                    OutlinedTextField(
-                        value = peso,
-                        onValueChange = { peso = it },
-                        label = { Text("Peso (kg)") },
-                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                        modifier = Modifier.fillMaxWidth()
-                    )
+                    if (!isCardio) {
+                        OutlinedTextField(
+                            value = peso,
+                            onValueChange = { peso = it },
+                            label = { Text("Peso (kg)") },
+                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    }
 
                     Spacer(modifier = Modifier.height(8.dp))
 

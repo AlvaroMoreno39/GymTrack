@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)             // Permite usar Kotlin en Android
     alias(libs.plugins.kotlin.compose)             // Soporte para Jetpack Compose
     alias(libs.plugins.google.services)            // Necesario para usar Firebase (lee google-services.json)
+    id("kotlin-parcelize") // ✅ ESTA LÍNEA
 }
 
 android {
