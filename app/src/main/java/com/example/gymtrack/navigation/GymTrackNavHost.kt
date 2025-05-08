@@ -16,6 +16,7 @@ import com.example.gymtrack.ui.screens.GeneralProgressScreen
 import com.example.gymtrack.ui.screens.HomeScreen
 import com.example.gymtrack.ui.screens.LoginScreen
 import com.example.gymtrack.ui.screens.MyRoutineScreen
+import com.example.gymtrack.ui.screens.PredefinedRoutineDetailScreen
 import com.example.gymtrack.ui.screens.PredefinedRoutinesScreen
 import com.example.gymtrack.ui.screens.RegisterRoutineScreen
 import com.example.gymtrack.ui.screens.RegisterScreen
@@ -53,6 +54,7 @@ fun GymTrackNavHost(
             val viewModel: PredefinedRoutinesViewModel = viewModel()
             PredefinedRoutinesScreen(
                 viewModel = viewModel,
+                navController,
                 routineViewModel = routineViewModel
             )
         }
@@ -114,6 +116,10 @@ fun GymTrackNavHost(
 
         composable(Screen.Settings.route) {
             SettingsScreen(authViewModel, navController)
+        }
+
+        composable("predefined_routine_detail") {
+            PredefinedRoutineDetailScreen(navController)
         }
 
     }

@@ -10,32 +10,34 @@ Todas las operaciones están asociadas al usuario autenticado mediante FirebaseA
 */
 
 import android.content.Context
+import android.os.Parcelable
 import android.util.Log
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.Timestamp
+import kotlinx.android.parcel.Parcelize
 
-// Modelo de datos que representa un ejercicio individual dentro de una rutina
+@Parcelize
 data class Exercise(
-    val nombre: String = "",             // Nombre del ejercicio (p. ej. Press de banca)
-    val grupoMuscular: String = "",     // Grupo muscular trabajado (p. ej. Pecho)
-    val tipo: String = "",              // Tipo de ejercicio (fuerza, cardio, etc.)
-    val series: Int = 0,                // Número de series
-    val reps: Int = 0,                  // Número de repeticiones
-    val duracion: Int = 0,              // Duración en segundos (en caso de ser cardio)
-    val intensidad: String = "",        // Intensidad del ejercicio (Alta, Media, Baja)
-    val peso: Int = 0                   // Peso utilizado en kg
-)
+    val nombre: String = "",
+    val grupoMuscular: String = "",
+    val tipo: String = "",
+    val series: Int = 0,
+    val reps: Int = 0,
+    val duracion: Int = 0,
+    val intensidad: String = "",
+    val peso: Int = 0
+) : Parcelable
 
-// Modelo de datos que representa una rutina completa con una lista de ejercicios
+@Parcelize
 data class RoutineData(
-    val nombreRutina: String = "",      // Nombre de la rutina (p. ej. Rutina Pecho Lunes)
-    val userId: String = "",            // ID del usuario que creó la rutina
-    val fechaCreacion: Timestamp = Timestamp.now(),  // Fecha y hora de creación
-    val ejercicios: List<Exercise> = emptyList()      // Lista de ejercicios que forman la rutina
-)
+    val nombreRutina: String = "",
+    val userId: String = "",
+    val fechaCreacion: Timestamp = Timestamp.now(),
+    val ejercicios: List<Exercise> = emptyList()
+) : Parcelable
 
 // ViewModel que maneja toda la lógica de operaciones sobre rutinas (CRUD)
 class RoutineViewModel : ViewModel() {
@@ -132,7 +134,7 @@ class RoutineViewModel : ViewModel() {
     /**
      * Añade un ejercicio a una rutina existente, manteniendo los ejercicios anteriores.
      */
-    fun addExerciseToRoutine(routineId: String, nuevoEjercicio: Exercise) {
+    fun addExerciseToRoutine(routineId: String, nuevoEjercicio: Exercise, onResult: (Boolean) -> Unit) {
         val docRef = db.collection("rutinas").document(routineId)
 
         docRef.get()
@@ -144,10 +146,15 @@ class RoutineViewModel : ViewModel() {
                     }
 
                     docRef.update("ejercicios", ejerciciosActualizados)
+                        .addOnSuccessListener { onResult(true) }
+                        .addOnFailureListener { onResult(false) }
+                } else {
+                    onResult(false)
                 }
             }
             .addOnFailureListener {
                 Log.e("RoutineViewModel", "Error al añadir ejercicio: ${it.message}")
+                onResult(false)
             }
     }
 

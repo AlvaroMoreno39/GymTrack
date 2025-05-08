@@ -142,13 +142,19 @@ fun MyRoutineScreen(
                                 AnimatedAccessButton(
                                     buttonText = "Ver rutina",
                                     onClick = {
-                                        navController.navigate(Screen.RoutineDetail.createRoute(id_rutina))
+                                        navController.navigate(
+                                            Screen.RoutineDetail.createRoute(
+                                                id_rutina
+                                            )
+                                        )
 
                                     },
                                     containerColor = Color.Black,
                                     contentColor = Color.White,
                                     borderColor = Color.Black,
-                                    modifier = Modifier.weight(1f).height(50.dp)
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .height(50.dp)
                                 )
 
                                 Spacer(modifier = Modifier.width(12.dp))
@@ -179,13 +185,19 @@ fun MyRoutineScreen(
                                     containerColor = Color.Red,
                                     contentColor = Color.White,
                                     borderColor = Color.Red,
-                                    modifier = Modifier.weight(1f).height(50.dp)
+                                    modifier = Modifier
+                                        .weight(1f)
+                                        .height(50.dp)
                                 )
                             }
 
                         }
                     }
                 }
+                item {
+                    Spacer(modifier = Modifier.height(100.dp)) // 👈 Espacio para el menú flotante
+                }
+
             }
         }
     }

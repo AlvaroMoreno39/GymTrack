@@ -1,81 +1,193 @@
 package com.example.gymtrack.ui.screens
 
+import android.annotation.SuppressLint
 import android.widget.Toast
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import com.example.gymtrack.navigation.AnimatedEntrance
 import com.example.gymtrack.viewmodel.PredefinedRoutinesViewModel
 import com.example.gymtrack.viewmodel.RoutineData
 import com.example.gymtrack.viewmodel.RoutineViewModel
+import com.example.gymtrack.R
+import kotlinx.coroutines.launch
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun PredefinedRoutinesScreen(
     viewModel: PredefinedRoutinesViewModel,
+    navController: NavHostController,
     routineViewModel: RoutineViewModel
 ) {
-    val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
     var routines by remember { mutableStateOf<List<RoutineData>>(emptyList()) }
 
-    // Cargar rutinas al entrar
     LaunchedEffect(Unit) {
-        viewModel.fetchRoutines { result ->
-            routines = result
-        }
+        viewModel.fetchRoutines { result -> routines = result }
     }
 
-    LazyColumn(
-        modifier = Modifier.padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(12.dp)
-    ) {
-        items(routines) { rutina ->
-            Card(modifier = Modifier.fillMaxWidth()) {
-                Column(modifier = Modifier.padding(12.dp)) {
-                    Text("🏋️ ${rutina.nombreRutina}", style = MaterialTheme.typography.titleMedium)
+    Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) {
+        Column(modifier = Modifier.fillMaxSize()) {
 
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    // Mostrar los ejercicios de la rutina
-                    rutina.ejercicios.forEach { ejercicio ->
-                        Column(modifier = Modifier.padding(bottom = 8.dp)) {
-                            Text("• ${ejercicio.nombre}", style = MaterialTheme.typography.bodyLarge)
-                            Text("Grupo muscular: ${ejercicio.grupoMuscular}")
-                            Text("Tipo: ${ejercicio.tipo}")
-                            if (ejercicio.series > 0) Text("Series: ${ejercicio.series}")
-                            if (ejercicio.reps > 0) Text("Reps: ${ejercicio.reps}")
-                            if (ejercicio.duracion > 0) Text("Duración: ${ejercicio.duracion} min")
-                            Text("Intensidad: ${ejercicio.intensidad}")
-                            Text("Peso: ${ejercicio.peso}")
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    // Botón para copiar la rutina predefinida al usuario
-                    Button(
-                        onClick = {
-                            routineViewModel.copyPredefinedRoutineToUser(
-                                nombreRutina = rutina.nombreRutina,
-                                ejercicios = rutina.ejercicios
-                            ) { success ->
-                                Toast.makeText(
-                                    context,
-                                    if (success) "Rutina añadida a tus rutinas" else "Error al añadir rutina",
-                                    Toast.LENGTH_SHORT
-                                ).show()
-                            }
-                        },
-                        modifier = Modifier.align(Alignment.End)
+            // Cabecera
+            AnimatedEntrance {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(250.dp)
+                ) {
+                    Image(
+                        painter = painterResource(id = R.drawable.my_routines),
+                        contentDescription = null,
+                        contentScale = ContentScale.Crop,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                    Box(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(120.dp)
+                            .align(Alignment.BottomCenter)
+                            .background(Color.White.copy(alpha = 0.65f))
+                    )
+                    Column(
+                        modifier = Modifier
+                            .align(Alignment.BottomStart)
+                            .padding(horizontal = 24.dp, vertical = 16.dp)
                     ) {
-                        Text("Añadir a mis rutinas")
+                        Text(
+                            "Rutinas",
+                            fontSize = 28.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
+                        )
+                        Text(
+                            "predefinidas",
+                            fontSize = 28.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
+                        )
                     }
+                }
+            }
+
+            // Lista
+            AnimatedEntrance {
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(horizontal = 20.dp, vertical = 16.dp),
+                    verticalArrangement = Arrangement.spacedBy(20.dp)
+                ) {
+                    items(routines) { rutina ->
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            elevation = CardDefaults.cardElevation(4.dp),
+                            shape = RoundedCornerShape(16.dp),
+                            colors = CardDefaults.cardColors(containerColor = Color(0xFFE8E8E8))
+                        ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                // Título
+                                Row(verticalAlignment = Alignment.CenterVertically) {
+                                    Icon(
+                                        imageVector = Icons.Default.FitnessCenter,
+                                        contentDescription = null,
+                                        tint = Color.Black,
+                                        modifier = Modifier.size(20.dp)
+                                    )
+                                    Spacer(modifier = Modifier.width(8.dp))
+                                    Text(
+                                        text = rutina.nombreRutina,
+                                        style = MaterialTheme.typography.titleLarge,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.Black
+                                    )
+                                }
+
+                                Spacer(modifier = Modifier.height(6.dp))
+                                Text(
+                                    text = "${rutina.ejercicios.size} ejercicio${if (rutina.ejercicios.size == 1) "" else "s"}",
+                                    color = Color.Gray,
+                                    fontSize = 14.sp
+                                )
+
+                                Spacer(modifier = Modifier.height(16.dp))
+
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceBetween
+                                ) {
+                                    // Ver rutina
+                                    AnimatedAccessButton(
+                                        buttonText = "Ver rutina",
+                                        onClick = {
+                                            navController.currentBackStackEntry
+                                                ?.savedStateHandle
+                                                ?.set("predefined_routine", rutina)
+                                            navController.navigate("predefined_routine_detail")
+                                        },
+                                        containerColor = Color.Black,
+                                        contentColor = Color.White,
+                                        borderColor = Color.Black,
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .height(50.dp)
+                                    )
+
+                                    Spacer(modifier = Modifier.width(12.dp))
+
+                                    // Copiar rutina
+                                    AnimatedAccessButton(
+                                        buttonText = "Añadir",
+                                        onClick = {
+                                            routineViewModel.copyPredefinedRoutineToUser(
+                                                nombreRutina = rutina.nombreRutina,
+                                                ejercicios = rutina.ejercicios
+                                            ) { success ->
+                                                scope.launch {
+                                                    snackbarHostState.showSnackbar(
+                                                        if (success) "Rutina añadida correctamente"
+                                                        else "Error al añadir rutina"
+                                                    )
+                                                }
+                                            }
+                                        },
+                                        containerColor = Color.Black,
+                                        contentColor = Color.White,
+                                        borderColor = Color.Black,
+                                        modifier = Modifier
+                                            .weight(1f)
+                                            .height(50.dp)
+                                    )
+                                }
+                            }
+                        }
+
+                    }
+                    item {
+                        Spacer(modifier = Modifier.height(100.dp))
+                    }
+
                 }
             }
         }
     }
 }
+

@@ -1,21 +1,27 @@
 package com.example.gymtrack.ui.screens
 
-import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.*
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -31,20 +37,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.gymtrack.navigation.Screen
 import com.example.gymtrack.R
-import kotlinx.coroutines.delay
-import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.animation.*
-import androidx.compose.foundation.lazy.itemsIndexed
 import com.example.gymtrack.navigation.AnimatedEntrance
+import com.example.gymtrack.navigation.Screen
+import kotlinx.coroutines.delay
 
 @Composable
 fun HomeScreen(navController: NavHostController) {
@@ -78,25 +78,56 @@ fun HomeScreen(navController: NavHostController) {
                                 .align(Alignment.BottomStart)
                                 .padding(horizontal = 24.dp, vertical = 16.dp)
                         ) {
-                            Text("Bienvenido", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.Black)
-                            Text("¿Qué quieres hacer?", fontSize = 24.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+                            Text(
+                                "Bienvenido",
+                                fontSize = 28.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.Black
+                            )
+                            Text(
+                                "¿Qué quieres hacer?",
+                                fontSize = 24.sp,
+                                fontWeight = FontWeight.Bold,
+                                color = Color.Black
+                            )
                         }
                     }
                 }
             }
 
             // Cards animadas una a una
-            itemsIndexed(listOf(
-                Triple("Registrar nueva rutina", "Crea una nueva rutina personalizada", R.drawable.register_routine),
-                Triple("Ver rutinas predefinidas", "Explora rutinas ya creadas y añádelas", R.drawable.predefined_routine),
-                Triple("Ver mis rutinas", "Accede a todas tus rutinas guardadas", R.drawable.my_routines),
-                Triple("Ver progreso de ejercicios", "Mira tus avances en los ejercicios", R.drawable.progress_chart),
-                Triple("Temporizador", "Controla tu tiempo de entrenamiento", R.drawable.timer)
-            )) { index, (title, desc, img) ->
+            itemsIndexed(
+                listOf(
+                    Triple(
+                        "Registrar nueva rutina",
+                        "Crea una nueva rutina personalizada",
+                        R.drawable.register_routine
+                    ),
+                    Triple(
+                        "Ver rutinas predefinidas",
+                        "Explora rutinas ya creadas y añádelas",
+                        R.drawable.predefined_routine
+                    ),
+                    Triple(
+                        "Ver mis rutinas",
+                        "Accede a todas tus rutinas guardadas",
+                        R.drawable.my_routines
+                    ),
+                    Triple(
+                        "Ver progreso de ejercicios",
+                        "Mira tus avances en los ejercicios",
+                        R.drawable.progress_chart
+                    ),
+                    Triple("Temporizador", "Controla tu tiempo de entrenamiento", R.drawable.timer)
+                )
+            ) { index, (title, desc, img) ->
                 AnimatedVisibility(
                     visible = true,
                     enter = fadeIn(animationSpec = tween(300, delayMillis = index * 100)) +
-                            slideInVertically(initialOffsetY = { 200 }, animationSpec = tween(300, delayMillis = index * 100))
+                            slideInVertically(
+                                initialOffsetY = { 200 },
+                                animationSpec = tween(300, delayMillis = index * 100)
+                            )
                 ) {
                     RutinasCard(
                         title = title,
@@ -114,6 +145,10 @@ fun HomeScreen(navController: NavHostController) {
                     )
                 }
             }
+            item {
+                Spacer(modifier = Modifier.height(100.dp)) // Reservamos espacio para el botón menú
+            }
+
         }
     }
 }

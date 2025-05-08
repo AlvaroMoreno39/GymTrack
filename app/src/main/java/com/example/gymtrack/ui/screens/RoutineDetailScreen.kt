@@ -62,7 +62,7 @@ fun RoutineDetailScreen(
 
     // Opciones de menú
     val gruposMusculares =
-        listOf("Pecho", "Espalda", "Piernas", "Hombros", "Bíceps", "Tríceps", "Abdomen", "Cardio")
+        listOf("Pecho", "Espalda", "Piernas", "Hombros", "Bíceps", "Tríceps", "Abdomen")
     val tipos = listOf("Fuerza", "Cardio", "Mixto")
     val intensidades = listOf("Baja", "Media", "Alta")
     val isCardio = tipo.lowercase() == "cardio"
@@ -149,11 +149,17 @@ fun RoutineDetailScreen(
                                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                         OutlinedTextField(
                                             value = ejercicio.nombre,
-                                            onValueChange = { ejercicio = ejercicio.copy(nombre = it) },
+                                            onValueChange = {
+                                                ejercicio = ejercicio.copy(nombre = it)
+                                            },
                                             label = { Text("Nombre") },
                                             modifier = Modifier.fillMaxWidth()
                                         )
-                                        DropDownSelector("Grupo Muscular", gruposMusculares, ejercicio.grupoMuscular) {
+                                        DropDownSelector(
+                                            "Grupo Muscular",
+                                            gruposMusculares,
+                                            ejercicio.grupoMuscular
+                                        ) {
                                             ejercicio = ejercicio.copy(grupoMuscular = it)
                                         }
                                         DropDownSelector("Tipo", tipos, ejercicio.tipo) {
@@ -164,7 +170,9 @@ fun RoutineDetailScreen(
                                             OutlinedTextField(
                                                 value = ejercicio.duracion.toString(),
                                                 onValueChange = {
-                                                    ejercicio = ejercicio.copy(duracion = it.toIntOrNull() ?: 0)
+                                                    ejercicio = ejercicio.copy(
+                                                        duracion = it.toIntOrNull() ?: 0
+                                                    )
                                                 },
                                                 label = { Text("Duración (min)") },
                                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -174,7 +182,9 @@ fun RoutineDetailScreen(
                                             OutlinedTextField(
                                                 value = ejercicio.series.toString(),
                                                 onValueChange = {
-                                                    ejercicio = ejercicio.copy(series = it.toIntOrNull() ?: 0)
+                                                    ejercicio = ejercicio.copy(
+                                                        series = it.toIntOrNull() ?: 0
+                                                    )
                                                 },
                                                 label = { Text("Series") },
                                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -183,7 +193,8 @@ fun RoutineDetailScreen(
                                             OutlinedTextField(
                                                 value = ejercicio.reps.toString(),
                                                 onValueChange = {
-                                                    ejercicio = ejercicio.copy(reps = it.toIntOrNull() ?: 0)
+                                                    ejercicio =
+                                                        ejercicio.copy(reps = it.toIntOrNull() ?: 0)
                                                 },
                                                 label = { Text("Repeticiones") },
                                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -191,14 +202,19 @@ fun RoutineDetailScreen(
                                             )
                                         }
 
-                                        DropDownSelector("Intensidad", intensidades, ejercicio.intensidad) {
+                                        DropDownSelector(
+                                            "Intensidad",
+                                            intensidades,
+                                            ejercicio.intensidad
+                                        ) {
                                             ejercicio = ejercicio.copy(intensidad = it)
                                         }
 
                                         OutlinedTextField(
                                             value = ejercicio.peso.toString(),
                                             onValueChange = {
-                                                ejercicio = ejercicio.copy(peso = it.toIntOrNull() ?: 0)
+                                                ejercicio =
+                                                    ejercicio.copy(peso = it.toIntOrNull() ?: 0)
                                             },
                                             label = { Text("Peso (kg)") },
                                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -247,7 +263,10 @@ fun RoutineDetailScreen(
                                         AnimatedAccessButton(
                                             buttonText = "Eliminar",
                                             onClick = {
-                                                viewModel.deleteExerciseFromRoutine(routineId, index)
+                                                viewModel.deleteExerciseFromRoutine(
+                                                    routineId,
+                                                    index
+                                                )
                                                 scope.launch {
                                                     snackbarHostState.showSnackbar("Ejercicio eliminado correctamente")
                                                 }
@@ -330,13 +349,15 @@ fun RoutineDetailScreen(
                                     showIntensidadError = false
                                 }
 
-                                OutlinedTextField(
-                                    value = peso,
-                                    onValueChange = { peso = it },
-                                    label = { Text("Peso (kg)") },
-                                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                    modifier = Modifier.fillMaxWidth()
-                                )
+                                if (!isCardio) {
+                                    OutlinedTextField(
+                                        value = peso,
+                                        onValueChange = { peso = it },
+                                        label = { Text("Peso (kg)") },
+                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                                        modifier = Modifier.fillMaxWidth()
+                                    )
+                                }
 
                                 AnimatedAccessButton(buttonText = "Añadir ejercicio") {
                                     val errorNombre = nombreEjercicio.isBlank()
@@ -365,19 +386,25 @@ fun RoutineDetailScreen(
                                             intensidad = intensidad,
                                             peso = peso.toIntOrNull() ?: 0
                                         )
-                                        viewModel.addExerciseToRoutine(routineId, newExercise)
-                                        nombreEjercicio = ""
-                                        grupoMuscular = ""
-                                        tipo = ""
-                                        series = ""
-                                        reps = ""
-                                        duracion = ""
-                                        intensidad = ""
-                                        peso = ""
-                                        showAddCard = false
-                                        scope.launch {
-                                            snackbarHostState.showSnackbar("Ejercicio añadido correctamente")
+                                        viewModel.addExerciseToRoutine(
+                                            routineId,
+                                            newExercise
+                                        ) { success ->
+                                            if (success) {
+                                                viewModel.getUserRoutines { list ->
+                                                    routine =
+                                                        list.find { it.first == routineId }?.second
+                                                }
+                                                scope.launch {
+                                                    snackbarHostState.showSnackbar("Ejercicio añadido correctamente")
+                                                }
+                                            } else {
+                                                scope.launch {
+                                                    snackbarHostState.showSnackbar("Error al añadir ejercicio")
+                                                }
+                                            }
                                         }
+
                                     }
                                 }
                             }
@@ -395,6 +422,8 @@ fun RoutineDetailScreen(
                             .fillMaxWidth()
                             .height(50.dp)
                     )
+
+                    Spacer(modifier = Modifier.height(100.dp)) // 👈 Añade este al final
                 }
             }
         } ?: Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
