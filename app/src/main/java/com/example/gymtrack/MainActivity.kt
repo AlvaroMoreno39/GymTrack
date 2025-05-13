@@ -20,7 +20,7 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
         // ❗ Cierra sesión si hay un usuario cacheado
-        // FirebaseAuth.getInstance().signOut()
+         FirebaseAuth.getInstance().signOut()
 
         enableEdgeToEdge()
 

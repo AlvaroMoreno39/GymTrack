@@ -10,9 +10,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.example.gymtrack.ui.screens.ExerciseProgressDashboardScreen
 import com.example.gymtrack.ui.screens.ForgotPasswordScreen
-import com.example.gymtrack.ui.screens.GeneralProgressScreen
 import com.example.gymtrack.ui.screens.HomeScreen
 import com.example.gymtrack.ui.screens.LoginScreen
 import com.example.gymtrack.ui.screens.MyRoutineScreen
@@ -59,12 +57,6 @@ fun GymTrackNavHost(
             )
         }
 
-        composable(Screen.ExerciseDashboard.route) {
-            ExerciseProgressDashboardScreen(
-                userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
-            )
-        }
-
         composable(Screen.ForgotPassword.route) {
             ForgotPasswordScreen(navController, authViewModel)
         }
@@ -83,12 +75,6 @@ fun GymTrackNavHost(
 
         composable(Screen.Home.route) {
             HomeScreen(navController)
-        }
-
-        composable(Screen.GeneralProgress.route) {
-            GeneralProgressScreen(
-                userId = FirebaseAuth.getInstance().currentUser?.uid ?: ""
-            )
         }
 
         composable(Screen.MyRoutines.route) {
@@ -119,7 +105,10 @@ fun GymTrackNavHost(
         }
 
         composable("predefined_routine_detail") {
-            PredefinedRoutineDetailScreen(navController)
+            PredefinedRoutineDetailScreen(
+                navController = navController,
+                viewModel = viewModel<RoutineViewModel>()
+            )
         }
 
     }

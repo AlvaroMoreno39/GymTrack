@@ -47,9 +47,6 @@ dependencies {
 
     implementation("androidx.compose.ui:ui-text-google-fonts:1.7.8") // Usa versión acorde a Compose
 
-
-    implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
-
     // Import the Firebase BoM
     implementation(platform(libs.firebase.bom))
 

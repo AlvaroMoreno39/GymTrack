@@ -42,13 +42,9 @@ data class RoutineData(
 // ViewModel que maneja toda la lógica de operaciones sobre rutinas (CRUD)
 class RoutineViewModel : ViewModel() {
 
-    private val db = FirebaseFirestore.getInstance()   // Acceso a la base de datos Firestore
-    private val auth = FirebaseAuth.getInstance()      // Acceso a la autenticación del usuario
+    private val db = FirebaseFirestore.getInstance()
+    private val auth = FirebaseAuth.getInstance()
 
-    /**
-     * Guarda una rutina completa en la colección "rutinas" para el usuario actual.
-     * Si no hay usuario logueado, muestra un mensaje de advertencia.
-     */
     fun saveFullRoutine(
         nombreRutina: String,
         ejercicios: List<Exercise>,
@@ -56,7 +52,8 @@ class RoutineViewModel : ViewModel() {
     ) {
         val currentUser = auth.currentUser
         if (currentUser == null) {
-            onResult(false) // No hay usuario
+            Log.e("RoutineViewModel", "❌ No hay usuario logueado")
+            onResult(false)
             return
         }
 
@@ -69,54 +66,61 @@ class RoutineViewModel : ViewModel() {
 
         db.collection("rutinas")
             .add(rutina)
-            .addOnSuccessListener { onResult(true) } // Éxito
-            .addOnFailureListener { onResult(false) } // Error
-    }
-
-    /**
-     * Recupera todas las rutinas del usuario autenticado y las devuelve como una lista de pares:
-     * el ID del documento y el objeto RoutineData correspondiente.
-     */
-    fun getUserRoutines(onResult: (List<Pair<String, RoutineData>>) -> Unit) {
-        val currentUser = auth.currentUser ?: return // Si no hay usuario, salir
-
-        db.collection("rutinas")
-            .whereEqualTo("userId", currentUser.uid) // Solo rutinas del usuario actual
-            .get()
-            .addOnSuccessListener { result ->
-                // Mapea cada documento en un par (ID, rutina)
-                val routines = result.mapNotNull { doc ->
-                    val rutina = doc.toObject(RoutineData::class.java)
-                    doc.id to rutina
-                }
-                onResult(routines) // Devuelve los datos a través del callback
+            .addOnSuccessListener {
+                Log.d("RoutineViewModel", "✅ Rutina guardada con éxito")
+                onResult(true)
+            }
+            .addOnFailureListener {
+                Log.e("RoutineViewModel", "❌ Error al guardar rutina: ${it.message}")
+                onResult(false)
             }
     }
 
-    /**
-     * Elimina una rutina concreta en base al ID proporcionado.
-     * Informa al llamador si se eliminó con éxito (true) o no (false).
-     */
-    fun deleteRoutine(routineId: String, onResult: (Boolean) -> Unit) {
+    fun getUserRoutines(onResult: (List<Pair<String, RoutineData>>) -> Unit) {
+        val currentUser = auth.currentUser
+        if (currentUser == null) {
+            Log.e("RoutineViewModel", "❌ No hay usuario logueado al obtener rutinas")
+            return
+        }
+
         db.collection("rutinas")
-            .document(routineId) // Busca el documento por ID
-            .delete() // Elimina el documento
-            .addOnSuccessListener { onResult(true) } // Si va bien, devuelve true
-            .addOnFailureListener { onResult(false) } // Si falla, devuelve false
+            .whereEqualTo("userId", currentUser.uid)
+            .get()
+            .addOnSuccessListener { result ->
+                val routines = result.mapNotNull { doc ->
+                    val rutina = doc.toObject(RoutineData::class.java)
+                    Log.d("RoutineViewModel", "📄 Rutina encontrada: ${rutina.nombreRutina} (UID: ${rutina.userId})")
+                    doc.id to rutina
+                }
+                Log.d("RoutineViewModel", "✅ Total rutinas obtenidas: ${routines.size}")
+                onResult(routines)
+            }
+            .addOnFailureListener {
+                Log.e("RoutineViewModel", "❌ Error al obtener rutinas: ${it.message}")
+            }
     }
 
-    /**
-     * Copia una rutina predefinida a la colección personal del usuario logueado.
-     * Esto permite que el usuario edite su propia copia independiente.
-     */
+    fun deleteRoutine(routineId: String, onResult: (Boolean) -> Unit) {
+        db.collection("rutinas")
+            .document(routineId)
+            .delete()
+            .addOnSuccessListener {
+                Log.d("RoutineViewModel", "🗑️ Rutina eliminada correctamente")
+                onResult(true)
+            }
+            .addOnFailureListener {
+                Log.e("RoutineViewModel", "❌ Error al eliminar rutina: ${it.message}")
+                onResult(false)
+            }
+    }
+
     fun copyPredefinedRoutineToUser(
         nombreRutina: String,
         ejercicios: List<Exercise>,
         onResult: (Boolean) -> Unit
     ) {
-        val currentUser = auth.currentUser ?: return // Si no hay usuario, salir
+        val currentUser = auth.currentUser ?: return
 
-        // Crea la rutina para insertar
         val rutina = RoutineData(
             nombreRutina = nombreRutina,
             userId = currentUser.uid,
@@ -124,16 +128,18 @@ class RoutineViewModel : ViewModel() {
             ejercicios = ejercicios
         )
 
-        // Añade la nueva rutina a la colección del usuario
         db.collection("rutinas")
             .add(rutina)
-            .addOnSuccessListener { onResult(true) } // Indica éxito
-            .addOnFailureListener { onResult(false) } // Indica fallo
+            .addOnSuccessListener {
+                Log.d("RoutineViewModel", "📄 Copia de rutina predefinida guardada")
+                onResult(true)
+            }
+            .addOnFailureListener {
+                Log.e("RoutineViewModel", "❌ Error al copiar rutina: ${it.message}")
+                onResult(false)
+            }
     }
 
-    /**
-     * Añade un ejercicio a una rutina existente, manteniendo los ejercicios anteriores.
-     */
     fun addExerciseToRoutine(routineId: String, nuevoEjercicio: Exercise, onResult: (Boolean) -> Unit) {
         val docRef = db.collection("rutinas").document(routineId)
 
@@ -146,21 +152,25 @@ class RoutineViewModel : ViewModel() {
                     }
 
                     docRef.update("ejercicios", ejerciciosActualizados)
-                        .addOnSuccessListener { onResult(true) }
-                        .addOnFailureListener { onResult(false) }
+                        .addOnSuccessListener {
+                            Log.d("RoutineViewModel", "✅ Ejercicio añadido correctamente")
+                            onResult(true)
+                        }
+                        .addOnFailureListener {
+                            Log.e("RoutineViewModel", "❌ Error al actualizar ejercicios: ${it.message}")
+                            onResult(false)
+                        }
                 } else {
+                    Log.e("RoutineViewModel", "❌ Rutina nula al añadir ejercicio")
                     onResult(false)
                 }
             }
             .addOnFailureListener {
-                Log.e("RoutineViewModel", "Error al añadir ejercicio: ${it.message}")
+                Log.e("RoutineViewModel", "❌ Error al añadir ejercicio: ${it.message}")
                 onResult(false)
             }
     }
 
-    /**
-     * Elimina un ejercicio específico de una rutina, identificada por su ID y el índice del ejercicio.
-     */
     fun deleteExerciseFromRoutine(routineId: String, ejercicioIndex: Int) {
         val docRef = db.collection("rutinas").document(routineId)
 
@@ -173,12 +183,61 @@ class RoutineViewModel : ViewModel() {
                     }
 
                     docRef.update("ejercicios", ejerciciosActualizados)
+                        .addOnSuccessListener {
+                            Log.d("RoutineViewModel", "✅ Ejercicio eliminado correctamente")
+                        }
+                        .addOnFailureListener {
+                            Log.e("RoutineViewModel", "❌ Error al eliminar ejercicio: ${it.message}")
+                        }
+                } else {
+                    Log.e("RoutineViewModel", "❌ Rutina vacía o índice inválido al eliminar ejercicio")
                 }
             }
             .addOnFailureListener {
-                Log.e("RoutineViewModel", "Error al eliminar ejercicio: ${it.message}")
+                Log.e("RoutineViewModel", "❌ Error al eliminar ejercicio: ${it.message}")
             }
     }
 
+    fun savePredefinedRoutine(
+        nombreRutina: String,
+        ejercicios: List<Exercise>,
+        onResult: (Boolean) -> Unit
+    ) {
+        val rutina = RoutineData(
+            nombreRutina = nombreRutina,
+            userId = "admin",
+            fechaCreacion = Timestamp.now(),
+            ejercicios = ejercicios
+        )
+
+        db.collection("rutinasPredefinidas")
+            .add(rutina)
+            .addOnSuccessListener {
+                Log.d("RoutineViewModel", "✅ Rutina predefinida guardada")
+                onResult(true)
+            }
+            .addOnFailureListener {
+                Log.e("RoutineViewModel", "❌ Error al guardar rutina predefinida: ${it.message}")
+                onResult(false)
+            }
+    }
+
+    fun deletePredefinedRoutine(nombreRutina: String, onResult: (Boolean) -> Unit) {
+        db.collection("rutinasPredefinidas")
+            .whereEqualTo("nombreRutina", nombreRutina)
+            .get()
+            .addOnSuccessListener { result ->
+                if (!result.isEmpty) {
+                    val docId = result.documents[0].id
+                    db.collection("rutinasPredefinidas").document(docId)
+                        .delete()
+                        .addOnSuccessListener { onResult(true) }
+                        .addOnFailureListener { onResult(false) }
+                } else {
+                    onResult(false)
+                }
+            }
+            .addOnFailureListener { onResult(false) }
+    }
 
 }

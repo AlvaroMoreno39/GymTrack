@@ -27,6 +27,7 @@ import com.example.gymtrack.viewmodel.PredefinedRoutinesViewModel
 import com.example.gymtrack.viewmodel.RoutineData
 import com.example.gymtrack.viewmodel.RoutineViewModel
 import com.example.gymtrack.R
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -39,6 +40,8 @@ fun PredefinedRoutinesScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
     var routines by remember { mutableStateOf<List<RoutineData>>(emptyList()) }
+
+    val isAdmin = FirebaseAuth.getInstance().currentUser?.email == "admin@gymtrack.com"
 
     LaunchedEffect(Unit) {
         viewModel.fetchRoutines { result -> routines = result }
@@ -97,9 +100,12 @@ fun PredefinedRoutinesScreen(
                     verticalArrangement = Arrangement.spacedBy(20.dp)
                 ) {
                     items(routines) { rutina ->
+                        val isAdmin =
+                            FirebaseAuth.getInstance().currentUser?.email == "admin@gymtrack.com"
+
                         Card(
                             modifier = Modifier.fillMaxWidth(),
-                            elevation = CardDefaults.cardElevation(4.dp),
+                            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                             shape = RoundedCornerShape(16.dp),
                             colors = CardDefaults.cardColors(containerColor = Color(0xFFE8E8E8))
                         ) {
@@ -134,7 +140,7 @@ fun PredefinedRoutinesScreen(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
-                                    // Ver rutina
+                                    // 🔍 Botón "Ver rutina"
                                     AnimatedAccessButton(
                                         buttonText = "Ver rutina",
                                         onClick = {
@@ -142,7 +148,8 @@ fun PredefinedRoutinesScreen(
                                                 ?.savedStateHandle
                                                 ?.set("predefined_routine", rutina)
                                             navController.navigate("predefined_routine_detail")
-                                        },
+                                        }
+                                        ,
                                         containerColor = Color.Black,
                                         contentColor = Color.White,
                                         borderColor = Color.Black,
@@ -153,32 +160,62 @@ fun PredefinedRoutinesScreen(
 
                                     Spacer(modifier = Modifier.width(12.dp))
 
-                                    // Copiar rutina
-                                    AnimatedAccessButton(
-                                        buttonText = "Añadir",
-                                        onClick = {
-                                            routineViewModel.copyPredefinedRoutineToUser(
-                                                nombreRutina = rutina.nombreRutina,
-                                                ejercicios = rutina.ejercicios
-                                            ) { success ->
-                                                scope.launch {
-                                                    snackbarHostState.showSnackbar(
-                                                        if (success) "Rutina añadida correctamente"
-                                                        else "Error al añadir rutina"
-                                                    )
+                                    // Botón condicional
+                                    if (isAdmin) {
+                                        // 🗑️ Botón "Eliminar"
+                                        AnimatedAccessButton(
+                                            buttonText = "Eliminar",
+                                            onClick = {
+                                                routineViewModel.deletePredefinedRoutine(rutina.nombreRutina) { success ->
+                                                    scope.launch {
+                                                        if (success) {
+                                                            // Refresca la lista quitando esta rutina
+                                                            routines =
+                                                                routines.filterNot { it.nombreRutina == rutina.nombreRutina }
+                                                            snackbarHostState.showSnackbar("Rutina eliminada correctamente")
+                                                        } else {
+                                                            snackbarHostState.showSnackbar("Error al eliminar rutina")
+                                                        }
+                                                    }
                                                 }
-                                            }
-                                        },
-                                        containerColor = Color.Black,
-                                        contentColor = Color.White,
-                                        borderColor = Color.Black,
-                                        modifier = Modifier
-                                            .weight(1f)
-                                            .height(50.dp)
-                                    )
+                                            },
+                                            containerColor = Color.Red,
+                                            contentColor = Color.White,
+                                            borderColor = Color.Red,
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .height(50.dp)
+                                        )
+                                    } else {
+                                        // ✅ Botón "Añadir" para usuario normal
+                                        AnimatedAccessButton(
+                                            buttonText = "Añadir",
+                                            onClick = {
+                                                routineViewModel.copyPredefinedRoutineToUser(
+                                                    nombreRutina = rutina.nombreRutina,
+                                                    ejercicios = rutina.ejercicios
+                                                ) { success ->
+                                                    scope.launch {
+                                                        snackbarHostState.showSnackbar(
+                                                            if (success) "Rutina añadida correctamente"
+                                                            else "Error al añadir rutina"
+                                                        )
+                                                    }
+                                                }
+                                            },
+                                            containerColor = Color.Black,
+                                            contentColor = Color.White,
+                                            borderColor = Color.Black,
+                                            modifier = Modifier
+                                                .weight(1f)
+                                                .height(50.dp)
+                                        )
+                                    }
                                 }
                             }
+
                         }
+
 
                     }
                     item {

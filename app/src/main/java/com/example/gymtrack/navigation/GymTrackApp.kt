@@ -30,6 +30,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -38,8 +39,9 @@ import kotlinx.coroutines.launch
 fun GymTrackApp(navController: NavHostController = rememberNavController()) {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+    val currentUser = FirebaseAuth.getInstance().currentUser
+    val isAdmin = currentUser?.email == "admin@gymtrack.com"
 
-    // Pantallas donde NO queremos mostrar el botón de menú
     val noMenuScreens = listOf(
         Screen.Login.route,
         Screen.Register.route,
@@ -47,14 +49,14 @@ fun GymTrackApp(navController: NavHostController = rememberNavController()) {
     )
 
     Scaffold(
-        topBar = {}, // Sin topBar
-        bottomBar = {}, // Sin bottomBar
+        topBar = {},
+        bottomBar = {},
         floatingActionButton = {
-            if (currentRoute !in noMenuScreens) {
+            if (currentRoute !in noMenuScreens && !isAdmin) {
                 ShareMenuSample(navController)
             }
         },
-        floatingActionButtonPosition = FabPosition.Center, // 👈 Colocado en el centro abajo
+        floatingActionButtonPosition = FabPosition.Center,
         containerColor = MaterialTheme.colorScheme.background
     ) { innerPadding ->
         GymTrackNavHost(navController, innerPadding)
@@ -99,14 +101,6 @@ fun ShareMenuSample(navController: NavHostController) {
 
                     ShareOption(Icons.Filled.LibraryAdd, "Rutinas predefinidas") {
                         navController.navigate(Screen.PredefinedRoutines.route)
-                        showSheet = false
-                    }
-                    ShareOption(Icons.AutoMirrored.Filled.ShowChart, "Progreso general") {
-                        navController.navigate(Screen.GeneralProgress.route)
-                        showSheet = false
-                    }
-                    ShareOption(Icons.Filled.Insights, "Progreso por ejercicio") {
-                        navController.navigate(Screen.ExerciseDashboard.route)
                         showSheet = false
                     }
                     ShareOption(Icons.Filled.Timer, "Temporizador") {
