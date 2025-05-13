@@ -44,16 +44,41 @@ import androidx.navigation.NavHostController
 import com.example.gymtrack.R
 import com.example.gymtrack.navigation.AnimatedEntrance
 import com.example.gymtrack.navigation.Screen
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 
 @Composable
 fun HomeScreen(navController: NavHostController) {
+    val isAdmin = FirebaseAuth.getInstance().currentUser?.email == "admin@gymtrack.com"
+
+    val cards = if (isAdmin) {
+        listOf(
+            Triple(
+                "Registrar nueva rutina predefinida",
+                "Crea una rutina para todos los usuarios",
+                R.drawable.register_routine
+            ),
+            Triple(
+                "Ver rutinas predefinidas",
+                "Explora y gestiona tus rutinas predefinidas",
+                R.drawable.predefined_routine
+            )
+        )
+    } else {
+        listOf(
+            Triple("Registrar nueva rutina", "Crea una nueva rutina personalizada", R.drawable.register_routine),
+            Triple("Ver rutinas predefinidas", "Explora rutinas ya creadas y añádelas", R.drawable.predefined_routine),
+            Triple("Ver mis rutinas", "Accede a todas tus rutinas guardadas", R.drawable.my_routines),
+            Triple("Ver progreso de ejercicios", "Mira tus avances en los ejercicios", R.drawable.progress_chart),
+            Triple("Temporizador", "Controla tu tiempo de entrenamiento", R.drawable.timer)
+        )
+    }
+
     Scaffold { padding ->
         LazyColumn(
             modifier = Modifier.fillMaxSize()
         ) {
             item {
-                // Cabecera animada
                 AnimatedEntrance {
                     Box(
                         modifier = Modifier
@@ -95,32 +120,8 @@ fun HomeScreen(navController: NavHostController) {
                 }
             }
 
-            // Cards animadas una a una
-            itemsIndexed(
-                listOf(
-                    Triple(
-                        "Registrar nueva rutina",
-                        "Crea una nueva rutina personalizada",
-                        R.drawable.register_routine
-                    ),
-                    Triple(
-                        "Ver rutinas predefinidas",
-                        "Explora rutinas ya creadas y añádelas",
-                        R.drawable.predefined_routine
-                    ),
-                    Triple(
-                        "Ver mis rutinas",
-                        "Accede a todas tus rutinas guardadas",
-                        R.drawable.my_routines
-                    ),
-                    Triple(
-                        "Ver progreso de ejercicios",
-                        "Mira tus avances en los ejercicios",
-                        R.drawable.progress_chart
-                    ),
-                    Triple("Temporizador", "Controla tu tiempo de entrenamiento", R.drawable.timer)
-                )
-            ) { index, (title, desc, img) ->
+            // Mostrar las cards definidas según sea admin o no
+            itemsIndexed(cards) { index, (title, desc, img) ->
                 AnimatedVisibility(
                     visible = true,
                     enter = fadeIn(animationSpec = tween(300, delayMillis = index * 100)) +
@@ -135,20 +136,19 @@ fun HomeScreen(navController: NavHostController) {
                         imageRes = img,
                         onClick = {
                             when (title) {
+                                "Registrar nueva rutina predefinida" -> navController.navigate(Screen.RegisterRoutine.route)
                                 "Registrar nueva rutina" -> navController.navigate(Screen.RegisterRoutine.route)
                                 "Ver rutinas predefinidas" -> navController.navigate(Screen.PredefinedRoutines.route)
                                 "Ver mis rutinas" -> navController.navigate(Screen.MyRoutines.route)
-                                "Ver progreso de ejercicios" -> navController.navigate(Screen.GeneralProgress.route)
+                                "Ver progreso de ejercicios" -> navController.navigate(Screen.ExerciseDashboard.route)
                                 "Temporizador" -> navController.navigate(Screen.Timer.route)
                             }
                         }
                     )
                 }
             }
-            item {
-                Spacer(modifier = Modifier.height(100.dp)) // Reservamos espacio para el botón menú
-            }
 
+            item { Spacer(modifier = Modifier.height(100.dp)) }
         }
     }
 }

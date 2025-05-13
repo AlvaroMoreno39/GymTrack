@@ -52,7 +52,6 @@ fun RoutineDetailScreen(
     var reps by remember { mutableStateOf("") }
     var duracion by remember { mutableStateOf("") }
     var intensidad by remember { mutableStateOf("") }
-    var peso by remember { mutableStateOf("") }
 
     // Validaciones
     var showNombreError by remember { mutableStateOf(false) }
@@ -210,16 +209,6 @@ fun RoutineDetailScreen(
                                             ejercicio = ejercicio.copy(intensidad = it)
                                         }
 
-                                        OutlinedTextField(
-                                            value = ejercicio.peso.toString(),
-                                            onValueChange = {
-                                                ejercicio =
-                                                    ejercicio.copy(peso = it.toIntOrNull() ?: 0)
-                                            },
-                                            label = { Text("Peso (kg)") },
-                                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                            modifier = Modifier.fillMaxWidth()
-                                        )
                                     }
                                 } else {
                                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -227,7 +216,6 @@ fun RoutineDetailScreen(
                                         Text("Tipo: ${ejercicio.tipo}")
                                         Text("Series: ${ejercicio.series}")
                                         Text("Reps: ${ejercicio.reps}")
-                                        Text("Peso: ${ejercicio.peso} kg")
                                         Text("Duración: ${ejercicio.duracion} min")
                                         Text("Intensidad: ${ejercicio.intensidad}")
                                     }
@@ -349,16 +337,6 @@ fun RoutineDetailScreen(
                                     showIntensidadError = false
                                 }
 
-                                if (!isCardio) {
-                                    OutlinedTextField(
-                                        value = peso,
-                                        onValueChange = { peso = it },
-                                        label = { Text("Peso (kg)") },
-                                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                                        modifier = Modifier.fillMaxWidth()
-                                    )
-                                }
-
                                 AnimatedAccessButton(buttonText = "Añadir ejercicio") {
                                     val errorNombre = nombreEjercicio.isBlank()
                                     val errorGrupo = grupoMuscular.isBlank()
@@ -383,8 +361,7 @@ fun RoutineDetailScreen(
                                             reps = reps.toIntOrNull() ?: 0,
                                             duracion = if (isCardio) duracion.toIntOrNull()
                                                 ?: 0 else 0,
-                                            intensidad = intensidad,
-                                            peso = peso.toIntOrNull() ?: 0
+                                            intensidad = intensidad
                                         )
                                         viewModel.addExerciseToRoutine(
                                             routineId,
@@ -407,21 +384,35 @@ fun RoutineDetailScreen(
 
                                     }
                                 }
+                                // 🔴 Botón de cancelar (ahora está DENTRO de la card)
+                                AnimatedAccessButton(
+                                    buttonText = "Cancelar",
+                                    onClick = { showAddCard = false },
+                                    containerColor = Color.Red,
+                                    contentColor = Color.White,
+                                    borderColor = Color.Red,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(50.dp)
+                                )
                             }
                         }
                     }
 
-                    // Botón principal
-                    AnimatedAccessButton(
-                        buttonText = if (showAddCard) "Cancelar" else "Añadir ejercicio",
-                        onClick = { showAddCard = !showAddCard },
-                        containerColor = Color.Black,
-                        contentColor = Color.White,
-                        borderColor = Color.Black,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(50.dp)
-                    )
+                    if (!showAddCard){
+                        // Botón principal
+                        AnimatedAccessButton(
+                            buttonText = "Añadir ejercicio",
+                            onClick = { showAddCard = !showAddCard },
+                            containerColor = Color.Black,
+                            contentColor = Color.White,
+                            borderColor = Color.Black,
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(50.dp)
+                        )
+                    }
+
 
                     Spacer(modifier = Modifier.height(100.dp)) // 👈 Añade este al final
                 }

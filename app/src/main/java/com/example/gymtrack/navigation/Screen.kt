@@ -10,7 +10,6 @@ sealed class Screen(val route: String, val title: String) {
     // App principales
     object Home : Screen("home", "Inicio")
     object Timer : Screen("timer", "Temporizador")
-    object GeneralProgress : Screen("general_progress", "Progreso")
     object Settings : Screen("settings", "Ajustes")
 
     // Rutinas
@@ -20,12 +19,8 @@ sealed class Screen(val route: String, val title: String) {
         fun createRoute(routineId: String) = "routine_detail/$routineId"
     }
 
-
     // Extras
     object PredefinedRoutines : Screen("predefined_routines", "Rutinas predefinidas")
     object ExerciseDashboard : Screen("exercise_dashboard", "Progreso por ejercicio")
 
-    companion object {
-        val bottomBarScreens = listOf(Home, Timer, GeneralProgress, Settings)
-    }
 }

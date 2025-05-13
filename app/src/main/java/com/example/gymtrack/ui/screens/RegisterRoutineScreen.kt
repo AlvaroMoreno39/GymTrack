@@ -31,6 +31,7 @@ import com.example.gymtrack.navigation.AnimatedEntrance
 import com.example.gymtrack.viewmodel.Exercise
 import com.example.gymtrack.viewmodel.RoutineViewModel
 import com.example.gymtrack.R
+import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -48,7 +49,6 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
     var reps by remember { mutableStateOf("") }
     var duracion by remember { mutableStateOf("") }
     var intensidad by remember { mutableStateOf("") }
-    var peso by remember { mutableStateOf("") }
 
     var ejercicios by remember { mutableStateOf(mutableListOf<Exercise>()) }
 
@@ -244,20 +244,7 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
                             modifier = Modifier.padding(start = 4.dp)
                         )
                     }
-
-                    // Campo peso
-                    if (!isCardio) {
-                        OutlinedTextField(
-                            value = peso,
-                            onValueChange = { peso = it },
-                            label = { Text("Peso (kg)") },
-                            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    }
-
-                    Spacer(modifier = Modifier.height(8.dp))
-
+                    
                     // Botón añadir ejercicio
                     AnimatedAccessButton(buttonText = "Añadir ejercicio") {
                         val errorNombreEjercicio = nombreEjercicio.isBlank()
@@ -283,7 +270,6 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
                                 reps = reps.toIntOrNull() ?: 0,
                                 duracion = if (isCardio) duracion.toIntOrNull() ?: 0 else 0,
                                 intensidad = intensidad.lowercase(),
-                                peso = peso.toIntOrNull() ?: 0
                             )
                             ejercicios.add(nuevoEjercicio)
 
@@ -295,7 +281,6 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
                             reps = ""
                             duracion = ""
                             intensidad = ""
-                            peso = ""
 
                             scope.launch {
                                 snackbarHostState.showSnackbar("Ejercicio añadido correctamente")
@@ -319,7 +304,15 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
                                 snackbarHostState.showSnackbar("Añade un nombre de rutina y al menos un ejercicio")
                             }
                         } else {
-                            viewModel.saveFullRoutine(nombreRutina, ejercicios) { success ->
+                            val esAdmin = FirebaseAuth.getInstance().currentUser?.email == "admin@gymtrack.com"
+
+                            val guardarRutina = if (esAdmin) {
+                                viewModel::savePredefinedRoutine
+                            } else {
+                                viewModel::saveFullRoutine
+                            }
+
+                            guardarRutina(nombreRutina, ejercicios) { success ->
                                 scope.launch {
                                     if (success) {
                                         snackbarHostState.showSnackbar("Rutina guardada con éxito")
@@ -332,6 +325,7 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
                             }
                         }
                     }
+
 
 
                     Spacer(modifier = Modifier.height(100.dp)) // Espacio extra para no solapar el menú inferior
