@@ -36,6 +36,7 @@ import com.example.gymtrack.viewmodel.AuthViewModel
 import kotlinx.coroutines.launch
 import com.example.gymtrack.R
 import com.example.gymtrack.navigation.AnimatedAccessButton
+import com.example.gymtrack.navigation.FancySnackbarHost
 
 @SuppressLint("UnrememberedMutableState")
 @Composable
@@ -60,7 +61,9 @@ fun ForgotPasswordScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) { padding ->
+    Scaffold(snackbarHost = {
+        FancySnackbarHost(snackbarHostState)
+    }) { padding ->
         Column(modifier = Modifier.fillMaxSize()) {
 
             // Cabecera visual
@@ -89,8 +92,18 @@ fun ForgotPasswordScreen(
                         .align(Alignment.BottomStart)
                         .padding(horizontal = 24.dp, vertical = 16.dp)
                 ) {
-                    Text("Recupera tu", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.Black)
-                    Text("contraseña", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+                    Text(
+                        "Recupera tu",
+                        fontSize = 28.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
+                    )
+                    Text(
+                        "contraseña",
+                        fontSize = 28.sp,
+                        fontWeight = FontWeight.Bold,
+                        color = Color.Black
+                    )
                 }
             }
 

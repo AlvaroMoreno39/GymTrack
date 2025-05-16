@@ -50,6 +50,7 @@ import androidx.navigation.NavHostController
 import com.example.gymtrack.R
 import com.example.gymtrack.navigation.AnimatedAccessButton
 import com.example.gymtrack.navigation.AnimatedEntrance
+import com.example.gymtrack.navigation.FancySnackbarHost
 import com.example.gymtrack.navigation.Screen
 import com.example.gymtrack.viewmodel.AuthViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
@@ -126,7 +127,9 @@ fun LoginScreen(
         }
     }
 
-    Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) { padding ->
+    Scaffold(snackbarHost = {
+        FancySnackbarHost(snackbarHostState)
+    }) { padding ->
 
         Column(modifier = Modifier.fillMaxSize()) {
 

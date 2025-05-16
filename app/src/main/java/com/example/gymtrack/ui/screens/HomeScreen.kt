@@ -69,7 +69,6 @@ fun HomeScreen(navController: NavHostController) {
             Triple("Registrar nueva rutina", "Crea una nueva rutina personalizada", R.drawable.register_routine),
             Triple("Ver rutinas predefinidas", "Explora rutinas ya creadas y añádelas", R.drawable.predefined_routine),
             Triple("Ver mis rutinas", "Accede a todas tus rutinas guardadas", R.drawable.my_routines),
-            Triple("Ver progreso de ejercicios", "Mira tus avances en los ejercicios", R.drawable.progress_chart),
             Triple("Temporizador", "Controla tu tiempo de entrenamiento", R.drawable.timer)
         )
     }
@@ -112,7 +111,6 @@ fun HomeScreen(navController: NavHostController) {
                             Text(
                                 "¿Qué quieres hacer?",
                                 fontSize = 24.sp,
-                                fontWeight = FontWeight.Bold,
                                 color = Color.Black
                             )
                         }

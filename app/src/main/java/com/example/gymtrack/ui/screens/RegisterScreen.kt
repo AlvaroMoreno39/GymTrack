@@ -36,6 +36,7 @@ import androidx.navigation.NavHostController
 import com.example.gymtrack.R
 import com.example.gymtrack.navigation.AnimatedAccessButton
 import com.example.gymtrack.navigation.AnimatedEntrance
+import com.example.gymtrack.navigation.FancySnackbarHost
 import com.example.gymtrack.navigation.Screen
 import com.example.gymtrack.viewmodel.AuthViewModel
 import kotlinx.coroutines.launch
@@ -83,7 +84,9 @@ fun RegisterScreen(
     val passwordsMatch by derivedStateOf { confirmPassword == password }
 
     Scaffold(
-        snackbarHost = { SnackbarHost(hostState = snackbarHostState) }
+        snackbarHost = {
+            FancySnackbarHost(snackbarHostState)
+        }
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize()) {
             AnimatedEntrance {

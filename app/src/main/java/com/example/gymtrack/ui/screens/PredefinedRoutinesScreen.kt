@@ -27,6 +27,7 @@ import com.example.gymtrack.viewmodel.PredefinedRoutinesViewModel
 import com.example.gymtrack.viewmodel.RoutineData
 import com.example.gymtrack.viewmodel.RoutineViewModel
 import com.example.gymtrack.R
+import com.example.gymtrack.navigation.FancySnackbarHost
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
@@ -47,7 +48,9 @@ fun PredefinedRoutinesScreen(
         viewModel.fetchRoutines { result -> routines = result }
     }
 
-    Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) {
+    Scaffold(snackbarHost = {
+        FancySnackbarHost(snackbarHostState)
+    }) {
         Column(modifier = Modifier.fillMaxSize()) {
 
             // Cabecera
@@ -148,8 +151,7 @@ fun PredefinedRoutinesScreen(
                                                 ?.savedStateHandle
                                                 ?.set("predefined_routine", rutina)
                                             navController.navigate("predefined_routine_detail")
-                                        }
-                                        ,
+                                        },
                                         containerColor = Color.Black,
                                         contentColor = Color.White,
                                         borderColor = Color.Black,

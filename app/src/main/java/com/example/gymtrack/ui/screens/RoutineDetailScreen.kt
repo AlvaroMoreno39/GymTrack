@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.gymtrack.navigation.AnimatedEntrance
 import com.example.gymtrack.R
+import com.example.gymtrack.navigation.FancySnackbarHost
 import com.example.gymtrack.viewmodel.Exercise
 import kotlinx.coroutines.launch
 
@@ -72,7 +73,9 @@ fun RoutineDetailScreen(
         }
     }
 
-    Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) {
+    Scaffold(snackbarHost = {
+        FancySnackbarHost(snackbarHostState)
+    }) {
         routine?.let { rutina ->
             Column(modifier = Modifier.fillMaxSize()) {
                 // Cabecera visual
@@ -399,7 +402,7 @@ fun RoutineDetailScreen(
                         }
                     }
 
-                    if (!showAddCard){
+                    if (!showAddCard) {
                         // Botón principal
                         AnimatedAccessButton(
                             buttonText = "Añadir ejercicio",
