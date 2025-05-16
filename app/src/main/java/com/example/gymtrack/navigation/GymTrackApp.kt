@@ -5,7 +5,10 @@ import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInHorizontally
 import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
@@ -27,6 +30,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -255,3 +259,67 @@ fun AnimatedEntrance(content: @Composable () -> Unit) {
         content()
     }
 }
+
+@Composable
+fun FancySnackbarHost(
+    snackbarHostState: SnackbarHostState,
+    modifier: Modifier = Modifier,
+    alignment: Alignment = Alignment.TopCenter
+) {
+    val snackbarData = snackbarHostState.currentSnackbarData
+    var show by remember { mutableStateOf(false) }
+
+    LaunchedEffect(snackbarData) {
+        if (snackbarData != null) {
+            show = true
+            delay(3000)
+            show = false
+            delay(500) // tiempo para dejar que la animación termine
+            snackbarData.dismiss()
+        }
+    }
+
+    AnimatedVisibility(
+        visible = show,
+        enter = slideInHorizontally(
+            initialOffsetX = { it },
+            animationSpec = tween(500, easing = FastOutSlowInEasing)
+        ) + fadeIn(tween(500)),
+        exit = slideOutHorizontally(
+            targetOffsetX = { it },
+            animationSpec = tween(500, easing = FastOutSlowInEasing)
+        ) + fadeOut(tween(500)),
+        modifier = modifier
+            .fillMaxSize()
+            .padding(top = 40.dp)
+    ) {
+        snackbarData?.let { data ->
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = alignment
+            ) {
+                Surface(
+                    shape = RoundedCornerShape(18.dp),
+                    color = Color(0xFFF5F5F5),
+                    border = BorderStroke(1.dp, Color.LightGray),
+                    shadowElevation = 12.dp,
+                    modifier = Modifier
+                        .padding(horizontal = 24.dp)
+                        .wrapContentHeight()
+                        .clip(RoundedCornerShape(18.dp))
+                ) {
+                    Text(
+                        text = data.visuals.message,
+                        color = Color.Black,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Medium,
+                        modifier = Modifier.padding(horizontal = 20.dp, vertical = 14.dp)
+                    )
+                }
+            }
+        }
+    }
+}
+
+
+

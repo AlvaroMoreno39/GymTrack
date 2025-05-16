@@ -29,6 +29,7 @@ import com.example.gymtrack.viewmodel.PredefinedRoutinesViewModel
 import com.example.gymtrack.viewmodel.RoutineData
 import com.example.gymtrack.viewmodel.RoutineViewModel
 import com.example.gymtrack.R
+import com.example.gymtrack.navigation.FancySnackbarHost
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
@@ -71,7 +72,9 @@ fun PredefinedRoutineDetailScreen(
     val intensidades = listOf("Baja", "Media", "Alta")
     val isCardio = tipo.lowercase() == "cardio"
 
-    Scaffold(snackbarHost = { SnackbarHost(snackbarHostState) }) {
+    Scaffold(snackbarHost = {
+        FancySnackbarHost(snackbarHostState)
+    }) {
         rutina?.let { rutina ->
             Column(modifier = Modifier.fillMaxSize()) {
 
@@ -350,7 +353,7 @@ fun PredefinedRoutineDetailScreen(
                             }
                         }
 
-                        if (!showAddCard){
+                        if (!showAddCard) {
                             // Botón principal
                             AnimatedAccessButton(
                                 buttonText = "Añadir ejercicio",

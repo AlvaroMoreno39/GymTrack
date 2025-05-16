@@ -31,6 +31,7 @@ import com.example.gymtrack.navigation.AnimatedEntrance
 import com.example.gymtrack.viewmodel.Exercise
 import com.example.gymtrack.viewmodel.RoutineViewModel
 import com.example.gymtrack.R
+import com.example.gymtrack.navigation.FancySnackbarHost
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -66,7 +67,9 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
     var showTipoError by remember { mutableStateOf(false) }
     var showIntensidadError by remember { mutableStateOf(false) }
 
-    Scaffold(snackbarHost = { SnackbarHost(hostState = snackbarHostState) }) { padding ->
+    Scaffold(snackbarHost = {
+        FancySnackbarHost(snackbarHostState)
+    }) { padding ->
 
         Column(modifier = Modifier.fillMaxSize()) {
 
@@ -244,7 +247,7 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
                             modifier = Modifier.padding(start = 4.dp)
                         )
                     }
-                    
+
                     // Botón añadir ejercicio
                     AnimatedAccessButton(buttonText = "Añadir ejercicio") {
                         val errorNombreEjercicio = nombreEjercicio.isBlank()
@@ -304,7 +307,8 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
                                 snackbarHostState.showSnackbar("Añade un nombre de rutina y al menos un ejercicio")
                             }
                         } else {
-                            val esAdmin = FirebaseAuth.getInstance().currentUser?.email == "admin@gymtrack.com"
+                            val esAdmin =
+                                FirebaseAuth.getInstance().currentUser?.email == "admin@gymtrack.com"
 
                             val guardarRutina = if (esAdmin) {
                                 viewModel::savePredefinedRoutine
