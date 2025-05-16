@@ -88,7 +88,11 @@ fun RegisterScreen(
             FancySnackbarHost(snackbarHostState)
         }
     ) { padding ->
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White) // ← Fondo blanco
+        ) {
             AnimatedEntrance {
                 Box(
                     modifier = Modifier

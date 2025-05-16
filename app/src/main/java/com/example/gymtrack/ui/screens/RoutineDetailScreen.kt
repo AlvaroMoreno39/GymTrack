@@ -77,7 +77,11 @@ fun RoutineDetailScreen(
         FancySnackbarHost(snackbarHostState)
     }) {
         routine?.let { rutina ->
-            Column(modifier = Modifier.fillMaxSize()) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.White) // ← Fondo blanco
+            ) {
                 // Cabecera visual
                 AnimatedEntrance {
                     Box(

@@ -51,7 +51,11 @@ fun PredefinedRoutinesScreen(
     Scaffold(snackbarHost = {
         FancySnackbarHost(snackbarHostState)
     }) {
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White) // ← Fondo blanco
+        ) {
 
             // Cabecera
             AnimatedEntrance {

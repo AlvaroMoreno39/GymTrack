@@ -71,7 +71,11 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
         FancySnackbarHost(snackbarHostState)
     }) { padding ->
 
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White) // ← Fondo blanco
+        ) {
 
             // Cabecera animada
             AnimatedEntrance {

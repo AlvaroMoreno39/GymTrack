@@ -61,7 +61,7 @@ fun GymTrackApp(navController: NavHostController = rememberNavController()) {
             }
         },
         floatingActionButtonPosition = FabPosition.Center,
-        containerColor = MaterialTheme.colorScheme.background
+        containerColor = Color.White
     ) { innerPadding ->
         GymTrackNavHost(navController, innerPadding)
     }
@@ -83,11 +83,15 @@ fun ShareMenuSample(navController: NavHostController) {
             ModalBottomSheet(
                 onDismissRequest = { showSheet = false },
                 sheetState = sheetState,
+                containerColor = Color.White,
                 modifier = Modifier.wrapContentSize()
             ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .background(Color.White) // ← Fondo blanco
+
                 ) {
                     ShareOption(Icons.Filled.Home, "Inicio") {
                         navController.navigate(Screen.Home.route)
@@ -184,6 +188,7 @@ fun ShareOption(icon: ImageVector, text: String, onClick: () -> Unit) {
             .fillMaxWidth()
             .padding(vertical = 12.dp, horizontal = 8.dp)
             .clickable { onClick() } // Aquí hacemos que al pulsar, navegue
+            .background(Color.White) // ← Fondo blanco
     ) {
         Icon(
             imageVector = icon,

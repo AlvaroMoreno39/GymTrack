@@ -42,7 +42,8 @@ import com.example.gymtrack.navigation.FancySnackbarHost
 @Composable
 fun ForgotPasswordScreen(
     navController: NavController,
-    authViewModel: AuthViewModel
+    authViewModel: AuthViewModel,
+    isChangePassword: Boolean = false
 ) {
     LaunchedEffect(Unit) {
         authViewModel.clearError()
@@ -93,7 +94,7 @@ fun ForgotPasswordScreen(
                         .padding(horizontal = 24.dp, vertical = 16.dp)
                 ) {
                     Text(
-                        "Recupera tu",
+                        if (isChangePassword) "Restablece tu" else "Recupera tu",
                         fontSize = 28.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Black
@@ -165,29 +166,33 @@ fun ForgotPasswordScreen(
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(24.dp))
+                    // 👇 Solo si es pantalla de recuperación, muestra esta parte
+                    if (!isChangePassword) {
+                        Spacer(modifier = Modifier.height(24.dp))
 
-                    Row(
-                        modifier = Modifier.fillMaxSize(),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.Bottom
-                    ) {
-                        Text("¿Recuerdas tu contraseña? ", color = Color.Gray, fontSize = 15.sp)
-                        Text(
-                            text = "Inicia sesión",
-                            fontSize = 15.sp,
-                            color = Color.Black,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.clickable {
-                                navController.popBackStack()
-                            }
-                        )
+                        Row(
+                            modifier = Modifier.fillMaxSize(),
+                            horizontalArrangement = Arrangement.Center,
+                            verticalAlignment = Alignment.Bottom
+                        ) {
+                            Text("¿Recuerdas tu contraseña? ", color = Color.Gray, fontSize = 15.sp)
+                            Text(
+                                text = "Inicia sesión",
+                                fontSize = 15.sp,
+                                color = Color.Black,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.clickable {
+                                    navController.popBackStack()
+                                }
+                            )
+                        }
                     }
                 }
             }
         }
     }
 
+    // Snackbar según resultado
     LaunchedEffect(error) {
         error?.let {
             scope.launch {
@@ -200,3 +205,4 @@ fun ForgotPasswordScreen(
         }
     }
 }
+

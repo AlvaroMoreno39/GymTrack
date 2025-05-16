@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -26,15 +27,18 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -44,25 +48,19 @@ import androidx.navigation.NavHostController
 import com.example.gymtrack.R
 import com.example.gymtrack.navigation.AnimatedEntrance
 import com.example.gymtrack.navigation.Screen
+import com.example.gymtrack.viewmodel.AuthViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 
 @Composable
-fun HomeScreen(navController: NavHostController) {
+fun HomeScreen(navController: NavHostController, authViewModel: AuthViewModel) {
+
     val isAdmin = FirebaseAuth.getInstance().currentUser?.email == "admin@gymtrack.com"
 
     val cards = if (isAdmin) {
         listOf(
-            Triple(
-                "Registrar nueva rutina predefinida",
-                "Crea una rutina para todos los usuarios",
-                R.drawable.register_routine
-            ),
-            Triple(
-                "Ver rutinas predefinidas",
-                "Explora y gestiona tus rutinas predefinidas",
-                R.drawable.predefined_routine
-            )
+            Triple("Registrar nueva rutina predefinida", "Crea una rutina para todos los usuarios", R.drawable.register_routine),
+            Triple("Ver rutinas predefinidas", "Explora y gestiona tus rutinas predefinidas", R.drawable.predefined_routine)
         )
     } else {
         listOf(
@@ -75,7 +73,9 @@ fun HomeScreen(navController: NavHostController) {
 
     Scaffold { padding ->
         LazyColumn(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White) // <- Fondo blanco forzado
         ) {
             item {
                 AnimatedEntrance {
@@ -102,23 +102,13 @@ fun HomeScreen(navController: NavHostController) {
                                 .align(Alignment.BottomStart)
                                 .padding(horizontal = 24.dp, vertical = 16.dp)
                         ) {
-                            Text(
-                                "Bienvenido",
-                                fontSize = 28.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.Black
-                            )
-                            Text(
-                                "¿Qué quieres hacer?",
-                                fontSize = 24.sp,
-                                color = Color.Black
-                            )
+                            Text("Bienvenido", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+                            Text("¿Qué quieres hacer?", fontSize = 24.sp, color = Color.Black)
                         }
                     }
                 }
             }
 
-            // Mostrar las cards definidas según sea admin o no
             itemsIndexed(cards) { index, (title, desc, img) ->
                 AnimatedVisibility(
                     visible = true,
@@ -151,7 +141,6 @@ fun HomeScreen(navController: NavHostController) {
     }
 }
 
-
 @Composable
 fun RutinasCard(
     title: String,
@@ -162,6 +151,7 @@ fun RutinasCard(
     Card(
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
+        colors = CardDefaults.cardColors(containerColor = Color.White), // <- Fuerza blanco
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 24.dp, vertical = 12.dp)
@@ -210,6 +200,7 @@ fun RutinasCard(
     }
 }
 
+
 @Composable
 fun AnimatedAccessButton(onClick: () -> Unit) {
     var pressed by remember { mutableStateOf(false) }
@@ -245,6 +236,7 @@ fun AnimatedAccessButton(onClick: () -> Unit) {
         contentPadding = PaddingValues(horizontal = 24.dp, vertical = 8.dp), // 👈 Altura como antes
         modifier = Modifier
             .defaultMinSize(minWidth = 140.dp) // 👈 Solo ensanchamos el botón
+            .width(200.dp)
     ) {
         Text(text = "Acceder", fontSize = 14.sp)
     }
