@@ -141,7 +141,10 @@ fun TimerScreen(navController: NavHostController) {
         FancySnackbarHost(snackbarHostState)
     }) { padding ->
         LazyColumn(
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White) // ← Fondo blanco
+
         ) {
 
             item {

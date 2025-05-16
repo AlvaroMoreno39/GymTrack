@@ -64,7 +64,9 @@ fun MyRoutineScreen(
     Scaffold(
         snackbarHost = { FancySnackbarHost(snackbarHostState) }
     ) {
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column(modifier = Modifier
+            .fillMaxSize()
+            .background(Color.White)) {
 
             // Cabecera animada
             AnimatedEntrance {
@@ -91,8 +93,18 @@ fun MyRoutineScreen(
                             .align(Alignment.BottomStart)
                             .padding(horizontal = 24.dp, vertical = 16.dp)
                     ) {
-                        Text("Tus", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.Black)
-                        Text("rutinas", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+                        Text(
+                            "Tus",
+                            fontSize = 28.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
+                        )
+                        Text(
+                            "rutinas",
+                            fontSize = 28.sp,
+                            fontWeight = FontWeight.Bold,
+                            color = Color.Black
+                        )
                     }
                 }
             }
@@ -111,7 +123,7 @@ fun MyRoutineScreen(
                             modifier = Modifier.fillMaxWidth(),
                             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                             shape = RoundedCornerShape(16.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color(0xFFE8E8E8))
+                            colors = CardDefaults.cardColors(containerColor = Color.White)
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
 

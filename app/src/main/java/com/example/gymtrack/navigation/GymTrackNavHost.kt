@@ -57,9 +57,16 @@ fun GymTrackNavHost(
             )
         }
 
-        composable(Screen.ForgotPassword.route) {
-            ForgotPasswordScreen(navController, authViewModel)
+        composable(
+            route = Screen.ForgotPassword.route + "?change={change}",
+            arguments = listOf(navArgument("change") {
+                defaultValue = "false"
+            })
+        ) { backStackEntry ->
+            val isChange = backStackEntry.arguments?.getString("change") == "true"
+            ForgotPasswordScreen(navController, authViewModel, isChangePassword = isChange)
         }
+
 
         composable(Screen.Register.route) {
             RegisterScreen(
@@ -74,7 +81,7 @@ fun GymTrackNavHost(
         }
 
         composable(Screen.Home.route) {
-            HomeScreen(navController)
+            HomeScreen(navController = navController, authViewModel = authViewModel)
         }
 
         composable(Screen.MyRoutines.route) {
@@ -101,7 +108,7 @@ fun GymTrackNavHost(
         }
 
         composable(Screen.Settings.route) {
-            SettingsScreen(authViewModel, navController)
+            SettingsScreen(navController, authViewModel = authViewModel)
         }
 
         composable("predefined_routine_detail") {

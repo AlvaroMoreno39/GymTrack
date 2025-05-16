@@ -131,7 +131,11 @@ fun LoginScreen(
         FancySnackbarHost(snackbarHostState)
     }) { padding ->
 
-        Column(modifier = Modifier.fillMaxSize()) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color.White) // ← Fondo blanco total
+        ) {
 
             // 🚫 La cabecera NO SE ANIMA
             Box(

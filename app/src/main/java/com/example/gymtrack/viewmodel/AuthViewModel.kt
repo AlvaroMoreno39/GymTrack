@@ -94,9 +94,9 @@ class AuthViewModel : ViewModel() {
      * Cierra la sesión del usuario actual.
      * También muestra un Toast informando que se ha cerrado sesión.
      */
-    fun logout(context: Context) {
+    fun logout() {
         FirebaseAuth.getInstance().signOut()
-        Toast.makeText(context, "Sesión cerrada", Toast.LENGTH_SHORT).show()
+        _user.value = null
     }
 
     /**

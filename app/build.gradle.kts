@@ -44,10 +44,12 @@ android {
 dependencies {
     implementation("com.google.android.gms:play-services-auth:21.3.0")
 
-    implementation("androidx.compose.ui:ui-text-google-fonts:1.7.8") // Usa versión acorde a Compose
+    implementation("androidx.compose.ui:ui-text-google-fonts:1.8.1") // Usa versión acorde a Compose
 
     // Import the Firebase BoM
     implementation(platform(libs.firebase.bom))
+
+    implementation("androidx.compose.material3:material3:1.3.2") // O versión reciente
 
     // Add the dependencies for the Firebase modules you want to use
     implementation(libs.firebase.auth)
