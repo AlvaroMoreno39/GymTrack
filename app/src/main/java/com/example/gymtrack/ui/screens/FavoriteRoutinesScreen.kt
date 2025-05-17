@@ -37,27 +37,26 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarBorder
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gymtrack.navigation.FancySnackbarHost
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
-fun MyRoutineScreen(
-    viewModel: RoutineViewModel,
+fun FavoriteRoutinesScreen(
+    viewModel: RoutineViewModel = viewModel(),
     navController: NavHostController
 ) {
-    val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
-    var routines by remember { mutableStateOf<List<Pair<String, RoutineData>>>(emptyList()) }
+    var favorites by remember { mutableStateOf<List<Pair<String, RoutineData>>>(emptyList()) }
 
-    // Carga las rutinas al abrir la pantalla
     LaunchedEffect(Unit) {
-        viewModel.getUserRoutines { loaded ->
-            routines = loaded
-            if (loaded.isEmpty()) {
+        viewModel.getUserRoutines { allRoutines ->
+            favorites = allRoutines.filter { it.second.esFavorita }
+            if (favorites.isEmpty()) {
                 scope.launch {
-                    snackbarHostState.showSnackbar("No tienes rutinas aún ⚠️")
+                    snackbarHostState.showSnackbar("No tienes rutinas favoritas aún ⭐")
                 }
             }
         }
@@ -66,19 +65,15 @@ fun MyRoutineScreen(
     Scaffold(
         snackbarHost = { FancySnackbarHost(snackbarHostState) }
     ) {
-        Column(modifier = Modifier
-            .fillMaxSize()
-            .background(Color.White)) {
+        Column(modifier = Modifier.fillMaxSize().background(Color.White)) {
 
-            // Cabecera animada
+            // Cabecera visual
             AnimatedEntrance {
                 Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(250.dp)
+                    modifier = Modifier.fillMaxWidth().height(250.dp)
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.my_routines),
+                        painter = painterResource(id = R.drawable.favorite_routines),
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize()
@@ -95,23 +90,13 @@ fun MyRoutineScreen(
                             .align(Alignment.BottomStart)
                             .padding(horizontal = 24.dp, vertical = 16.dp)
                     ) {
-                        Text(
-                            "Tus",
-                            fontSize = 28.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.Black
-                        )
-                        Text(
-                            "rutinas",
-                            fontSize = 28.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.Black
-                        )
+                        Text("Tus", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+                        Text("favoritas ⭐", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.Black)
                     }
                 }
             }
 
-            // Lista de rutinas animada
+            // Lista
             AnimatedEntrance {
                 LazyColumn(
                     modifier = Modifier
@@ -119,8 +104,7 @@ fun MyRoutineScreen(
                         .padding(horizontal = 20.dp, vertical = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(20.dp)
                 ) {
-                    items(routines, key = { it.first }) { (id_rutina, rutina) ->
-
+                    items(favorites, key = { it.first }) { (id_rutina, rutina) ->
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
@@ -130,13 +114,15 @@ fun MyRoutineScreen(
                             Column(modifier = Modifier.padding(16.dp)) {
 
                                 Box(modifier = Modifier.fillMaxWidth()) {
-                                    // ⭐ Estrella de favoritos arriba a la derecha
+                                    // ⭐ Estrella para desmarcar
                                     IconToggleButton(
                                         checked = rutina.esFavorita,
                                         onCheckedChange = { isFavorite ->
                                             viewModel.toggleFavorite(id_rutina, isFavorite) { success ->
                                                 if (success) {
-                                                    viewModel.getUserRoutines { updated -> routines = updated }
+                                                    viewModel.getUserRoutines { updated ->
+                                                        favorites = updated.filter { it.second.esFavorita }
+                                                    }
                                                     scope.launch {
                                                         snackbarHostState.showSnackbar(
                                                             if (isFavorite) "Añadida a favoritos ⭐" else "Eliminada de favoritos ❌"
@@ -157,13 +143,12 @@ fun MyRoutineScreen(
                                             imageVector = if (rutina.esFavorita) Icons.Filled.Star else Icons.Outlined.StarBorder,
                                             contentDescription = "Favorita",
                                             tint = if (rutina.esFavorita) Color(0xFFFFC107) else Color.Gray,
-                                            modifier = Modifier.size(27.dp) // ⭐ TAMAÑO MÁS GRANDE
+                                            modifier = Modifier.size(27.dp)
                                         )
                                     }
 
-                                    // 📦 Contenido principal dentro de una Column
+                                    // Contenido
                                     Column(modifier = Modifier.padding(16.dp)) {
-                                        // 🏋️‍♂️ Nombre de la rutina
                                         Row(verticalAlignment = Alignment.CenterVertically) {
                                             Icon(
                                                 imageVector = Icons.Default.FitnessCenter,
@@ -182,7 +167,6 @@ fun MyRoutineScreen(
 
                                         Spacer(modifier = Modifier.height(6.dp))
 
-                                        // 🧮 Cantidad de ejercicios
                                         Text(
                                             text = "${rutina.ejercicios.size} ejercicio${if (rutina.ejercicios.size == 1) "" else "s"}",
                                             color = Color.Gray,
@@ -191,109 +175,27 @@ fun MyRoutineScreen(
 
                                         Spacer(modifier = Modifier.height(16.dp))
 
-                                        // Botones
-                                        Row(
-                                            modifier = Modifier.fillMaxWidth(),
-                                            horizontalArrangement = Arrangement.SpaceBetween
-                                        ) {
-                                            // 🔍 Ver rutina
-                                            AnimatedAccessButton(
-                                                buttonText = "Ver rutina",
-                                                onClick = {
-                                                    navController.navigate(Screen.RoutineDetail.createRoute(id_rutina))
-                                                },
-                                                containerColor = Color.Black,
-                                                contentColor = Color.White,
-                                                borderColor = Color.Black,
-                                                modifier = Modifier
-                                                    .weight(1f)
-                                                    .height(50.dp)
-                                            )
-
-                                            Spacer(modifier = Modifier.width(12.dp))
-
-                                            // 🗑️ Eliminar rutina
-                                            AnimatedAccessButton(
-                                                buttonText = "Eliminar",
-                                                onClick = {
-                                                    viewModel.deleteRoutine(id_rutina) { success ->
-                                                        if (success) {
-                                                            scope.launch {
-                                                                snackbarHostState.showSnackbar("Rutina eliminada ✅")
-                                                            }
-                                                            viewModel.getUserRoutines { updated -> routines = updated }
-                                                        } else {
-                                                            scope.launch {
-                                                                snackbarHostState.showSnackbar("Error al eliminar ❌")
-                                                            }
-                                                        }
-                                                    }
-                                                },
-                                                containerColor = Color.Red,
-                                                contentColor = Color.White,
-                                                borderColor = Color.Red,
-                                                modifier = Modifier
-                                                    .weight(1f)
-                                                    .height(50.dp)
-                                            )
-                                        }
+                                        AnimatedAccessButton(
+                                            buttonText = "Ver rutina",
+                                            onClick = {
+                                                navController.navigate(Screen.RoutineDetail.createRoute(id_rutina))
+                                            },
+                                            containerColor = Color.Black,
+                                            contentColor = Color.White,
+                                            borderColor = Color.Black,
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .height(50.dp)
+                                        )
                                     }
                                 }
-
                             }
                         }
                     }
 
-                    item {
-                        Spacer(modifier = Modifier.height(100.dp))
-                    }
+                    item { Spacer(modifier = Modifier.height(100.dp)) }
                 }
             }
         }
     }
 }
-
-@Composable
-fun AnimatedAccessButton(
-    buttonText: String = "Acceder",
-    onClick: () -> Unit,
-    containerColor: Color = Color.Black,
-    contentColor: Color = Color.White,
-    borderColor: Color = Color.Black,
-    modifier: Modifier = Modifier
-) {
-    var pressed by remember { mutableStateOf(false) }
-
-    val animatedBackground by animateColorAsState(
-        targetValue = if (pressed) contentColor else containerColor,
-        label = "ButtonBG"
-    )
-    val animatedContentColor by animateColorAsState(
-        targetValue = if (pressed) containerColor else contentColor,
-        label = "ButtonText"
-    )
-
-    LaunchedEffect(pressed) {
-        if (pressed) {
-            delay(200)
-            pressed = false
-            onClick()
-        }
-    }
-
-    Button(
-        onClick = { pressed = true },
-        modifier = modifier
-            .height(56.dp),
-        shape = RoundedCornerShape(8.dp),
-        border = BorderStroke(1.dp, borderColor),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = animatedBackground,
-            contentColor = animatedContentColor
-        ),
-        contentPadding = PaddingValues()
-    ) {
-        Text(buttonText, fontSize = 16.sp)
-    }
-}
-

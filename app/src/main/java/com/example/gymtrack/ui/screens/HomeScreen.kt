@@ -67,7 +67,8 @@ fun HomeScreen(navController: NavHostController, authViewModel: AuthViewModel) {
             Triple("Registrar nueva rutina", "Crea una nueva rutina personalizada", R.drawable.register_routine),
             Triple("Ver rutinas predefinidas", "Explora rutinas ya creadas y añádelas", R.drawable.predefined_routine),
             Triple("Ver mis rutinas", "Accede a todas tus rutinas guardadas", R.drawable.my_routines),
-            Triple("Temporizador", "Controla tu tiempo de entrenamiento", R.drawable.timer)
+            Triple("Rutinas favoritas", "Consulta tus rutinas destacadas", R.drawable.favorite_routines),
+                    Triple("Temporizador", "Controla tu tiempo de entrenamiento", R.drawable.timer)
         )
     }
 
@@ -128,7 +129,7 @@ fun HomeScreen(navController: NavHostController, authViewModel: AuthViewModel) {
                                 "Registrar nueva rutina" -> navController.navigate(Screen.RegisterRoutine.route)
                                 "Ver rutinas predefinidas" -> navController.navigate(Screen.PredefinedRoutines.route)
                                 "Ver mis rutinas" -> navController.navigate(Screen.MyRoutines.route)
-                                "Ver progreso de ejercicios" -> navController.navigate(Screen.ExerciseDashboard.route)
+                                "Rutinas favoritas" -> navController.navigate("favoritas")
                                 "Temporizador" -> navController.navigate(Screen.Timer.route)
                             }
                         }

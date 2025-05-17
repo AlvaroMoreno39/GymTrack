@@ -19,8 +19,7 @@ sealed class Screen(val route: String, val title: String) {
         fun createRoute(routineId: String) = "routine_detail/$routineId"
     }
 
-    // Extras
+    object FavoriteRoutines : Screen("favoritas", "Rutinas favoritas")
     object PredefinedRoutines : Screen("predefined_routines", "Rutinas predefinidas")
-    object ExerciseDashboard : Screen("exercise_dashboard", "Progreso por ejercicio")
 
 }

@@ -10,6 +10,7 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
+import com.example.gymtrack.ui.screens.FavoriteRoutinesScreen
 import com.example.gymtrack.ui.screens.ForgotPasswordScreen
 import com.example.gymtrack.ui.screens.HomeScreen
 import com.example.gymtrack.ui.screens.LoginScreen
@@ -45,6 +46,13 @@ fun GymTrackNavHost(
                 navController,
                 authViewModel = authViewModel,
                 onLoginSuccess = { navController.navigate(Screen.Home.route) }
+            )
+        }
+
+        composable(Screen.FavoriteRoutines.route) {
+            FavoriteRoutinesScreen(
+                viewModel = viewModel(),
+                navController = navController
             )
         }
 

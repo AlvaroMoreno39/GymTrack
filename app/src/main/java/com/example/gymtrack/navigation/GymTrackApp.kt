@@ -102,6 +102,11 @@ fun ShareMenuSample(navController: NavHostController) {
                         showSheet = false
                     }
 
+                    ShareOption(Icons.Filled.Star, "Rutinas favoritas") {
+                        navController.navigate("favoritas")
+                        showSheet = false
+                    }
+
                     ShareOption(Icons.Filled.AddCircle, "Registrar rutina") {
                         navController.navigate(Screen.RegisterRoutine.route)
                         showSheet = false
