@@ -37,7 +37,9 @@ class PredefinedRoutinesViewModel : ViewModel() {
             .addOnSuccessListener { result -> // Si la operación fue exitosa...
                 // Convierte cada documento en un objeto de tipo RoutineData
                 val routines = result.mapNotNull { doc ->
-                    doc.toObject(RoutineData::class.java) // Mapea el documento al modelo de datos
+                    doc.toObject(RoutineData::class.java).copy(
+                        esFavorita = doc.getBoolean("esFavorita") ?: false
+                    )
                 }
                 _routines.value = routines // Actualiza el StateFlow con la lista de rutinas
                 onResult(routines) // Ejecuta el callback para notificar que la carga fue exitosa

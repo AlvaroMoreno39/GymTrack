@@ -36,7 +36,8 @@ data class RoutineData(
     val nombreRutina: String = "",
     val userId: String = "",
     val fechaCreacion: Timestamp = Timestamp.now(),
-    val ejercicios: List<Exercise> = emptyList()
+    val ejercicios: List<Exercise> = emptyList(),
+    val esFavorita: Boolean = false
 ) : Parcelable
 
 // ViewModel que maneja toda la lógica de operaciones sobre rutinas (CRUD)
@@ -45,6 +46,47 @@ class RoutineViewModel : ViewModel() {
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
+    // ⭐ Marcar rutina como favorita o quitarla
+    fun toggleFavorite(routineId: String, isFavorite: Boolean, onResult: (Boolean) -> Unit) {
+        db.collection("rutinas")
+            .document(routineId)
+            .update("esFavorita", isFavorite)
+            .addOnSuccessListener {
+                onResult(true)
+            }
+            .addOnFailureListener {
+                onResult(false)
+            }
+    }
+
+
+    // 🔄 Obtener rutinas del usuario
+    fun getUserRoutines(onResult: (List<Pair<String, RoutineData>>) -> Unit) {
+        val currentUser = auth.currentUser
+        if (currentUser == null) {
+            Log.e("RoutineViewModel", "❌ No hay usuario logueado al obtener rutinas")
+            return
+        }
+
+        db.collection("rutinas")
+            .whereEqualTo("userId", currentUser.uid)
+            .get()
+            .addOnSuccessListener { result ->
+                val routines = result.mapNotNull { doc ->
+                    val rutina = doc.toObject(RoutineData::class.java).copy(
+                        esFavorita = doc.getBoolean("esFavorita") ?: false
+                    )
+                    doc.id to rutina
+                }
+                Log.d("RoutineViewModel", "✅ Total rutinas obtenidas: ${routines.size}")
+                onResult(routines)
+            }
+            .addOnFailureListener {
+                Log.e("RoutineViewModel", "❌ Error al obtener rutinas: ${it.message}")
+            }
+    }
+
+    // 💾 Guardar rutina personalizada
     fun saveFullRoutine(
         nombreRutina: String,
         ejercicios: List<Exercise>,
@@ -73,30 +115,6 @@ class RoutineViewModel : ViewModel() {
             .addOnFailureListener {
                 Log.e("RoutineViewModel", "❌ Error al guardar rutina: ${it.message}")
                 onResult(false)
-            }
-    }
-
-    fun getUserRoutines(onResult: (List<Pair<String, RoutineData>>) -> Unit) {
-        val currentUser = auth.currentUser
-        if (currentUser == null) {
-            Log.e("RoutineViewModel", "❌ No hay usuario logueado al obtener rutinas")
-            return
-        }
-
-        db.collection("rutinas")
-            .whereEqualTo("userId", currentUser.uid)
-            .get()
-            .addOnSuccessListener { result ->
-                val routines = result.mapNotNull { doc ->
-                    val rutina = doc.toObject(RoutineData::class.java)
-                    Log.d("RoutineViewModel", "📄 Rutina encontrada: ${rutina.nombreRutina} (UID: ${rutina.userId})")
-                    doc.id to rutina
-                }
-                Log.d("RoutineViewModel", "✅ Total rutinas obtenidas: ${routines.size}")
-                onResult(routines)
-            }
-            .addOnFailureListener {
-                Log.e("RoutineViewModel", "❌ Error al obtener rutinas: ${it.message}")
             }
     }
 
@@ -239,5 +257,5 @@ class RoutineViewModel : ViewModel() {
             }
             .addOnFailureListener { onResult(false) }
     }
-
 }
+
