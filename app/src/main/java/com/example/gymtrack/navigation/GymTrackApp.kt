@@ -31,6 +31,8 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -209,26 +211,29 @@ fun ShareOption(icon: ImageVector, text: String, onClick: () -> Unit) {
     }
 }
 
-
-// BOTÓN DE ACCESO CON ANIMACIÓN PERSONALIZADA
 @Composable
-fun AnimatedAccessButton(buttonText: String = "Acceder", onClick: () -> Unit) {
+fun AnimatedAccessButton(
+    buttonText: String,
+    modifier: Modifier = Modifier,
+    color: Color = Color.Black,
+    contentColor: Color = Color.White,
+    height: Dp = 56.dp,
+    fontSize: TextUnit = 16.sp,
+    border: BorderStroke? = BorderStroke(1.dp, color),
+    cornerRadius: Dp = 8.dp,
+    onClick: () -> Unit
+) {
     var pressed by remember { mutableStateOf(false) }
 
-    val animationSpec = tween<Color>(
-        durationMillis = 350,
-        easing = FastOutSlowInEasing
-    )
-
     val backgroundColor by animateColorAsState(
-        targetValue = if (pressed) Color.White else Color.Black,
-        animationSpec = animationSpec,
+        targetValue = if (pressed) contentColor else color,
+        animationSpec = tween(durationMillis = 350),
         label = "ButtonBackgroundColor"
     )
 
-    val contentColor by animateColorAsState(
-        targetValue = if (pressed) Color.Black else Color.White,
-        animationSpec = animationSpec,
+    val animatedContentColor by animateColorAsState(
+        targetValue = if (pressed) color else contentColor,
+        animationSpec = tween(durationMillis = 350),
         label = "ButtonContentColor"
     )
 
@@ -242,20 +247,21 @@ fun AnimatedAccessButton(buttonText: String = "Acceder", onClick: () -> Unit) {
 
     Button(
         onClick = { pressed = true },
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(56.dp),
-        shape = RoundedCornerShape(8.dp),
-        border = BorderStroke(1.dp, Color.Black),
+        modifier = modifier
+            .height(height)
+            .defaultMinSize(minWidth = 100.dp),
+        shape = RoundedCornerShape(cornerRadius),
+        border = border,
         colors = ButtonDefaults.buttonColors(
             containerColor = backgroundColor,
-            contentColor = contentColor
+            contentColor = animatedContentColor
         ),
         contentPadding = PaddingValues()
     ) {
-        Text(buttonText, fontSize = 16.sp)
+        Text(buttonText, fontSize = fontSize)
     }
 }
+
 
 @Composable
 fun AnimatedEntrance(content: @Composable () -> Unit) {

@@ -283,18 +283,26 @@ fun LoginScreen(
                     Spacer(modifier = Modifier.height(16.dp))
 
                     // Botón de login con validación previa
-                    AnimatedAccessButton {
-                        showEmailError = email.isBlank() || !isValidEmail
-                        showPasswordError = password.isBlank()
+                    AnimatedAccessButton(
+                        buttonText = "Acceder",
+                        color = Color.Black,
+                        contentColor = Color.White,
+                        fontSize = 16.sp,
+                        border = BorderStroke(1.dp, Color.Black),
+                        modifier = Modifier.fillMaxWidth(),
+                        onClick = {
+                            showEmailError = email.isBlank() || !isValidEmail
+                            showPasswordError = password.isBlank()
 
-                        if (!showEmailError && !showPasswordError) {
-                            authViewModel.login(email, password)
-                        } else {
-                            scope.launch {
-                                snackbarHostState.showSnackbar("Por favor, completa todos los campos correctamente")
+                            if (!showEmailError && !showPasswordError) {
+                                authViewModel.login(email, password)
+                            } else {
+                                scope.launch {
+                                    snackbarHostState.showSnackbar("Por favor, completa todos los campos correctamente")
+                                }
                             }
                         }
-                    }
+                    )
 
                     Spacer(modifier = Modifier.height(24.dp))
 

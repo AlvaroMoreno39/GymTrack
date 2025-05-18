@@ -31,6 +31,7 @@ import com.example.gymtrack.navigation.AnimatedEntrance
 import com.example.gymtrack.viewmodel.Exercise
 import com.example.gymtrack.viewmodel.RoutineViewModel
 import com.example.gymtrack.R
+import com.example.gymtrack.navigation.AnimatedAccessButton
 import com.example.gymtrack.navigation.FancySnackbarHost
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
@@ -253,7 +254,7 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
                     }
 
                     // Botón añadir ejercicio
-                    AnimatedAccessButton(buttonText = "Añadir ejercicio") {
+                    AnimatedAccessButton(buttonText = "Añadir ejercicio", modifier = Modifier.fillMaxWidth()) {
                         val errorNombreEjercicio = nombreEjercicio.isBlank()
                         val errorGrupoMuscular = grupoMuscular.isBlank()
                         val errorTipo = tipo.isBlank()
@@ -302,7 +303,7 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
                     )
 
                     // Botón guardar rutina
-                    AnimatedAccessButton(buttonText = "Guardar rutina completa") {
+                    AnimatedAccessButton(buttonText = "Guardar rutina completa", modifier = Modifier.fillMaxWidth()) {
                         val errorNombreRutina = nombreRutina.isBlank()
                         showNombreRutinaError = errorNombreRutina
 
@@ -381,52 +382,5 @@ fun DropDownSelector(
                 )
             }
         }
-    }
-}
-
-// BOTÓN DE ACCESO CON ANIMACIÓN PERSONALIZADA
-@Composable
-fun AnimatedAccessButton(buttonText: String = "Acceder", onClick: () -> Unit) {
-    var pressed by remember { mutableStateOf(false) }
-
-    val animationSpec = tween<Color>(
-        durationMillis = 350,
-        easing = FastOutSlowInEasing
-    )
-
-    val backgroundColor by animateColorAsState(
-        targetValue = if (pressed) Color.White else Color.Black,
-        animationSpec = animationSpec,
-        label = "ButtonBackgroundColor"
-    )
-
-    val contentColor by animateColorAsState(
-        targetValue = if (pressed) Color.Black else Color.White,
-        animationSpec = animationSpec,
-        label = "ButtonContentColor"
-    )
-
-    LaunchedEffect(pressed) {
-        if (pressed) {
-            delay(200)
-            pressed = false
-            onClick()
-        }
-    }
-
-    Button(
-        onClick = { pressed = true },
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(56.dp),
-        shape = RoundedCornerShape(8.dp),
-        border = BorderStroke(1.dp, Color.Black),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = backgroundColor,
-            contentColor = contentColor
-        ),
-        contentPadding = PaddingValues()
-    ) {
-        Text(buttonText, fontSize = 16.sp)
     }
 }

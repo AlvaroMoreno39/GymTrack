@@ -59,6 +59,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
+import com.example.gymtrack.navigation.AnimatedAccessButton
 import com.example.gymtrack.navigation.FancySnackbarHost
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -302,7 +303,6 @@ fun TimerScreen(navController: NavHostController) {
                                 buttonText = "Reiniciar",
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(56.dp)
                             ) {
                                 resetTimer()
                                 finished = false
@@ -310,7 +310,7 @@ fun TimerScreen(navController: NavHostController) {
                         } else {
                             // Modo normal: botones Iniciar/Pausar + Restablecer
                             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                                AnimatedAccessButton(buttonText = if (isRunning) "Pausar" else "Iniciar") {
+                                AnimatedAccessButton(buttonText = if (isRunning) "Pausar" else "Iniciar", modifier = Modifier.fillMaxWidth()) {
                                     if (isRunning) pauseTimer() else startTimer()
                                 }
                             }
@@ -323,7 +323,6 @@ fun TimerScreen(navController: NavHostController) {
                                 contentColor = Color.White,
                                 modifier = Modifier
                                     .fillMaxWidth()
-                                    .height(56.dp)
                             ) {
                                 selectedTime = 60_000L
                                 timeLeft = 60_000L
@@ -421,51 +420,5 @@ fun TimerHeader() {
                 )
             }
         }
-    }
-}
-
-@Composable
-fun AnimatedAccessButton(
-    buttonText: String = "Acceder",
-    modifier: Modifier = Modifier,
-    color: Color = Color.Black,
-    contentColor: Color = Color.White,
-    onClick: () -> Unit
-) {
-    var pressed by remember { mutableStateOf(false) }
-
-    val backgroundColor by animateColorAsState(
-        targetValue = if (pressed) contentColor else color,
-        animationSpec = tween(durationMillis = 350),
-        label = "ButtonBackgroundColor"
-    )
-
-    val animatedContentColor by animateColorAsState(
-        targetValue = if (pressed) color else contentColor,
-        animationSpec = tween(durationMillis = 350),
-        label = "ButtonContentColor"
-    )
-
-    LaunchedEffect(pressed) {
-        if (pressed) {
-            delay(200)
-            pressed = false
-            onClick()
-        }
-    }
-
-    Button(
-        onClick = { pressed = true },
-        modifier = modifier
-            .height(56.dp),
-        shape = RoundedCornerShape(8.dp),
-        border = BorderStroke(1.dp, color),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = backgroundColor,
-            contentColor = animatedContentColor
-        ),
-        contentPadding = PaddingValues()
-    ) {
-        Text(buttonText, fontSize = 16.sp)
     }
 }

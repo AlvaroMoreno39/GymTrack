@@ -154,7 +154,7 @@ fun ForgotPasswordScreen(
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    AnimatedAccessButton(buttonText = "Enviar correo") {
+                    AnimatedAccessButton(buttonText = "Enviar correo", modifier = Modifier.fillMaxWidth()) {
                         showEmailError = email.isBlank() || !isValidEmail
 
                         if (!showEmailError) {

@@ -46,6 +46,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.gymtrack.R
+import com.example.gymtrack.navigation.AnimatedAccessButton
 import com.example.gymtrack.navigation.AnimatedEntrance
 import com.example.gymtrack.navigation.Screen
 import com.example.gymtrack.viewmodel.AuthViewModel
@@ -152,7 +153,7 @@ fun RutinasCard(
     Card(
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White), // <- Fuerza blanco
+        colors = CardDefaults.cardColors(containerColor = Color.White),
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 24.dp, vertical = 12.dp)
@@ -161,7 +162,6 @@ fun RutinasCard(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxWidth()
         ) {
-            // Imagen ocupando todo el ancho
             Image(
                 painter = painterResource(id = imageRes),
                 contentDescription = null,
@@ -172,7 +172,6 @@ fun RutinasCard(
                     .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
             )
 
-            // Texto y botón
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -195,51 +194,19 @@ fun RutinasCard(
                     textAlign = TextAlign.Center
                 )
 
-                AnimatedAccessButton(onClick = onClick)
+                AnimatedAccessButton(
+                    buttonText = "Acceder",
+                    color = Color.Black,
+                    contentColor = Color.White,
+                    fontSize = 15.sp,
+                    border = BorderStroke(1.dp, Color.Black),
+                    modifier = Modifier.width(150.dp).height(40.dp),
+                    onClick = onClick
+                )
             }
         }
     }
 }
 
 
-@Composable
-fun AnimatedAccessButton(onClick: () -> Unit) {
-    var pressed by remember { mutableStateOf(false) }
-
-    val backgroundColor by animateColorAsState(
-        targetValue = if (pressed) Color.White else Color.Black,
-        animationSpec = tween(durationMillis = 350),
-        label = "ButtonBackgroundColor"
-    )
-
-    val contentColor by animateColorAsState(
-        targetValue = if (pressed) Color.Black else Color.White,
-        animationSpec = tween(durationMillis = 350),
-        label = "ButtonContentColor"
-    )
-
-    LaunchedEffect(pressed) {
-        if (pressed) {
-            delay(200)
-            pressed = false
-            onClick()
-        }
-    }
-
-    Button(
-        onClick = { pressed = true },
-        colors = ButtonDefaults.buttonColors(
-            containerColor = backgroundColor,
-            contentColor = contentColor
-        ),
-        shape = RoundedCornerShape(8.dp),
-        border = BorderStroke(1.dp, Color.Black),
-        contentPadding = PaddingValues(horizontal = 24.dp, vertical = 8.dp), // 👈 Altura como antes
-        modifier = Modifier
-            .defaultMinSize(minWidth = 140.dp) // 👈 Solo ensanchamos el botón
-            .width(200.dp)
-    ) {
-        Text(text = "Acceder", fontSize = 14.sp)
-    }
-}
 
