@@ -23,6 +23,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -49,6 +50,7 @@ import com.example.gymtrack.R
 import com.example.gymtrack.navigation.AnimatedAccessButton
 import com.example.gymtrack.navigation.AnimatedEntrance
 import com.example.gymtrack.navigation.Screen
+import com.example.gymtrack.ui.theme.LightGray
 import com.example.gymtrack.viewmodel.AuthViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
@@ -69,7 +71,8 @@ fun HomeScreen(navController: NavHostController, authViewModel: AuthViewModel) {
             Triple("Ver rutinas predefinidas", "Explora rutinas ya creadas y añádelas", R.drawable.predefined_routine),
             Triple("Ver mis rutinas", "Accede a todas tus rutinas guardadas", R.drawable.my_routines),
             Triple("Rutinas favoritas", "Consulta tus rutinas destacadas", R.drawable.favorite_routines),
-                    Triple("Temporizador", "Controla tu tiempo de entrenamiento", R.drawable.timer)
+            Triple("Temporizador", "Controla tu tiempo de entrenamiento", R.drawable.timer),
+            Triple("Ajustes", "Gestiona tu cuenta, tema y más", R.drawable.settings)
         )
     }
 
@@ -77,7 +80,7 @@ fun HomeScreen(navController: NavHostController, authViewModel: AuthViewModel) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White) // <- Fondo blanco forzado
+                .background(MaterialTheme.colorScheme.background)
         ) {
             item {
                 AnimatedEntrance {
@@ -97,15 +100,15 @@ fun HomeScreen(navController: NavHostController, authViewModel: AuthViewModel) {
                                 .fillMaxWidth()
                                 .height(120.dp)
                                 .align(Alignment.BottomCenter)
-                                .background(Color.White.copy(alpha = 0.65f))
+                                .background(MaterialTheme.colorScheme.background.copy(alpha = 0.65f))
                         )
                         Column(
                             modifier = Modifier
                                 .align(Alignment.BottomStart)
                                 .padding(horizontal = 24.dp, vertical = 16.dp)
                         ) {
-                            Text("Bienvenido", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.Black)
-                            Text("¿Qué quieres hacer?", fontSize = 24.sp, color = Color.Black)
+                            Text("Bienvenido", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
+                            Text("¿Qué quieres hacer?", fontSize = 24.sp, color = MaterialTheme.colorScheme.onBackground)
                         }
                     }
                 }
@@ -132,6 +135,7 @@ fun HomeScreen(navController: NavHostController, authViewModel: AuthViewModel) {
                                 "Ver mis rutinas" -> navController.navigate(Screen.MyRoutines.route)
                                 "Rutinas favoritas" -> navController.navigate("favoritas")
                                 "Temporizador" -> navController.navigate(Screen.Timer.route)
+                                "Ajustes" -> navController.navigate(Screen.Settings.route)
                             }
                         }
                     )
@@ -153,7 +157,7 @@ fun RutinasCard(
     Card(
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 24.dp, vertical = 12.dp)
@@ -183,23 +187,23 @@ fun RutinasCard(
                     text = title,
                     fontSize = 20.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.Black,
+                    color = MaterialTheme.colorScheme.onBackground,
                     textAlign = TextAlign.Center
                 )
 
                 Text(
                     text = description,
                     fontSize = 14.sp,
-                    color = Color.Gray,
+                    color = LightGray,
                     textAlign = TextAlign.Center
                 )
 
                 AnimatedAccessButton(
                     buttonText = "Acceder",
-                    color = Color.Black,
-                    contentColor = Color.White,
+                    color = MaterialTheme.colorScheme.onBackground,
+                    contentColor = MaterialTheme.colorScheme.background,
                     fontSize = 15.sp,
-                    border = BorderStroke(1.dp, Color.Black),
+                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground),
                     modifier = Modifier.width(150.dp).height(40.dp),
                     onClick = onClick
                 )

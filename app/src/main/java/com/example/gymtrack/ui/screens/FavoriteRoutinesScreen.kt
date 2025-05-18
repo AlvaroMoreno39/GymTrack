@@ -40,6 +40,8 @@ import androidx.compose.material.icons.outlined.StarBorder
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gymtrack.navigation.AnimatedAccessButton
 import com.example.gymtrack.navigation.FancySnackbarHost
+import com.example.gymtrack.ui.theme.FavoriteYellow
+import com.example.gymtrack.ui.theme.LightGray
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -66,7 +68,7 @@ fun FavoriteRoutinesScreen(
     Scaffold(
         snackbarHost = { FancySnackbarHost(snackbarHostState) }
     ) {
-        Column(modifier = Modifier.fillMaxSize().background(Color.White)) {
+        Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
 
             // Cabecera visual
             AnimatedEntrance {
@@ -84,15 +86,15 @@ fun FavoriteRoutinesScreen(
                             .fillMaxWidth()
                             .height(120.dp)
                             .align(Alignment.BottomCenter)
-                            .background(Color.White.copy(alpha = 0.65f))
+                            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.65f))
                     )
                     Column(
                         modifier = Modifier
                             .align(Alignment.BottomStart)
                             .padding(horizontal = 24.dp, vertical = 16.dp)
                     ) {
-                        Text("Tus", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.Black)
-                        Text("favoritas ⭐", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+                        Text("Tus", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
+                        Text("favoritas ⭐", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
                     }
                 }
             }
@@ -110,7 +112,7 @@ fun FavoriteRoutinesScreen(
                             modifier = Modifier.fillMaxWidth(),
                             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                             shape = RoundedCornerShape(16.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color.White)
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background)
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
 
@@ -143,7 +145,7 @@ fun FavoriteRoutinesScreen(
                                         Icon(
                                             imageVector = if (rutina.esFavorita) Icons.Filled.Star else Icons.Outlined.StarBorder,
                                             contentDescription = "Favorita",
-                                            tint = if (rutina.esFavorita) Color(0xFFFFC107) else Color.Gray,
+                                            tint = if (rutina.esFavorita) FavoriteYellow else LightGray,
                                             modifier = Modifier.size(27.dp)
                                         )
                                     }
@@ -154,7 +156,7 @@ fun FavoriteRoutinesScreen(
                                             Icon(
                                                 imageVector = Icons.Default.FitnessCenter,
                                                 contentDescription = null,
-                                                tint = Color.Black,
+                                                tint = MaterialTheme.colorScheme.onBackground,
                                                 modifier = Modifier.size(20.dp)
                                             )
                                             Spacer(modifier = Modifier.width(8.dp))
@@ -162,7 +164,7 @@ fun FavoriteRoutinesScreen(
                                                 text = rutina.nombreRutina,
                                                 style = MaterialTheme.typography.titleLarge,
                                                 fontWeight = FontWeight.Bold,
-                                                color = Color.Black
+                                                color = MaterialTheme.colorScheme.onBackground
                                             )
                                         }
 
@@ -170,7 +172,7 @@ fun FavoriteRoutinesScreen(
 
                                         Text(
                                             text = "${rutina.ejercicios.size} ejercicio${if (rutina.ejercicios.size == 1) "" else "s"}",
-                                            color = Color.Gray,
+                                            color = LightGray,
                                             fontSize = 14.sp
                                         )
 
@@ -181,9 +183,9 @@ fun FavoriteRoutinesScreen(
                                             onClick = {
                                                 navController.navigate(Screen.RoutineDetail.createRoute(id_rutina))
                                             },
-                                            color = Color.Black,
-                                            contentColor = Color.White,
-                                            border = BorderStroke(1.dp, Color.Black),
+                                            color = MaterialTheme.colorScheme.onBackground,
+                                            contentColor = MaterialTheme.colorScheme.background,
+                                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground),
                                             modifier = Modifier
                                                 .fillMaxWidth()
                                                 .height(50.dp)

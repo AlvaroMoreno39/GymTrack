@@ -30,6 +30,7 @@ import com.example.gymtrack.viewmodel.RoutineViewModel
 import com.example.gymtrack.R
 import com.example.gymtrack.navigation.AnimatedAccessButton
 import com.example.gymtrack.navigation.FancySnackbarHost
+import com.example.gymtrack.ui.theme.LightGray
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
@@ -54,7 +55,7 @@ fun PredefinedRoutinesScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White)
+                .background(MaterialTheme.colorScheme.background)
         ) {
             AnimatedEntrance {
                 Box(
@@ -63,7 +64,7 @@ fun PredefinedRoutinesScreen(
                         .height(250.dp)
                 ) {
                     Image(
-                        painter = painterResource(id = R.drawable.my_routines),
+                        painter = painterResource(id = R.drawable.predefined_routine),
                         contentDescription = null,
                         contentScale = ContentScale.Crop,
                         modifier = Modifier.fillMaxSize()
@@ -73,15 +74,15 @@ fun PredefinedRoutinesScreen(
                             .fillMaxWidth()
                             .height(120.dp)
                             .align(Alignment.BottomCenter)
-                            .background(Color.White.copy(alpha = 0.65f))
+                            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.65f))
                     )
                     Column(
                         modifier = Modifier
                             .align(Alignment.BottomStart)
                             .padding(horizontal = 24.dp, vertical = 16.dp)
                     ) {
-                        Text("Rutinas", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.Black)
-                        Text("predefinidas", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+                        Text("Rutinas", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
+                        Text("predefinidas", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
                     }
                 }
             }
@@ -98,14 +99,14 @@ fun PredefinedRoutinesScreen(
                             modifier = Modifier.fillMaxWidth(),
                             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                             shape = RoundedCornerShape(16.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color.White)
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Icon(
                                         imageVector = Icons.Default.FitnessCenter,
                                         contentDescription = null,
-                                        tint = Color.Black,
+                                        tint = MaterialTheme.colorScheme.onBackground,
                                         modifier = Modifier.size(20.dp)
                                     )
                                     Spacer(modifier = Modifier.width(8.dp))
@@ -113,7 +114,7 @@ fun PredefinedRoutinesScreen(
                                         text = rutina.nombreRutina,
                                         style = MaterialTheme.typography.titleLarge,
                                         fontWeight = FontWeight.Bold,
-                                        color = Color.Black
+                                        color = MaterialTheme.colorScheme.onBackground
                                     )
                                 }
 
@@ -121,7 +122,7 @@ fun PredefinedRoutinesScreen(
 
                                 Text(
                                     text = "${rutina.ejercicios.size} ejercicio${if (rutina.ejercicios.size == 1) "" else "s"}",
-                                    color = Color.Gray,
+                                    color = LightGray,
                                     fontSize = 14.sp
                                 )
 
@@ -139,9 +140,9 @@ fun PredefinedRoutinesScreen(
                                                 ?.set("predefined_routine", rutina)
                                             navController.navigate("predefined_routine_detail")
                                         },
-                                        color = Color.Black,
-                                        contentColor = Color.White,
-                                        border = BorderStroke(1.dp, Color.Black),
+                                        color = MaterialTheme.colorScheme.onBackground,
+                                        contentColor = MaterialTheme.colorScheme.background,
+                                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground),
                                         modifier = Modifier
                                             .weight(1f)
                                             .height(50.dp)
@@ -163,9 +164,9 @@ fun PredefinedRoutinesScreen(
                                                     }
                                                 }
                                             },
-                                            color = Color.Red,
-                                            contentColor = Color.White,
-                                            border = BorderStroke(1.dp, Color.Red),
+                                            color = MaterialTheme.colorScheme.error,
+                                            contentColor = MaterialTheme.colorScheme.background,
+                                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.error),
                                             modifier = Modifier
                                                 .weight(1f)
                                                 .height(50.dp)
@@ -186,9 +187,9 @@ fun PredefinedRoutinesScreen(
                                                     }
                                                 }
                                             },
-                                            color = Color.Black,
-                                            contentColor = Color.White,
-                                            border = BorderStroke(1.dp, Color.Black),
+                                            color = MaterialTheme.colorScheme.onBackground,
+                                            contentColor = MaterialTheme.colorScheme.background,
+                                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground),
                                             modifier = Modifier
                                                 .weight(1f)
                                                 .height(50.dp)

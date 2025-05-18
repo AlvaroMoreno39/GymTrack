@@ -1,11 +1,22 @@
 package com.example.gymtrack.ui.theme
 
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.ui.graphics.Color
 
-val Purple80 = Color(0xFFD0BCFF)
-val PurpleGrey80 = Color(0xFFCCC2DC)
-val Pink80 = Color(0xFFEFB8C8)
+// 🎨 Blanco y negro básicos
+val PureWhite = Color(0xFFFFFFFF)
+val PureBlack = Color(0xFF000000)
 
-val Purple40 = Color(0xFF6650a4)
-val PurpleGrey40 = Color(0xFF625b71)
-val Pink40 = Color(0xFF7D5260)
+// ⚪️ Grises suaves para fondos y bordes
+val SoftWhite = Color(0xFFF5F5F5)    // Fondo Snackbar
+val VeryLightGray = Color(0xFFF0F0F0) // Fondo botón redondo animado
+val LightGray = Color.LightGray      // Bordes y detalles
+
+// 🔴 Colores de alerta / error (usar MaterialTheme.colorScheme.error directamente)
+val DeleteRed = Color(0xFFD32F2F) // Color de botón de eliminar opcional
+
+// 🟡 Color para estrella de favoritos
+val FavoriteYellow = Color(0xFFFFC107)
+
+// ✅ Verde validación contraseña
+val ValidGreen = Color(0xFF00C853)

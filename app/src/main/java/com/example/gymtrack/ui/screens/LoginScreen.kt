@@ -52,6 +52,7 @@ import com.example.gymtrack.navigation.AnimatedAccessButton
 import com.example.gymtrack.navigation.AnimatedEntrance
 import com.example.gymtrack.navigation.FancySnackbarHost
 import com.example.gymtrack.navigation.Screen
+import com.example.gymtrack.ui.theme.LightGray
 import com.example.gymtrack.viewmodel.AuthViewModel
 import com.google.android.gms.auth.api.signin.GoogleSignIn
 import com.google.android.gms.auth.api.signin.GoogleSignInOptions
@@ -134,7 +135,7 @@ fun LoginScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White) // ← Fondo blanco total
+                .background(MaterialTheme.colorScheme.background) // ← Fondo blanco total
         ) {
 
             // 🚫 La cabecera NO SE ANIMA
@@ -154,7 +155,7 @@ fun LoginScreen(
                         .fillMaxWidth()
                         .height(120.dp)
                         .align(Alignment.BottomCenter)
-                        .background(Color.White.copy(alpha = 0.65f))
+                        .background(MaterialTheme.colorScheme.background.copy(alpha = 0.65f))
                 )
                 Column(
                     modifier = Modifier
@@ -165,13 +166,13 @@ fun LoginScreen(
                         "Inicia sesión en tu",
                         fontSize = 28.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.Black
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                     Text(
                         "cuenta",
                         fontSize = 28.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.Black
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                 }
             }
@@ -205,18 +206,18 @@ fun LoginScreen(
                         isError = showEmailError,
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = if (showEmailError) Color.Red else Color.Black,
-                            unfocusedBorderColor = if (showEmailError) Color.Red else Color.Black,
-                            focusedLabelColor = Color.Black,
-                            unfocusedLabelColor = Color.Black,
-                            cursorColor = Color.Black
+                            focusedBorderColor = if (showEmailError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onBackground,
+                            unfocusedBorderColor = if (showEmailError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onBackground,
+                            focusedLabelColor = MaterialTheme.colorScheme.onBackground,
+                            unfocusedLabelColor = MaterialTheme.colorScheme.onBackground,
+                            cursorColor = MaterialTheme.colorScheme.onBackground
                         )
                     )
                     if (showEmailError) {
                         Text(
                             text = "Introduce un correo electrónico válido",
                             fontSize = 12.sp,
-                            color = Color.Red,
+                            color = MaterialTheme.colorScheme.error,
                             modifier = Modifier
                                 .padding(top = 4.dp, start = 4.dp)
                                 .align(Alignment.Start)
@@ -247,11 +248,11 @@ fun LoginScreen(
                         },
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = if (showPasswordError) Color.Red else Color.Black,
-                            unfocusedBorderColor = if (showPasswordError) Color.Red else Color.Black,
-                            focusedLabelColor = Color.Black,
-                            unfocusedLabelColor = Color.Black,
-                            cursorColor = Color.Black
+                            focusedBorderColor = if (showPasswordError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onBackground,
+                            unfocusedBorderColor = if (showPasswordError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onBackground,
+                            focusedLabelColor = MaterialTheme.colorScheme.onBackground,
+                            unfocusedLabelColor = MaterialTheme.colorScheme.onBackground,
+                            cursorColor = MaterialTheme.colorScheme.onBackground
                         )
                     )
 
@@ -259,7 +260,7 @@ fun LoginScreen(
                         Text(
                             text = "Introduce tu contraseña",
                             fontSize = 12.sp,
-                            color = Color.Red,
+                            color = MaterialTheme.colorScheme.error,
                             modifier = Modifier
                                 .padding(top = 4.dp, start = 4.dp)
                                 .align(Alignment.Start)
@@ -273,7 +274,7 @@ fun LoginScreen(
                         "¿Olvidaste tu contraseña?",
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.Black,
+                        color = MaterialTheme.colorScheme.onBackground,
                         modifier = Modifier
                             .align(Alignment.End)
                             .clickable {
@@ -285,10 +286,10 @@ fun LoginScreen(
                     // Botón de login con validación previa
                     AnimatedAccessButton(
                         buttonText = "Acceder",
-                        color = Color.Black,
-                        contentColor = Color.White,
+                        color = MaterialTheme.colorScheme.onBackground,
+                        contentColor = MaterialTheme.colorScheme.background,
                         fontSize = 16.sp,
-                        border = BorderStroke(1.dp, Color.Black),
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground),
                         modifier = Modifier.fillMaxWidth(),
                         onClick = {
                             showEmailError = email.isBlank() || !isValidEmail
@@ -311,9 +312,9 @@ fun LoginScreen(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.fillMaxWidth()
                     ) {
-                        HorizontalDivider(modifier = Modifier.weight(1f), color = Color.Gray)
-                        Text("  O inicia sesión con  ", color = Color.Gray, fontSize = 14.sp)
-                        HorizontalDivider(modifier = Modifier.weight(1f), color = Color.Gray)
+                        HorizontalDivider(modifier = Modifier.weight(1f), color = LightGray)
+                        Text("  O inicia sesión con  ", color = LightGray, fontSize = 14.sp)
+                        HorizontalDivider(modifier = Modifier.weight(1f), color = LightGray)
                     }
 
                     Spacer(modifier = Modifier.height(16.dp))
@@ -335,8 +336,8 @@ fun LoginScreen(
                         shape = RoundedCornerShape(8.dp),
                         border = BorderStroke(1.dp, Color.LightGray),
                         colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.White,
-                            contentColor = Color.Black
+                            containerColor = MaterialTheme.colorScheme.background,
+                            contentColor = MaterialTheme.colorScheme.onBackground
                         )
                     ) {
                         Image(
@@ -357,11 +358,11 @@ fun LoginScreen(
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.Bottom
                     ) {
-                        Text("¿No tienes una cuenta? ", color = Color.Gray, fontSize = 15.sp)
+                        Text("¿No tienes una cuenta? ", color = LightGray, fontSize = 15.sp)
                         Text(
                             text = "Regístrate",
                             fontSize = 15.sp,
-                            color = Color.Black,
+                            color = MaterialTheme.colorScheme.onBackground,
                             fontWeight = FontWeight.Bold,
                             modifier = Modifier.clickable {
                                 navController.navigate(Screen.Register.route)

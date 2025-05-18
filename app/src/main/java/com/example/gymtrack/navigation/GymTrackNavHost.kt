@@ -25,13 +25,15 @@ import com.example.gymtrack.ui.screens.TimerScreen
 import com.example.gymtrack.viewmodel.AuthViewModel
 import com.example.gymtrack.viewmodel.PredefinedRoutinesViewModel
 import com.example.gymtrack.viewmodel.RoutineViewModel
+import com.example.gymtrack.viewmodel.ThemeViewModel
 import com.google.firebase.auth.FirebaseAuth
 
 
 @Composable
 fun GymTrackNavHost(
     navController: NavHostController,
-    paddingValues: PaddingValues
+    paddingValues: PaddingValues,
+    themeViewModel: ThemeViewModel
 ) {
     val authViewModel: AuthViewModel = viewModel()
     val routineViewModel: RoutineViewModel = viewModel()
@@ -116,7 +118,7 @@ fun GymTrackNavHost(
         }
 
         composable(Screen.Settings.route) {
-            SettingsScreen(navController, authViewModel = authViewModel)
+            SettingsScreen(navController, authViewModel = authViewModel, themeViewModel = themeViewModel)
         }
 
         composable("predefined_routine_detail") {

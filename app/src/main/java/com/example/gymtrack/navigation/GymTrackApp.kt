@@ -1,9 +1,13 @@
 package com.example.gymtrack.navigation
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.animateColor
 import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.animateDp
 import androidx.compose.animation.core.tween
+import androidx.compose.animation.core.updateTransition
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInHorizontally
@@ -21,6 +25,8 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -36,13 +42,20 @@ import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.gymtrack.ui.theme.GymTrackTheme
+import com.example.gymtrack.ui.theme.SoftWhite
+import com.example.gymtrack.ui.theme.VeryLightGray
+import com.example.gymtrack.viewmodel.ThemeViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GymTrackApp(navController: NavHostController = rememberNavController()) {
+fun GymTrackApp(
+    themeViewModel: ThemeViewModel,
+    darkMode: Boolean
+) {
+    val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val currentUser = FirebaseAuth.getInstance().currentUser
@@ -54,20 +67,25 @@ fun GymTrackApp(navController: NavHostController = rememberNavController()) {
         Screen.ForgotPassword.route
     )
 
-    Scaffold(
-        topBar = {},
-        bottomBar = {},
-        floatingActionButton = {
-            if (currentRoute !in noMenuScreens && !isAdmin) {
-                ShareMenuSample(navController)
+    Crossfade(targetState = darkMode, label = "theme") { isDark ->
+        GymTrackTheme(darkTheme = isDark) {
+            Scaffold(
+                topBar = {},
+                bottomBar = {},
+                floatingActionButton = {
+                    if (currentRoute !in noMenuScreens && !isAdmin) {
+                        ShareMenuSample(navController)
+                    }
+                },
+                floatingActionButtonPosition = FabPosition.Center,
+                containerColor = MaterialTheme.colorScheme.background
+            ) { innerPadding ->
+                GymTrackNavHost(navController, innerPadding, themeViewModel)
             }
-        },
-        floatingActionButtonPosition = FabPosition.Center,
-        containerColor = Color.White
-    ) { innerPadding ->
-        GymTrackNavHost(navController, innerPadding)
+        }
     }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -85,14 +103,14 @@ fun ShareMenuSample(navController: NavHostController) {
             ModalBottomSheet(
                 onDismissRequest = { showSheet = false },
                 sheetState = sheetState,
-                containerColor = Color.White,
+                containerColor = MaterialTheme.colorScheme.background,
                 modifier = Modifier.wrapContentSize()
             ) {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
                         .padding(16.dp)
-                        .background(Color.White) // ← Fondo blanco
+                        .background(MaterialTheme.colorScheme.background) // ← Fondo blanco
 
                 ) {
                     ShareOption(Icons.Filled.Home, "Inicio") {
@@ -146,13 +164,13 @@ fun AnimatedIconButton(
     )
 
     val backgroundColor by animateColorAsState(
-        targetValue = if (pressed) Color(0xFFF0F0F0) else Color.White,
+        targetValue = if (pressed) VeryLightGray else MaterialTheme.colorScheme.background,
         animationSpec = animationSpec,
         label = "BackgroundColor"
     )
 
     val iconColor by animateColorAsState(
-        targetValue = Color.Black,
+        targetValue = MaterialTheme.colorScheme.onBackground,
         animationSpec = animationSpec,
         label = "IconColor"
     )
@@ -195,7 +213,7 @@ fun ShareOption(icon: ImageVector, text: String, onClick: () -> Unit) {
             .fillMaxWidth()
             .padding(vertical = 12.dp, horizontal = 8.dp)
             .clickable { onClick() } // Aquí hacemos que al pulsar, navegue
-            .background(Color.White) // ← Fondo blanco
+            .background(MaterialTheme.colorScheme.background) // ← Fondo blanco
     ) {
         Icon(
             imageVector = icon,
@@ -215,8 +233,8 @@ fun ShareOption(icon: ImageVector, text: String, onClick: () -> Unit) {
 fun AnimatedAccessButton(
     buttonText: String,
     modifier: Modifier = Modifier,
-    color: Color = Color.Black,
-    contentColor: Color = Color.White,
+    color: Color = MaterialTheme.colorScheme.primary,
+    contentColor: Color = MaterialTheme.colorScheme.onPrimary,
     height: Dp = 56.dp,
     fontSize: TextUnit = 16.sp,
     border: BorderStroke? = BorderStroke(1.dp, color),
@@ -228,13 +246,13 @@ fun AnimatedAccessButton(
     val backgroundColor by animateColorAsState(
         targetValue = if (pressed) contentColor else color,
         animationSpec = tween(durationMillis = 350),
-        label = "ButtonBackgroundColor"
+        label = "AnimatedButtonBackground"
     )
 
     val animatedContentColor by animateColorAsState(
         targetValue = if (pressed) color else contentColor,
         animationSpec = tween(durationMillis = 350),
-        label = "ButtonContentColor"
+        label = "AnimatedButtonContent"
     )
 
     LaunchedEffect(pressed) {
@@ -261,7 +279,6 @@ fun AnimatedAccessButton(
         Text(buttonText, fontSize = fontSize)
     }
 }
-
 
 @Composable
 fun AnimatedEntrance(content: @Composable () -> Unit) {
@@ -290,7 +307,7 @@ fun FancySnackbarHost(
             show = true
             delay(3000)
             show = false
-            delay(500) // tiempo para dejar que la animación termine
+            delay(500)
             snackbarData.dismiss()
         }
     }
@@ -316,9 +333,13 @@ fun FancySnackbarHost(
             ) {
                 Surface(
                     shape = RoundedCornerShape(18.dp),
-                    color = Color(0xFFF5F5F5),
-                    border = BorderStroke(1.dp, Color.LightGray),
+                    color = MaterialTheme.colorScheme.surface,
+                    contentColor = MaterialTheme.colorScheme.onSurface,
                     shadowElevation = 12.dp,
+                    border = BorderStroke(
+                        1.dp,
+                        MaterialTheme.colorScheme.outline.copy(alpha = 0.3f)
+                    ),
                     modifier = Modifier
                         .padding(horizontal = 24.dp)
                         .wrapContentHeight()
@@ -326,7 +347,6 @@ fun FancySnackbarHost(
                 ) {
                     Text(
                         text = data.visuals.message,
-                        color = Color.Black,
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Medium,
                         modifier = Modifier.padding(horizontal = 20.dp, vertical = 14.dp)
@@ -335,6 +355,53 @@ fun FancySnackbarHost(
             }
         }
     }
+}
+
+@Composable
+fun SmoothSwitch(
+    checked: Boolean,
+    onCheckedChange: (Boolean) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    val interactionSource = remember { MutableInteractionSource() }
+
+    // Detecta si el sistema está en modo oscuro (o puedes pasar un parámetro si prefieres)
+    val isDark = isSystemInDarkTheme()
+
+    // Colores adaptados a cada tema
+    val switchColors = if (isDark) {
+        SwitchDefaults.colors(
+            checkedThumbColor = Color.White,
+            checkedTrackColor = Color.Black,
+            uncheckedThumbColor = Color.LightGray,
+            uncheckedTrackColor = Color.DarkGray
+        )
+    } else {
+        SwitchDefaults.colors(
+            checkedThumbColor = Color.Black,
+            checkedTrackColor = Color.LightGray,
+            uncheckedThumbColor = Color.White,
+            uncheckedTrackColor = Color.Gray
+        )
+    }
+
+    // Valor animado para la posición del thumb
+    val transition = updateTransition(targetState = checked, label = "SwitchTransition")
+    val thumbOffset by transition.animateDp(
+        label = "ThumbOffset",
+        transitionSpec = { tween(durationMillis = 400) }
+    ) { state ->
+        if (state) 20.dp else 0.dp
+    }
+
+    // Usamos el Switch base pero con animación suave
+    Switch(
+        checked = checked,
+        onCheckedChange = onCheckedChange,
+        modifier = modifier,
+        interactionSource = interactionSource,
+        colors = switchColors
+    )
 }
 
 

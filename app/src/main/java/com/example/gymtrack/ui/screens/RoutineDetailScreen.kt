@@ -100,7 +100,7 @@ fun RoutineDetailScreen(
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.White)
+                    .background(MaterialTheme.colorScheme.background)
             ) {
                 // Cabecera
                 AnimatedEntrance {
@@ -120,15 +120,15 @@ fun RoutineDetailScreen(
                                 .fillMaxWidth()
                                 .height(120.dp)
                                 .align(Alignment.BottomCenter)
-                                .background(Color.White.copy(alpha = 0.65f))
+                                .background(MaterialTheme.colorScheme.background.copy(alpha = 0.65f))
                         )
                         Column(
                             modifier = Modifier
                                 .align(Alignment.BottomStart)
                                 .padding(horizontal = 24.dp, vertical = 16.dp)
                         ) {
-                            Text("Rutina", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.Black)
-                            Text(rutina.nombreRutina, fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+                            Text("Rutina", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
+                            Text(rutina.nombreRutina, fontSize = 28.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
                         }
                     }
                 }
@@ -148,7 +148,7 @@ fun RoutineDetailScreen(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(16.dp),
                             elevation = CardDefaults.cardElevation(4.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color.White) // Fondo blanco
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface) // Fondo blanco
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
 
@@ -157,7 +157,7 @@ fun RoutineDetailScreen(
                                         "• ${ejercicio.nombre}",
                                         style = MaterialTheme.typography.titleMedium,
                                         fontWeight = FontWeight.Bold,
-                                        color = Color.Black
+                                        color = MaterialTheme.colorScheme.onBackground
                                     )
                                     Spacer(modifier = Modifier.height(6.dp))
                                 }
@@ -253,9 +253,9 @@ fun RoutineDetailScreen(
                                             }
                                             editing = !editing
                                         },
-                                        color = Color.Black,
-                                        contentColor = Color.White,
-                                        border = BorderStroke(1.dp, Color.Black),
+                                        color = MaterialTheme.colorScheme.onBackground,
+                                        contentColor = MaterialTheme.colorScheme.background,
+                                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground),
                                         modifier = Modifier
                                             .weight(1f)
                                             .height(50.dp)
@@ -271,9 +271,9 @@ fun RoutineDetailScreen(
                                                     snackbarHostState.showSnackbar("Ejercicio eliminado correctamente")
                                                 }
                                             },
-                                            color = Color.Red,
-                                            contentColor = Color.White,
-                                            border = BorderStroke(1.dp, Color.Red),
+                                            color = MaterialTheme.colorScheme.error,
+                                            contentColor = MaterialTheme.colorScheme.background,
+                                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.error),
                                             modifier = Modifier
                                                 .weight(1f)
                                                 .height(50.dp)
@@ -290,7 +290,7 @@ fun RoutineDetailScreen(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(16.dp),
                             elevation = CardDefaults.cardElevation(4.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color.White)
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background)
                         ) {
                             Column(
                                 modifier = Modifier.padding(16.dp),
@@ -392,9 +392,9 @@ fun RoutineDetailScreen(
                                 AnimatedAccessButton(
                                     buttonText = "Cancelar",
                                     onClick = { showAddCard = false },
-                                    color = Color.Red,
-                                    contentColor = Color.White,
-                                    border = BorderStroke(1.dp, Color.Red),
+                                    color = MaterialTheme.colorScheme.error,
+                                    contentColor = MaterialTheme.colorScheme.background,
+                                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.error),
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .height(50.dp)
@@ -407,9 +407,9 @@ fun RoutineDetailScreen(
                         AnimatedAccessButton(
                             buttonText = "Añadir ejercicio",
                             onClick = { showAddCard = true },
-                            color = Color.Black,
-                            contentColor = Color.White,
-                            border = BorderStroke(1.dp, Color.Black),
+                            color = MaterialTheme.colorScheme.onBackground,
+                            contentColor = MaterialTheme.colorScheme.background,
+                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(50.dp)

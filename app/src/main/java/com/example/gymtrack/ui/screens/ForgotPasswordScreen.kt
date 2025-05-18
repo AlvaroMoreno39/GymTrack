@@ -37,6 +37,7 @@ import kotlinx.coroutines.launch
 import com.example.gymtrack.R
 import com.example.gymtrack.navigation.AnimatedAccessButton
 import com.example.gymtrack.navigation.FancySnackbarHost
+import com.example.gymtrack.ui.theme.LightGray
 
 @SuppressLint("UnrememberedMutableState")
 @Composable
@@ -85,7 +86,7 @@ fun ForgotPasswordScreen(
                         .fillMaxWidth()
                         .height(120.dp)
                         .align(Alignment.BottomCenter)
-                        .background(Color.White.copy(alpha = 0.65f))
+                        .background(MaterialTheme.colorScheme.background.copy(alpha = 0.65f))
                 )
 
                 Column(
@@ -97,13 +98,13 @@ fun ForgotPasswordScreen(
                         if (isChangePassword) "Restablece tu" else "Recupera tu",
                         fontSize = 28.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.Black
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                     Text(
                         "contraseña",
                         fontSize = 28.sp,
                         fontWeight = FontWeight.Bold,
-                        color = Color.Black
+                        color = MaterialTheme.colorScheme.onBackground
                     )
                 }
             }
@@ -133,11 +134,11 @@ fun ForgotPasswordScreen(
                         isError = showEmailError,
                         modifier = Modifier.fillMaxWidth(),
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedBorderColor = if (showEmailError) Color.Red else Color.Black,
-                            unfocusedBorderColor = if (showEmailError) Color.Red else Color.Black,
-                            focusedLabelColor = Color.Black,
-                            unfocusedLabelColor = Color.Black,
-                            cursorColor = Color.Black
+                            focusedBorderColor = if (showEmailError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onBackground,
+                            unfocusedBorderColor = if (showEmailError) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.onBackground,
+                            focusedLabelColor = MaterialTheme.colorScheme.onBackground,
+                            unfocusedLabelColor = MaterialTheme.colorScheme.onBackground,
+                            cursorColor = MaterialTheme.colorScheme.onBackground
                         )
                     )
 
@@ -145,7 +146,7 @@ fun ForgotPasswordScreen(
                         Text(
                             text = "Introduce un correo electrónico válido",
                             fontSize = 12.sp,
-                            color = Color.Red,
+                            color = MaterialTheme.colorScheme.error,
                             modifier = Modifier
                                 .padding(top = 4.dp, start = 4.dp)
                                 .align(Alignment.Start)
@@ -175,11 +176,11 @@ fun ForgotPasswordScreen(
                             horizontalArrangement = Arrangement.Center,
                             verticalAlignment = Alignment.Bottom
                         ) {
-                            Text("¿Recuerdas tu contraseña? ", color = Color.Gray, fontSize = 15.sp)
+                            Text("¿Recuerdas tu contraseña? ", color = LightGray, fontSize = 15.sp)
                             Text(
                                 text = "Inicia sesión",
                                 fontSize = 15.sp,
-                                color = Color.Black,
+                                color = MaterialTheme.colorScheme.onBackground,
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier.clickable {
                                     navController.popBackStack()
