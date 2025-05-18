@@ -75,7 +75,7 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White) // ← Fondo blanco
+                .background(MaterialTheme.colorScheme.background) // ← Fondo blanco
         ) {
 
             // Cabecera animada
@@ -96,7 +96,7 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
                             .fillMaxWidth()
                             .height(120.dp)
                             .align(Alignment.BottomCenter)
-                            .background(Color.White.copy(alpha = 0.65f))
+                            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.65f))
                     )
                     Column(
                         modifier = Modifier
@@ -107,13 +107,13 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
                             "Crea tu",
                             fontSize = 28.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.Black
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                         Text(
                             "nueva rutina",
                             fontSize = 28.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.Black
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                     }
                 }
@@ -142,7 +142,7 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
                     if (showNombreRutinaError) {
                         Text(
                             text = "Introduce el nombre de la rutina",
-                            color = Color.Red,
+                            color = MaterialTheme.colorScheme.error,
                             fontSize = 12.sp,
                             modifier = Modifier.padding(start = 4.dp)
                         )
@@ -164,7 +164,7 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
                     if (showNombreEjercicioError) {
                         Text(
                             text = "Introduce el nombre del ejercicio",
-                            color = Color.Red,
+                            color = MaterialTheme.colorScheme.error,
                             fontSize = 12.sp,
                             modifier = Modifier.padding(start = 4.dp)
                         )
@@ -183,7 +183,7 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
                     if (showGrupoMuscularError) {
                         Text(
                             text = "Selecciona un grupo muscular",
-                            color = Color.Red,
+                            color = MaterialTheme.colorScheme.error,
                             fontSize = 12.sp,
                             modifier = Modifier.padding(start = 4.dp)
                         )
@@ -202,7 +202,7 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
                     if (showTipoError) {
                         Text(
                             text = "Selecciona un tipo de ejercicio",
-                            color = Color.Red,
+                            color = MaterialTheme.colorScheme.error,
                             fontSize = 12.sp,
                             modifier = Modifier.padding(start = 4.dp)
                         )
@@ -247,7 +247,7 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
                     if (showIntensidadError) {
                         Text(
                             text = "Selecciona la intensidad",
-                            color = Color.Red,
+                            color = MaterialTheme.colorScheme.error,
                             fontSize = 12.sp,
                             modifier = Modifier.padding(start = 4.dp)
                         )

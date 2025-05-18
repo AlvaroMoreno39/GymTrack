@@ -44,6 +44,8 @@ android {
 dependencies {
     implementation("com.google.android.gms:play-services-auth:21.3.0")
 
+    implementation("androidx.datastore:datastore-preferences:1.1.6")
+
     implementation("androidx.compose.ui:ui-text-google-fonts:1.8.1") // Usa versión acorde a Compose
 
     // Import the Firebase BoM

@@ -61,6 +61,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import com.example.gymtrack.navigation.AnimatedAccessButton
 import com.example.gymtrack.navigation.FancySnackbarHost
+import com.example.gymtrack.ui.theme.LightGray
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -144,7 +145,7 @@ fun TimerScreen(navController: NavHostController) {
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White) // ← Fondo blanco
+                .background(MaterialTheme.colorScheme.background) // ← Fondo blanco
 
         ) {
 
@@ -282,7 +283,7 @@ fun TimerScreen(navController: NavHostController) {
                         CircularProgressIndicator(
                             progress = { progress },
                             modifier = Modifier.size(240.dp),
-                            color = if (isRunning) Color.Black else Color.Gray,
+                            color = if (isRunning) MaterialTheme.colorScheme.onBackground else LightGray,
                             strokeWidth = 8.dp,
                         )
                         Text(
@@ -319,8 +320,8 @@ fun TimerScreen(navController: NavHostController) {
 
                             AnimatedAccessButton(
                                 buttonText = "Restablecer",
-                                color = Color.Red,
-                                contentColor = Color.White,
+                                color = MaterialTheme.colorScheme.error,
+                                contentColor = MaterialTheme.colorScheme.background,
                                 modifier = Modifier
                                     .fillMaxWidth()
                             ) {
@@ -349,7 +350,7 @@ fun RoundBlackButton(
 ) {
     Surface(
         shape = CircleShape,
-        color = Color.Black,
+        color = MaterialTheme.colorScheme.onBackground,
         modifier = Modifier
             .size(80.dp)
             .clickable { onClick() },
@@ -364,14 +365,14 @@ fun RoundBlackButton(
         ) {
             Text(
                 text = label,
-                color = Color.White,
+                color = MaterialTheme.colorScheme.background,
                 fontSize = 20.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
             )
             Text(
                 text = "MIN",
-                color = Color.White.copy(alpha = 0.7f),
+                color = MaterialTheme.colorScheme.background.copy(alpha = 0.7f),
                 fontSize = 12.sp,
                 fontWeight = FontWeight.Medium,
                 textAlign = TextAlign.Center
@@ -379,6 +380,7 @@ fun RoundBlackButton(
         }
     }
 }
+
 
 
 @Composable
@@ -400,7 +402,7 @@ fun TimerHeader() {
                     .fillMaxWidth()
                     .height(120.dp)
                     .align(Alignment.BottomCenter)
-                    .background(Color.White.copy(alpha = 0.65f))
+                    .background(MaterialTheme.colorScheme.background.copy(alpha = 0.65f))
             )
             Column(
                 modifier = Modifier
@@ -411,12 +413,12 @@ fun TimerHeader() {
                     "Temporizador",
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold,
-                    color = Color.Black
+                    color = MaterialTheme.colorScheme.onBackground
                 )
                 Text(
                     "Controla tu entrenamiento",
                     fontSize = 24.sp,
-                    color = Color.Black
+                    color = MaterialTheme.colorScheme.onBackground
                 )
             }
         }

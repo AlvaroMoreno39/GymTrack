@@ -39,6 +39,8 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarBorder
 import com.example.gymtrack.navigation.AnimatedAccessButton
 import com.example.gymtrack.navigation.FancySnackbarHost
+import com.example.gymtrack.ui.theme.FavoriteYellow
+import com.example.gymtrack.ui.theme.LightGray
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -69,7 +71,7 @@ fun MyRoutineScreen(
     ) {
         Column(modifier = Modifier
             .fillMaxSize()
-            .background(Color.White)) {
+            .background(MaterialTheme.colorScheme.background)) {
 
             // Cabecera animada
             AnimatedEntrance {
@@ -89,7 +91,7 @@ fun MyRoutineScreen(
                             .fillMaxWidth()
                             .height(120.dp)
                             .align(Alignment.BottomCenter)
-                            .background(Color.White.copy(alpha = 0.65f))
+                            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.65f))
                     )
                     Column(
                         modifier = Modifier
@@ -100,13 +102,13 @@ fun MyRoutineScreen(
                             "Tus",
                             fontSize = 28.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.Black
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                         Text(
                             "rutinas",
                             fontSize = 28.sp,
                             fontWeight = FontWeight.Bold,
-                            color = Color.Black
+                            color = MaterialTheme.colorScheme.onBackground
                         )
                     }
                 }
@@ -126,7 +128,7 @@ fun MyRoutineScreen(
                             modifier = Modifier.fillMaxWidth(),
                             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                             shape = RoundedCornerShape(16.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color.White)
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                         ) {
                             Column(modifier = Modifier.padding(10.dp)) {
 
@@ -157,7 +159,7 @@ fun MyRoutineScreen(
                                         Icon(
                                             imageVector = if (rutina.esFavorita) Icons.Filled.Star else Icons.Outlined.StarBorder,
                                             contentDescription = "Favorita",
-                                            tint = if (rutina.esFavorita) Color(0xFFFFC107) else Color.Gray,
+                                            tint = if (rutina.esFavorita) FavoriteYellow else LightGray,
                                             modifier = Modifier.size(27.dp) // ⭐ TAMAÑO MÁS GRANDE
                                         )
                                     }
@@ -169,7 +171,7 @@ fun MyRoutineScreen(
                                             Icon(
                                                 imageVector = Icons.Default.FitnessCenter,
                                                 contentDescription = null,
-                                                tint = Color.Black,
+                                                tint = MaterialTheme.colorScheme.onBackground,
                                                 modifier = Modifier.size(20.dp)
                                             )
                                             Spacer(modifier = Modifier.width(8.dp))
@@ -177,7 +179,7 @@ fun MyRoutineScreen(
                                                 text = rutina.nombreRutina,
                                                 style = MaterialTheme.typography.titleLarge,
                                                 fontWeight = FontWeight.Bold,
-                                                color = Color.Black
+                                                color = MaterialTheme.colorScheme.onBackground
                                             )
                                         }
 
@@ -186,7 +188,7 @@ fun MyRoutineScreen(
                                         // 🧮 Cantidad de ejercicios
                                         Text(
                                             text = "${rutina.ejercicios.size} ejercicio${if (rutina.ejercicios.size == 1) "" else "s"}",
-                                            color = Color.Gray,
+                                            color = LightGray,
                                             fontSize = 14.sp
                                         )
 
@@ -200,9 +202,9 @@ fun MyRoutineScreen(
                                             // 🔍 Ver rutina
                                             AnimatedAccessButton(
                                                 buttonText = "Ver rutina",
-                                                color = Color.Black,
-                                                contentColor = Color.White,
-                                                border = BorderStroke(1.dp, Color.Black),
+                                                color = MaterialTheme.colorScheme.onBackground,
+                                                contentColor = MaterialTheme.colorScheme.background,
+                                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground),
                                                 height = 50.dp,
                                                 fontSize = 16.sp,
                                                 modifier = Modifier.weight(1f),
@@ -215,9 +217,9 @@ fun MyRoutineScreen(
                                             // 🗑️ Eliminar rutina
                                             AnimatedAccessButton(
                                                 buttonText = "Eliminar",
-                                                color = Color.Red,
-                                                contentColor = Color.White,
-                                                border = BorderStroke(1.dp, Color.Red),
+                                                color = MaterialTheme.colorScheme.error,
+                                                contentColor = MaterialTheme.colorScheme.background,
+                                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.error),
                                                 height = 50.dp,
                                                 fontSize = 16.sp,
                                                 modifier = Modifier.weight(1f),
