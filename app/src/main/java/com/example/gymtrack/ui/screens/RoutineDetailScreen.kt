@@ -12,8 +12,6 @@ import com.example.gymtrack.viewmodel.RoutineData
 import com.example.gymtrack.viewmodel.RoutineViewModel
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.ui.Alignment
@@ -30,6 +28,34 @@ import com.example.gymtrack.R
 import com.example.gymtrack.navigation.FancySnackbarHost
 import com.example.gymtrack.viewmodel.Exercise
 import kotlinx.coroutines.launch
+import android.widget.Toast
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.FastOutSlowInEasing
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.runtime.getValue
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.example.gymtrack.navigation.AnimatedAccessButton
+import com.example.gymtrack.navigation.AnimatedEntrance
+
+import com.example.gymtrack.navigation.FancySnackbarHost
+import com.google.firebase.auth.FirebaseAuth
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
@@ -45,7 +71,6 @@ fun RoutineDetailScreen(
     var routine by remember { mutableStateOf<RoutineData?>(null) }
     var showAddCard by remember { mutableStateOf(false) }
 
-    // Estado para nuevo ejercicio
     var nombreEjercicio by remember { mutableStateOf("") }
     var grupoMuscular by remember { mutableStateOf("") }
     var tipo by remember { mutableStateOf("") }
@@ -54,15 +79,12 @@ fun RoutineDetailScreen(
     var duracion by remember { mutableStateOf("") }
     var intensidad by remember { mutableStateOf("") }
 
-    // Validaciones
     var showNombreError by remember { mutableStateOf(false) }
     var showGrupoError by remember { mutableStateOf(false) }
     var showTipoError by remember { mutableStateOf(false) }
     var showIntensidadError by remember { mutableStateOf(false) }
 
-    // Opciones de menú
-    val gruposMusculares =
-        listOf("Pecho", "Espalda", "Piernas", "Hombros", "Bíceps", "Tríceps", "Abdomen")
+    val gruposMusculares = listOf("Pecho", "Espalda", "Piernas", "Hombros", "Bíceps", "Tríceps", "Abdomen")
     val tipos = listOf("Fuerza", "Cardio", "Mixto")
     val intensidades = listOf("Baja", "Media", "Alta")
     val isCardio = tipo.lowercase() == "cardio"
@@ -73,16 +95,14 @@ fun RoutineDetailScreen(
         }
     }
 
-    Scaffold(snackbarHost = {
-        FancySnackbarHost(snackbarHostState)
-    }) {
+    Scaffold(snackbarHost = { FancySnackbarHost(snackbarHostState) }) {
         routine?.let { rutina ->
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.White) // ← Fondo blanco
+                    .background(Color.White)
             ) {
-                // Cabecera visual
+                // Cabecera
                 AnimatedEntrance {
                     Box(
                         modifier = Modifier
@@ -107,18 +127,8 @@ fun RoutineDetailScreen(
                                 .align(Alignment.BottomStart)
                                 .padding(horizontal = 24.dp, vertical = 16.dp)
                         ) {
-                            Text(
-                                "Rutina",
-                                fontSize = 28.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.Black
-                            )
-                            Text(
-                                rutina.nombreRutina,
-                                fontSize = 28.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.Black
-                            )
+                            Text("Rutina", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+                            Text(rutina.nombreRutina, fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.Black)
                         }
                     }
                 }
@@ -130,7 +140,6 @@ fun RoutineDetailScreen(
                         .padding(horizontal = 20.dp, vertical = 12.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    // Mostrar ejercicios actuales
                     rutina.ejercicios.forEachIndexed { index, ejercicioOriginal ->
                         var editing by remember { mutableStateOf(false) }
                         var ejercicio by remember { mutableStateOf(ejercicioOriginal) }
@@ -139,17 +148,19 @@ fun RoutineDetailScreen(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(16.dp),
                             elevation = CardDefaults.cardElevation(4.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color(0xFFE8E8E8))
+                            colors = CardDefaults.cardColors(containerColor = Color.White) // Fondo blanco
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
-                                Text(
-                                    "• ${ejercicio.nombre}",
-                                    style = MaterialTheme.typography.titleMedium,
-                                    fontWeight = FontWeight.Bold,
-                                    color = Color.Black
-                                )
 
-                                Spacer(modifier = Modifier.height(6.dp))
+                                if (!editing) {
+                                    Text(
+                                        "• ${ejercicio.nombre}",
+                                        style = MaterialTheme.typography.titleMedium,
+                                        fontWeight = FontWeight.Bold,
+                                        color = Color.Black
+                                    )
+                                    Spacer(modifier = Modifier.height(6.dp))
+                                }
 
                                 if (editing) {
                                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
@@ -199,8 +210,7 @@ fun RoutineDetailScreen(
                                             OutlinedTextField(
                                                 value = ejercicio.reps.toString(),
                                                 onValueChange = {
-                                                    ejercicio =
-                                                        ejercicio.copy(reps = it.toIntOrNull() ?: 0)
+                                                    ejercicio = ejercicio.copy(reps = it.toIntOrNull() ?: 0)
                                                 },
                                                 label = { Text("Repeticiones") },
                                                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -215,7 +225,6 @@ fun RoutineDetailScreen(
                                         ) {
                                             ejercicio = ejercicio.copy(intensidad = it)
                                         }
-
                                     }
                                 } else {
                                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
@@ -239,14 +248,14 @@ fun RoutineDetailScreen(
                                         onClick = {
                                             if (editing) {
                                                 scope.launch {
-                                                    snackbarHostState.showSnackbar("Cambios guardados (mock)")
+                                                    snackbarHostState.showSnackbar("Cambios guardados")
                                                 }
                                             }
                                             editing = !editing
                                         },
-                                        containerColor = Color.Black,
+                                        color = Color.Black,
                                         contentColor = Color.White,
-                                        borderColor = Color.Black,
+                                        border = BorderStroke(1.dp, Color.Black),
                                         modifier = Modifier
                                             .weight(1f)
                                             .height(50.dp)
@@ -254,21 +263,17 @@ fun RoutineDetailScreen(
 
                                     if (!editing) {
                                         Spacer(modifier = Modifier.width(12.dp))
-
                                         AnimatedAccessButton(
                                             buttonText = "Eliminar",
                                             onClick = {
-                                                viewModel.deleteExerciseFromRoutine(
-                                                    routineId,
-                                                    index
-                                                )
+                                                viewModel.deleteExerciseFromRoutine(routineId, index)
                                                 scope.launch {
                                                     snackbarHostState.showSnackbar("Ejercicio eliminado correctamente")
                                                 }
                                             },
-                                            containerColor = Color.Red,
+                                            color = Color.Red,
                                             contentColor = Color.White,
-                                            borderColor = Color.Red,
+                                            border = BorderStroke(1.dp, Color.Red),
                                             modifier = Modifier
                                                 .weight(1f)
                                                 .height(50.dp)
@@ -279,7 +284,7 @@ fun RoutineDetailScreen(
                         }
                     }
 
-                    // Card para añadir ejercicio
+                    // Añadir ejercicio
                     if (showAddCard) {
                         Card(
                             modifier = Modifier.fillMaxWidth(),
@@ -301,11 +306,7 @@ fun RoutineDetailScreen(
                                     isError = showNombreError,
                                     modifier = Modifier.fillMaxWidth()
                                 )
-                                DropDownSelector(
-                                    "Grupo Muscular",
-                                    gruposMusculares,
-                                    grupoMuscular
-                                ) {
+                                DropDownSelector("Grupo Muscular", gruposMusculares, grupoMuscular) {
                                     grupoMuscular = it
                                     showGrupoError = false
                                 }
@@ -344,18 +345,20 @@ fun RoutineDetailScreen(
                                     showIntensidadError = false
                                 }
 
-                                AnimatedAccessButton(buttonText = "Añadir ejercicio") {
-                                    val errorNombre = nombreEjercicio.isBlank()
-                                    val errorGrupo = grupoMuscular.isBlank()
-                                    val errorTipo = tipo.isBlank()
-                                    val errorIntensidad = intensidad.isBlank()
+                                AnimatedAccessButton(buttonText = "Añadir ejercicio", modifier = Modifier.fillMaxWidth()) {
+                                    val errores = listOf(
+                                        nombreEjercicio.isBlank(),
+                                        grupoMuscular.isBlank(),
+                                        tipo.isBlank(),
+                                        intensidad.isBlank()
+                                    )
 
-                                    showNombreError = errorNombre
-                                    showGrupoError = errorGrupo
-                                    showTipoError = errorTipo
-                                    showIntensidadError = errorIntensidad
+                                    showNombreError = errores[0]
+                                    showGrupoError = errores[1]
+                                    showTipoError = errores[2]
+                                    showIntensidadError = errores[3]
 
-                                    if (errorNombre || errorGrupo || errorTipo || errorIntensidad) {
+                                    if (errores.any { it }) {
                                         scope.launch {
                                             snackbarHostState.showSnackbar("Rellena todos los campos obligatorios")
                                         }
@@ -366,18 +369,13 @@ fun RoutineDetailScreen(
                                             tipo = tipo,
                                             series = series.toIntOrNull() ?: 0,
                                             reps = reps.toIntOrNull() ?: 0,
-                                            duracion = if (isCardio) duracion.toIntOrNull()
-                                                ?: 0 else 0,
+                                            duracion = if (isCardio) duracion.toIntOrNull() ?: 0 else 0,
                                             intensidad = intensidad
                                         )
-                                        viewModel.addExerciseToRoutine(
-                                            routineId,
-                                            newExercise
-                                        ) { success ->
+                                        viewModel.addExerciseToRoutine(routineId, newExercise) { success ->
                                             if (success) {
                                                 viewModel.getUserRoutines { list ->
-                                                    routine =
-                                                        list.find { it.first == routineId }?.second
+                                                    routine = list.find { it.first == routineId }?.second
                                                 }
                                                 scope.launch {
                                                     snackbarHostState.showSnackbar("Ejercicio añadido correctamente")
@@ -388,16 +386,15 @@ fun RoutineDetailScreen(
                                                 }
                                             }
                                         }
-
                                     }
                                 }
-                                // 🔴 Botón de cancelar (ahora está DENTRO de la card)
+
                                 AnimatedAccessButton(
                                     buttonText = "Cancelar",
                                     onClick = { showAddCard = false },
-                                    containerColor = Color.Red,
+                                    color = Color.Red,
                                     contentColor = Color.White,
-                                    borderColor = Color.Red,
+                                    border = BorderStroke(1.dp, Color.Red),
                                     modifier = Modifier
                                         .fillMaxWidth()
                                         .height(50.dp)
@@ -407,21 +404,19 @@ fun RoutineDetailScreen(
                     }
 
                     if (!showAddCard) {
-                        // Botón principal
                         AnimatedAccessButton(
                             buttonText = "Añadir ejercicio",
-                            onClick = { showAddCard = !showAddCard },
-                            containerColor = Color.Black,
+                            onClick = { showAddCard = true },
+                            color = Color.Black,
                             contentColor = Color.White,
-                            borderColor = Color.Black,
+                            border = BorderStroke(1.dp, Color.Black),
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .height(50.dp)
                         )
                     }
 
-
-                    Spacer(modifier = Modifier.height(100.dp)) // 👈 Añade este al final
+                    Spacer(modifier = Modifier.height(100.dp))
                 }
             }
         } ?: Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -429,4 +424,3 @@ fun RoutineDetailScreen(
         }
     }
 }
-

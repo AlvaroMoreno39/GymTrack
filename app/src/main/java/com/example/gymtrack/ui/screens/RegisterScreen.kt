@@ -265,7 +265,7 @@ fun RegisterScreen(
                     }
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    AnimatedAccessButton(buttonText = "Registrarse") {
+                    AnimatedAccessButton(buttonText = "Registrarse", modifier = Modifier.fillMaxWidth()) {
                         val emailError = email.isBlank() || !isValidEmail
                         val passwordEmpty = password.isBlank()
                         val confirmEmpty = confirmPassword.isBlank()

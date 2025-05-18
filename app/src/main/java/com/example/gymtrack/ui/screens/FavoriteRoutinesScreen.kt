@@ -38,6 +38,7 @@ import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarBorder
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.gymtrack.navigation.AnimatedAccessButton
 import com.example.gymtrack.navigation.FancySnackbarHost
 import kotlinx.coroutines.launch
 
@@ -180,9 +181,9 @@ fun FavoriteRoutinesScreen(
                                             onClick = {
                                                 navController.navigate(Screen.RoutineDetail.createRoute(id_rutina))
                                             },
-                                            containerColor = Color.Black,
+                                            color = Color.Black,
                                             contentColor = Color.White,
-                                            borderColor = Color.Black,
+                                            border = BorderStroke(1.dp, Color.Black),
                                             modifier = Modifier
                                                 .fillMaxWidth()
                                                 .height(50.dp)

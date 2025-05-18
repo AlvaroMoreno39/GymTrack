@@ -2,11 +2,13 @@ package com.example.gymtrack.ui.screens
 
 import android.annotation.SuppressLint
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -29,6 +31,7 @@ import com.example.gymtrack.viewmodel.PredefinedRoutinesViewModel
 import com.example.gymtrack.viewmodel.RoutineData
 import com.example.gymtrack.viewmodel.RoutineViewModel
 import com.example.gymtrack.R
+import com.example.gymtrack.navigation.AnimatedAccessButton
 import com.example.gymtrack.navigation.FancySnackbarHost
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
@@ -66,8 +69,7 @@ fun PredefinedRoutineDetailScreen(
     var showTipoError by remember { mutableStateOf(false) }
     var showIntensidadError by remember { mutableStateOf(false) }
 
-    val gruposMusculares =
-        listOf("Pecho", "Espalda", "Piernas", "Hombros", "Bíceps", "Tríceps", "Abdomen")
+    val gruposMusculares = listOf("Pecho", "Espalda", "Piernas", "Hombros", "Bíceps", "Tríceps", "Abdomen")
     val tipos = listOf("Fuerza", "Cardio", "Mixto")
     val intensidades = listOf("Baja", "Media", "Alta")
     val isCardio = tipo.lowercase() == "cardio"
@@ -76,13 +78,13 @@ fun PredefinedRoutineDetailScreen(
         FancySnackbarHost(snackbarHostState)
     }) {
         rutina?.let { rutina ->
+
             Column(
                 modifier = Modifier
                     .fillMaxSize()
-                    .background(Color.White) // ← Fondo blanco
+                    .background(Color.White)
             ) {
-
-                // 🧠 Cabecera visual
+                // 📷 Cabecera visual sin padding lateral
                 AnimatedEntrance {
                     Box(
                         modifier = Modifier
@@ -107,30 +109,19 @@ fun PredefinedRoutineDetailScreen(
                                 .align(Alignment.BottomStart)
                                 .padding(horizontal = 24.dp, vertical = 16.dp)
                         ) {
-                            Text(
-                                "Rutina",
-                                fontSize = 28.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.Black
-                            )
-                            Text(
-                                rutina.nombreRutina,
-                                fontSize = 28.sp,
-                                fontWeight = FontWeight.Bold,
-                                color = Color.Black
-                            )
+                            Text("Rutina", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+                            Text(rutina.nombreRutina, fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.Black)
                         }
                     }
                 }
 
-                Column(
+                LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
-                        .verticalScroll(rememberScrollState())
                         .padding(horizontal = 20.dp, vertical = 12.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    rutina.ejercicios.forEachIndexed { index, ejercicio ->
+                    itemsIndexed(rutina.ejercicios) { index, ejercicio ->
                         var editing by remember { mutableStateOf(false) }
                         var ejercicioEditable by remember { mutableStateOf(ejercicio) }
 
@@ -138,31 +129,29 @@ fun PredefinedRoutineDetailScreen(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(16.dp),
                             elevation = CardDefaults.cardElevation(4.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color(0xFFE8E8E8))
+                            colors = CardDefaults.cardColors(containerColor = Color.White)
                         ) {
-                            Column(modifier = Modifier.padding(16.dp)) {
+                            Column(
+                                modifier = Modifier.padding(
+                                    start = 10.dp,
+                                    end = 10.dp,
+                                    top = 10.dp,
+                                    bottom = 6.dp
+                                )
+                            ) {
                                 Text("• ${ejercicio.nombre}", fontWeight = FontWeight.Bold)
-
                                 Spacer(modifier = Modifier.height(6.dp))
 
                                 if (isAdmin && editing) {
                                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                         OutlinedTextField(
                                             value = ejercicioEditable.nombre,
-                                            onValueChange = {
-                                                ejercicioEditable =
-                                                    ejercicioEditable.copy(nombre = it)
-                                            },
+                                            onValueChange = { ejercicioEditable = ejercicioEditable.copy(nombre = it) },
                                             label = { Text("Nombre") },
                                             modifier = Modifier.fillMaxWidth()
                                         )
-                                        DropDownSelector(
-                                            "Grupo",
-                                            gruposMusculares,
-                                            ejercicioEditable.grupoMuscular
-                                        ) {
-                                            ejercicioEditable =
-                                                ejercicioEditable.copy(grupoMuscular = it)
+                                        DropDownSelector("Grupo", gruposMusculares, ejercicioEditable.grupoMuscular) {
+                                            ejercicioEditable = ejercicioEditable.copy(grupoMuscular = it)
                                         }
                                         DropDownSelector("Tipo", tipos, ejercicioEditable.tipo) {
                                             ejercicioEditable = ejercicioEditable.copy(tipo = it)
@@ -171,9 +160,7 @@ fun PredefinedRoutineDetailScreen(
                                             OutlinedTextField(
                                                 value = ejercicioEditable.duracion.toString(),
                                                 onValueChange = {
-                                                    ejercicioEditable = ejercicioEditable.copy(
-                                                        duracion = it.toIntOrNull() ?: 0
-                                                    )
+                                                    ejercicioEditable = ejercicioEditable.copy(duracion = it.toIntOrNull() ?: 0)
                                                 },
                                                 label = { Text("Duración (min)") },
                                                 modifier = Modifier.fillMaxWidth()
@@ -182,9 +169,7 @@ fun PredefinedRoutineDetailScreen(
                                             OutlinedTextField(
                                                 value = ejercicioEditable.series.toString(),
                                                 onValueChange = {
-                                                    ejercicioEditable = ejercicioEditable.copy(
-                                                        series = it.toIntOrNull() ?: 0
-                                                    )
+                                                    ejercicioEditable = ejercicioEditable.copy(series = it.toIntOrNull() ?: 0)
                                                 },
                                                 label = { Text("Series") },
                                                 modifier = Modifier.fillMaxWidth()
@@ -192,21 +177,14 @@ fun PredefinedRoutineDetailScreen(
                                             OutlinedTextField(
                                                 value = ejercicioEditable.reps.toString(),
                                                 onValueChange = {
-                                                    ejercicioEditable = ejercicioEditable.copy(
-                                                        reps = it.toIntOrNull() ?: 0
-                                                    )
+                                                    ejercicioEditable = ejercicioEditable.copy(reps = it.toIntOrNull() ?: 0)
                                                 },
                                                 label = { Text("Reps") },
                                                 modifier = Modifier.fillMaxWidth()
                                             )
                                         }
-                                        DropDownSelector(
-                                            "Intensidad",
-                                            intensidades,
-                                            ejercicioEditable.intensidad
-                                        ) {
-                                            ejercicioEditable =
-                                                ejercicioEditable.copy(intensidad = it)
+                                        DropDownSelector("Intensidad", intensidades, ejercicioEditable.intensidad) {
+                                            ejercicioEditable = ejercicioEditable.copy(intensidad = it)
                                         }
                                     }
                                 } else {
@@ -229,29 +207,28 @@ fun PredefinedRoutineDetailScreen(
                                     ) {
                                         AnimatedAccessButton(
                                             buttonText = if (editing) "Guardar" else "Editar",
-                                            onClick = {
-                                                editing = !editing
-                                            },
-                                            containerColor = Color.Black,
+                                            onClick = { editing = !editing },
+                                            color = Color.Black,
                                             contentColor = Color.White,
-                                            borderColor = Color.Black,
+                                            border = BorderStroke(1.dp, Color.Black),
                                             modifier = Modifier
                                                 .weight(1f)
                                                 .height(50.dp)
                                         )
+
                                         Spacer(modifier = Modifier.width(12.dp))
+
                                         if (!editing) {
                                             AnimatedAccessButton(
                                                 buttonText = "Eliminar",
                                                 onClick = {
-                                                    // Aquí añadir lógica de eliminación si decides implementarlo
                                                     scope.launch {
-                                                        snackbarHostState.showSnackbar("Ejercicio eliminado (mock)")
+                                                        snackbarHostState.showSnackbar("Ejercicio eliminado")
                                                     }
                                                 },
-                                                containerColor = Color.Red,
+                                                color = Color.Red,
                                                 contentColor = Color.White,
-                                                borderColor = Color.Red,
+                                                border = BorderStroke(1.dp, Color.Red),
                                                 modifier = Modifier
                                                     .weight(1f)
                                                     .height(50.dp)
@@ -264,119 +241,123 @@ fun PredefinedRoutineDetailScreen(
                     }
 
                     if (isAdmin) {
-                        // Card para añadir
-                        if (showAddCard) {
-                            Card(
-                                modifier = Modifier.fillMaxWidth(),
-                                shape = RoundedCornerShape(16.dp),
-                                elevation = CardDefaults.cardElevation(4.dp),
-                                colors = CardDefaults.cardColors(containerColor = Color.White)
-                            ) {
-                                Column(
-                                    modifier = Modifier.padding(16.dp),
-                                    verticalArrangement = Arrangement.spacedBy(8.dp)
+                        item {
+                            if (showAddCard) {
+                                Card(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    shape = RoundedCornerShape(16.dp),
+                                    elevation = CardDefaults.cardElevation(4.dp),
+                                    colors = CardDefaults.cardColors(containerColor = Color.White)
                                 ) {
-                                    OutlinedTextField(
-                                        value = nombreEjercicio,
-                                        onValueChange = {
-                                            nombreEjercicio = it
-                                            showNombreError = false
-                                        },
-                                        label = { Text("Nombre") },
-                                        isError = showNombreError,
-                                        modifier = Modifier.fillMaxWidth()
-                                    )
-
-                                    DropDownSelector("Grupo", gruposMusculares, grupoMuscular) {
-                                        grupoMuscular = it
-                                        showGrupoError = false
-                                    }
-                                    DropDownSelector("Tipo", tipos, tipo) {
-                                        tipo = it
-                                        showTipoError = false
-                                    }
-
-                                    if (isCardio) {
+                                    Column(
+                                        modifier = Modifier.padding(16.dp),
+                                        verticalArrangement = Arrangement.spacedBy(8.dp)
+                                    ) {
                                         OutlinedTextField(
-                                            value = duracion,
-                                            onValueChange = { duracion = it },
-                                            label = { Text("Duración (min)") },
+                                            value = nombreEjercicio,
+                                            onValueChange = {
+                                                nombreEjercicio = it
+                                                showNombreError = false
+                                            },
+                                            label = { Text("Nombre") },
+                                            isError = showNombreError,
                                             modifier = Modifier.fillMaxWidth()
                                         )
-                                    } else {
-                                        OutlinedTextField(
-                                            value = series,
-                                            onValueChange = { series = it },
-                                            label = { Text("Series") },
-                                            modifier = Modifier.fillMaxWidth()
-                                        )
-                                        OutlinedTextField(
-                                            value = reps,
-                                            onValueChange = { reps = it },
-                                            label = { Text("Repeticiones") },
-                                            modifier = Modifier.fillMaxWidth()
-                                        )
-                                    }
 
-                                    DropDownSelector("Intensidad", intensidades, intensidad) {
-                                        intensidad = it
-                                        showIntensidadError = false
-                                    }
+                                        DropDownSelector("Grupo", gruposMusculares, grupoMuscular) {
+                                            grupoMuscular = it
+                                            showGrupoError = false
+                                        }
 
-                                    AnimatedAccessButton(buttonText = "Añadir ejercicio") {
-                                        val errores = listOf(
-                                            nombreEjercicio.isBlank(),
-                                            grupoMuscular.isBlank(),
-                                            tipo.isBlank(),
-                                            intensidad.isBlank()
-                                        )
+                                        DropDownSelector("Tipo", tipos, tipo) {
+                                            tipo = it
+                                            showTipoError = false
+                                        }
 
-                                        if (errores.any { it }) {
-                                            scope.launch {
-                                                snackbarHostState.showSnackbar("Rellena todos los campos obligatorios")
-                                            }
+                                        if (isCardio) {
+                                            OutlinedTextField(
+                                                value = duracion,
+                                                onValueChange = { duracion = it },
+                                                label = { Text("Duración (min)") },
+                                                modifier = Modifier.fillMaxWidth()
+                                            )
                                         } else {
-                                            scope.launch {
-                                                snackbarHostState.showSnackbar("Ejercicio añadido (mock)")
+                                            OutlinedTextField(
+                                                value = series,
+                                                onValueChange = { series = it },
+                                                label = { Text("Series") },
+                                                modifier = Modifier.fillMaxWidth()
+                                            )
+                                            OutlinedTextField(
+                                                value = reps,
+                                                onValueChange = { reps = it },
+                                                label = { Text("Repeticiones") },
+                                                modifier = Modifier.fillMaxWidth()
+                                            )
+                                        }
+
+                                        DropDownSelector("Intensidad", intensidades, intensidad) {
+                                            intensidad = it
+                                            showIntensidadError = false
+                                        }
+
+                                        AnimatedAccessButton(buttonText = "Añadir ejercicio") {
+                                            val errores = listOf(
+                                                nombreEjercicio.isBlank(),
+                                                grupoMuscular.isBlank(),
+                                                tipo.isBlank(),
+                                                intensidad.isBlank()
+                                            )
+
+                                            if (errores.any { it }) {
+                                                scope.launch {
+                                                    snackbarHostState.showSnackbar("Rellena todos los campos obligatorios")
+                                                }
+                                            } else {
+                                                scope.launch {
+                                                    snackbarHostState.showSnackbar("Ejercicio añadido (mock)")
+                                                }
                                             }
                                         }
-                                    }
 
-                                    // 🔴 Botón de cancelar (ahora está DENTRO de la card)
-                                    AnimatedAccessButton(
-                                        buttonText = "Cancelar",
-                                        onClick = { showAddCard = false },
-                                        containerColor = Color.Red,
-                                        contentColor = Color.White,
-                                        borderColor = Color.Red,
-                                        modifier = Modifier
-                                            .fillMaxWidth()
-                                            .height(50.dp)
-                                    )
+                                        AnimatedAccessButton(
+                                            buttonText = "Cancelar",
+                                            onClick = { showAddCard = false },
+                                            color = Color.Red,
+                                            contentColor = Color.White,
+                                            border = BorderStroke(1.dp, Color.Red),
+                                            modifier = Modifier
+                                                .fillMaxWidth()
+                                                .height(50.dp)
+                                        )
+                                    }
                                 }
                             }
                         }
 
-                        if (!showAddCard) {
-                            // Botón principal
-                            AnimatedAccessButton(
-                                buttonText = "Añadir ejercicio",
-                                onClick = { showAddCard = !showAddCard },
-                                containerColor = Color.Black,
-                                contentColor = Color.White,
-                                borderColor = Color.Black,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .height(50.dp)
-                            )
+                        item {
+                            if (!showAddCard) {
+                                AnimatedAccessButton(
+                                    buttonText = "Añadir ejercicio",
+                                    onClick = { showAddCard = !showAddCard },
+                                    color = Color.Black,
+                                    contentColor = Color.White,
+                                    border = BorderStroke(1.dp, Color.Black),
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .height(50.dp)
+                                )
+                            }
                         }
 
-                        Spacer(modifier = Modifier.height(100.dp))
+                        item {
+                            Spacer(modifier = Modifier.height(100.dp))
+                        }
                     }
                 }
-            } ?: Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
             }
+        } ?: Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            CircularProgressIndicator()
         }
     }
 }

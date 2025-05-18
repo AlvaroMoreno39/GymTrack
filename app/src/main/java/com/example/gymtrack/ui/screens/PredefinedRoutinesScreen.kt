@@ -2,6 +2,7 @@ package com.example.gymtrack.ui.screens
 
 import android.annotation.SuppressLint
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -27,6 +28,7 @@ import com.example.gymtrack.viewmodel.PredefinedRoutinesViewModel
 import com.example.gymtrack.viewmodel.RoutineData
 import com.example.gymtrack.viewmodel.RoutineViewModel
 import com.example.gymtrack.R
+import com.example.gymtrack.navigation.AnimatedAccessButton
 import com.example.gymtrack.navigation.FancySnackbarHost
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
@@ -48,16 +50,12 @@ fun PredefinedRoutinesScreen(
         viewModel.fetchRoutines { result -> routines = result }
     }
 
-    Scaffold(snackbarHost = {
-        FancySnackbarHost(snackbarHostState)
-    }) {
+    Scaffold(snackbarHost = { FancySnackbarHost(snackbarHostState) }) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(Color.White) // ← Fondo blanco
+                .background(Color.White)
         ) {
-
-            // Cabecera
             AnimatedEntrance {
                 Box(
                     modifier = Modifier
@@ -82,23 +80,12 @@ fun PredefinedRoutinesScreen(
                             .align(Alignment.BottomStart)
                             .padding(horizontal = 24.dp, vertical = 16.dp)
                     ) {
-                        Text(
-                            "Rutinas",
-                            fontSize = 28.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.Black
-                        )
-                        Text(
-                            "predefinidas",
-                            fontSize = 28.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = Color.Black
-                        )
+                        Text("Rutinas", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.Black)
+                        Text("predefinidas", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = Color.Black)
                     }
                 }
             }
 
-            // Lista
             AnimatedEntrance {
                 LazyColumn(
                     modifier = Modifier
@@ -107,17 +94,13 @@ fun PredefinedRoutinesScreen(
                     verticalArrangement = Arrangement.spacedBy(20.dp)
                 ) {
                     items(routines) { rutina ->
-                        val isAdmin =
-                            FirebaseAuth.getInstance().currentUser?.email == "admin@gymtrack.com"
-
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                             shape = RoundedCornerShape(16.dp),
-                            colors = CardDefaults.cardColors(containerColor = Color(0xFFE8E8E8))
+                            colors = CardDefaults.cardColors(containerColor = Color.White)
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
-                                // Título
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Icon(
                                         imageVector = Icons.Default.FitnessCenter,
@@ -135,6 +118,7 @@ fun PredefinedRoutinesScreen(
                                 }
 
                                 Spacer(modifier = Modifier.height(6.dp))
+
                                 Text(
                                     text = "${rutina.ejercicios.size} ejercicio${if (rutina.ejercicios.size == 1) "" else "s"}",
                                     color = Color.Gray,
@@ -147,7 +131,6 @@ fun PredefinedRoutinesScreen(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
-                                    // 🔍 Botón "Ver rutina"
                                     AnimatedAccessButton(
                                         buttonText = "Ver rutina",
                                         onClick = {
@@ -156,9 +139,9 @@ fun PredefinedRoutinesScreen(
                                                 ?.set("predefined_routine", rutina)
                                             navController.navigate("predefined_routine_detail")
                                         },
-                                        containerColor = Color.Black,
+                                        color = Color.Black,
                                         contentColor = Color.White,
-                                        borderColor = Color.Black,
+                                        border = BorderStroke(1.dp, Color.Black),
                                         modifier = Modifier
                                             .weight(1f)
                                             .height(50.dp)
@@ -166,40 +149,34 @@ fun PredefinedRoutinesScreen(
 
                                     Spacer(modifier = Modifier.width(12.dp))
 
-                                    // Botón condicional
                                     if (isAdmin) {
-                                        // 🗑️ Botón "Eliminar"
                                         AnimatedAccessButton(
                                             buttonText = "Eliminar",
                                             onClick = {
                                                 routineViewModel.deletePredefinedRoutine(rutina.nombreRutina) { success ->
                                                     scope.launch {
-                                                        if (success) {
-                                                            // Refresca la lista quitando esta rutina
-                                                            routines =
-                                                                routines.filterNot { it.nombreRutina == rutina.nombreRutina }
-                                                            snackbarHostState.showSnackbar("Rutina eliminada correctamente")
-                                                        } else {
-                                                            snackbarHostState.showSnackbar("Error al eliminar rutina")
-                                                        }
+                                                        routines = routines.filterNot { it.nombreRutina == rutina.nombreRutina }
+                                                        snackbarHostState.showSnackbar(
+                                                            if (success) "Rutina eliminada correctamente"
+                                                            else "Error al eliminar rutina"
+                                                        )
                                                     }
                                                 }
                                             },
-                                            containerColor = Color.Red,
+                                            color = Color.Red,
                                             contentColor = Color.White,
-                                            borderColor = Color.Red,
+                                            border = BorderStroke(1.dp, Color.Red),
                                             modifier = Modifier
                                                 .weight(1f)
                                                 .height(50.dp)
                                         )
                                     } else {
-                                        // ✅ Botón "Añadir" para usuario normal
                                         AnimatedAccessButton(
                                             buttonText = "Añadir",
                                             onClick = {
                                                 routineViewModel.copyPredefinedRoutineToUser(
-                                                    nombreRutina = rutina.nombreRutina,
-                                                    ejercicios = rutina.ejercicios
+                                                    rutina.nombreRutina,
+                                                    rutina.ejercicios
                                                 ) { success ->
                                                     scope.launch {
                                                         snackbarHostState.showSnackbar(
@@ -209,9 +186,9 @@ fun PredefinedRoutinesScreen(
                                                     }
                                                 }
                                             },
-                                            containerColor = Color.Black,
+                                            color = Color.Black,
                                             contentColor = Color.White,
-                                            borderColor = Color.Black,
+                                            border = BorderStroke(1.dp, Color.Black),
                                             modifier = Modifier
                                                 .weight(1f)
                                                 .height(50.dp)
@@ -219,18 +196,16 @@ fun PredefinedRoutinesScreen(
                                     }
                                 }
                             }
-
                         }
-
-
-                    }
-                    item {
-                        Spacer(modifier = Modifier.height(100.dp))
                     }
 
+                    item { Spacer(modifier = Modifier.height(100.dp)) }
                 }
             }
         }
     }
 }
+
+
+
 

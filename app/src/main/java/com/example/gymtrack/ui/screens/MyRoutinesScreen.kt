@@ -37,6 +37,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarBorder
+import com.example.gymtrack.navigation.AnimatedAccessButton
 import com.example.gymtrack.navigation.FancySnackbarHost
 import kotlinx.coroutines.launch
 
@@ -127,7 +128,7 @@ fun MyRoutineScreen(
                             shape = RoundedCornerShape(16.dp),
                             colors = CardDefaults.cardColors(containerColor = Color.White)
                         ) {
-                            Column(modifier = Modifier.padding(16.dp)) {
+                            Column(modifier = Modifier.padding(10.dp)) {
 
                                 Box(modifier = Modifier.fillMaxWidth()) {
                                     // ⭐ Estrella de favoritos arriba a la derecha
@@ -162,7 +163,7 @@ fun MyRoutineScreen(
                                     }
 
                                     // 📦 Contenido principal dentro de una Column
-                                    Column(modifier = Modifier.padding(16.dp)) {
+                                    Column(modifier = Modifier.padding(10.dp)) {
                                         // 🏋️‍♂️ Nombre de la rutina
                                         Row(verticalAlignment = Alignment.CenterVertically) {
                                             Icon(
@@ -199,22 +200,27 @@ fun MyRoutineScreen(
                                             // 🔍 Ver rutina
                                             AnimatedAccessButton(
                                                 buttonText = "Ver rutina",
+                                                color = Color.Black,
+                                                contentColor = Color.White,
+                                                border = BorderStroke(1.dp, Color.Black),
+                                                height = 50.dp,
+                                                fontSize = 16.sp,
+                                                modifier = Modifier.weight(1f),
                                                 onClick = {
                                                     navController.navigate(Screen.RoutineDetail.createRoute(id_rutina))
-                                                },
-                                                containerColor = Color.Black,
-                                                contentColor = Color.White,
-                                                borderColor = Color.Black,
-                                                modifier = Modifier
-                                                    .weight(1f)
-                                                    .height(50.dp)
+                                                }
                                             )
-
                                             Spacer(modifier = Modifier.width(12.dp))
 
                                             // 🗑️ Eliminar rutina
                                             AnimatedAccessButton(
                                                 buttonText = "Eliminar",
+                                                color = Color.Red,
+                                                contentColor = Color.White,
+                                                border = BorderStroke(1.dp, Color.Red),
+                                                height = 50.dp,
+                                                fontSize = 16.sp,
+                                                modifier = Modifier.weight(1f),
                                                 onClick = {
                                                     viewModel.deleteRoutine(id_rutina) { success ->
                                                         if (success) {
@@ -228,13 +234,7 @@ fun MyRoutineScreen(
                                                             }
                                                         }
                                                     }
-                                                },
-                                                containerColor = Color.Red,
-                                                contentColor = Color.White,
-                                                borderColor = Color.Red,
-                                                modifier = Modifier
-                                                    .weight(1f)
-                                                    .height(50.dp)
+                                                }
                                             )
                                         }
                                     }
@@ -250,50 +250,6 @@ fun MyRoutineScreen(
                 }
             }
         }
-    }
-}
-
-@Composable
-fun AnimatedAccessButton(
-    buttonText: String = "Acceder",
-    onClick: () -> Unit,
-    containerColor: Color = Color.Black,
-    contentColor: Color = Color.White,
-    borderColor: Color = Color.Black,
-    modifier: Modifier = Modifier
-) {
-    var pressed by remember { mutableStateOf(false) }
-
-    val animatedBackground by animateColorAsState(
-        targetValue = if (pressed) contentColor else containerColor,
-        label = "ButtonBG"
-    )
-    val animatedContentColor by animateColorAsState(
-        targetValue = if (pressed) containerColor else contentColor,
-        label = "ButtonText"
-    )
-
-    LaunchedEffect(pressed) {
-        if (pressed) {
-            delay(200)
-            pressed = false
-            onClick()
-        }
-    }
-
-    Button(
-        onClick = { pressed = true },
-        modifier = modifier
-            .height(56.dp),
-        shape = RoundedCornerShape(8.dp),
-        border = BorderStroke(1.dp, borderColor),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = animatedBackground,
-            contentColor = animatedContentColor
-        ),
-        contentPadding = PaddingValues()
-    ) {
-        Text(buttonText, fontSize = 16.sp)
     }
 }
 

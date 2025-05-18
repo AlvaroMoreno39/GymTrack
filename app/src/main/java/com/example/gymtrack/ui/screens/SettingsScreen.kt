@@ -1,5 +1,6 @@
 package com.example.gymtrack.ui.screens
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -29,6 +30,7 @@ import com.example.gymtrack.navigation.Screen
 import com.example.gymtrack.viewmodel.AuthViewModel
 import com.google.firebase.auth.FirebaseAuth
 import com.example.gymtrack.R
+import com.example.gymtrack.navigation.AnimatedAccessButton
 import com.example.gymtrack.navigation.FancySnackbarHost
 import kotlinx.coroutines.launch
 
@@ -113,9 +115,9 @@ fun SettingsScreen(
                         onClick = {
                             navController.navigate(Screen.ForgotPassword.route + "?change=true")
                         },
-                        containerColor = Color.Black,
+                        color = Color.Black,
                         contentColor = Color.White,
-                        borderColor = Color.Black,
+                        border = BorderStroke(1.dp, Color.Black),
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(56.dp)
@@ -133,9 +135,9 @@ fun SettingsScreen(
                                 popUpTo(0) { inclusive = true }
                             }
                         },
-                        containerColor = Color.Red,
+                        color = Color.Red,
                         contentColor = Color.White,
-                        borderColor = Color.Red,
+                        border = BorderStroke(1.dp, Color.Red),
                         modifier = Modifier
                             .fillMaxWidth()
                             .height(56.dp)
