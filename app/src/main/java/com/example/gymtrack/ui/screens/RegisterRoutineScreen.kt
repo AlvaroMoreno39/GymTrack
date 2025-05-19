@@ -202,7 +202,7 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
                         showIntensidadError = errorIntensidad
 
                         if (errorNombreEjercicio || errorGrupoMuscular || errorTipo || errorIntensidad) {
-                            scope.launch { snackbarHostState.showSnackbar("Rellena todos los campos del ejercicio") }
+                            scope.launch { snackbarHostState.showSnackbar("Rellena todos los campos del ejercicio ⚠️") }
                         } else {
                             ejercicios.add(
                                 Exercise(
@@ -222,7 +222,7 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
                             reps = ""
                             duracion = ""
                             intensidad = ""
-                            scope.launch { snackbarHostState.showSnackbar("Ejercicio añadido correctamente") }
+                            scope.launch { snackbarHostState.showSnackbar("Ejercicio añadido correctamente ✅") }
                         }
                     }
 
@@ -234,18 +234,18 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
                         showNivelError = esAdmin && nivelSeleccionado.isBlank()
 
                         if (errorNombreRutina || ejercicios.isEmpty() || showNivelError) {
-                            scope.launch { snackbarHostState.showSnackbar("Rellena todos los campos obligatorios") }
+                            scope.launch { snackbarHostState.showSnackbar("Rellena todos los campos obligatorios ⚠️") }
                         } else {
                             if (esAdmin) {
                                 viewModel.savePredefinedRoutine(nombreRutina, ejercicios, nivelSeleccionado) { success ->
                                     scope.launch {
                                         if (success) {
-                                            snackbarHostState.showSnackbar("Rutina guardada con éxito")
+                                            snackbarHostState.showSnackbar("Rutina guardada con éxito ✅")
                                             nombreRutina = ""
                                             ejercicios = mutableListOf()
                                             nivelSeleccionado = ""
                                         } else {
-                                            snackbarHostState.showSnackbar("Error al guardar la rutina")
+                                            snackbarHostState.showSnackbar("Error al guardar la rutina ❌")
                                         }
                                     }
                                 }
@@ -253,11 +253,11 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
                                 viewModel.saveFullRoutine(nombreRutina, ejercicios) { success ->
                                     scope.launch {
                                         if (success) {
-                                            snackbarHostState.showSnackbar("Rutina guardada con éxito")
+                                            snackbarHostState.showSnackbar("Rutina guardada con éxito ✅")
                                             nombreRutina = ""
                                             ejercicios = mutableListOf()
                                         } else {
-                                            snackbarHostState.showSnackbar("Error al guardar la rutina")
+                                            snackbarHostState.showSnackbar("Error al guardar la rutina ❌")
                                         }
                                     }
                                 }

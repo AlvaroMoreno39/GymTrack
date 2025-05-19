@@ -63,25 +63,51 @@ fun HomeScreen(navController: NavHostController, authViewModel: AuthViewModel) {
 
     val cards = if (isAdmin) {
         listOf(
-            Triple("Registrar nueva rutina predefinida", "Crea una rutina para todos los usuarios", R.drawable.register_routine),
-            Triple("Ver rutinas predefinidas", "Explora y gestiona tus rutinas predefinidas", R.drawable.predefined_routine),
+            Triple(
+                "Registrar nueva rutina predefinida",
+                "Crea una rutina para todos los usuarios",
+                R.drawable.register_routine
+            ),
+            Triple(
+                "Ver rutinas predefinidas",
+                "Explora y gestiona tus rutinas predefinidas",
+                R.drawable.predefined_routine
+            ),
             Triple("Ajustes", "Gestiona tu cuenta, tema y más", R.drawable.settings) // <- AÑADIDO
         )
     } else {
         listOf(
-            Triple("Registrar nueva rutina", "Crea una nueva rutina personalizada", R.drawable.register_routine),
-            Triple("Ver rutinas predefinidas", "Explora rutinas ya creadas y añádelas", R.drawable.predefined_routine),
-            Triple("Ver mis rutinas", "Accede a todas tus rutinas guardadas", R.drawable.my_routines),
-            Triple("Rutinas favoritas", "Consulta tus rutinas destacadas", R.drawable.favorite_routines),
+            Triple(
+                "Registrar nueva rutina",
+                "Crea una nueva rutina personalizada",
+                R.drawable.register_routine
+            ),
+            Triple(
+                "Ver rutinas predefinidas",
+                "Explora rutinas ya creadas y añádelas",
+                R.drawable.predefined_routine
+            ),
+            Triple(
+                "Ver mis rutinas",
+                "Accede a todas tus rutinas guardadas",
+                R.drawable.my_routines
+            ),
+            Triple(
+                "Rutinas favoritas",
+                "Consulta tus rutinas destacadas",
+                R.drawable.favorite_routines
+            ),
             Triple("Temporizador", "Controla tu tiempo de entrenamiento", R.drawable.timer),
             Triple("Ajustes", "Gestiona tu cuenta, tema y más", R.drawable.settings) // <- AÑADIDO
         )
+
     }
 
     Scaffold { padding ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
+                .padding()
                 .background(MaterialTheme.colorScheme.background)
         ) {
             item {
@@ -109,7 +135,10 @@ fun HomeScreen(navController: NavHostController, authViewModel: AuthViewModel) {
                         imageRes = img,
                         onClick = {
                             when (title) {
-                                "Registrar nueva rutina predefinida" -> navController.navigate(Screen.RegisterRoutine.route)
+                                "Registrar nueva rutina predefinida" -> navController.navigate(
+                                    Screen.RegisterRoutine.route
+                                )
+
                                 "Registrar nueva rutina" -> navController.navigate(Screen.RegisterRoutine.route)
                                 "Ver rutinas predefinidas" -> navController.navigate(Screen.PredefinedRoutines.route)
                                 "Ver mis rutinas" -> navController.navigate(Screen.MyRoutines.route)
@@ -184,7 +213,9 @@ fun RutinasCard(
                     contentColor = MaterialTheme.colorScheme.background,
                     fontSize = 15.sp,
                     border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground),
-                    modifier = Modifier.width(150.dp).height(40.dp),
+                    modifier = Modifier
+                        .width(150.dp)
+                        .height(40.dp),
                     onClick = onClick
                 )
             }

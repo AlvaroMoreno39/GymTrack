@@ -251,11 +251,11 @@ fun RegisterScreen(
                             authViewModel.register(email, password)
                         } else if (!passwordValid && !passwordEmpty) {
                             scope.launch {
-                                snackbarHostState.showSnackbar("La contraseña no cumple los requisitos")
+                                snackbarHostState.showSnackbar("La contraseña no cumple los requisitos ⚠️")
                             }
                         } else {
                             scope.launch {
-                                snackbarHostState.showSnackbar("Por favor, completa todos los campos correctamente")
+                                snackbarHostState.showSnackbar("Por favor, completa todos los campos correctamente ⚠️")
                             }
                         }
                     }
@@ -296,9 +296,7 @@ fun RegisterScreen(
     LaunchedEffect(user) {
         user?.let {
             scope.launch {
-                snackbarHostState.showSnackbar("Registro completado con éxito")
-                // Opcional: navegar automáticamente al inicio si quieres
-                // navController.navigate(Screen.Home.route)
+                snackbarHostState.showSnackbar("Registro completado con éxito ✅")
             }
         }
     }

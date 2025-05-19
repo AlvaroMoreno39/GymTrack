@@ -61,7 +61,7 @@ fun PredefinedRoutinesScreen(
 
             ScreenHeader(
                 image = R.drawable.predefined_routine,
-                title = "Rutinas listas",
+                title = "Rutinas predefinidas",
                 subtitle = "Encuentra inspiración y empieza ya"
             )
 
@@ -161,8 +161,8 @@ fun PredefinedRoutinesScreen(
                                                     scope.launch {
                                                         routines = routines.filterNot { it.nombreRutina == rutina.nombreRutina }
                                                         snackbarHostState.showSnackbar(
-                                                            if (success) "Rutina eliminada correctamente"
-                                                            else "Error al eliminar rutina"
+                                                            if (success) "Rutina eliminada correctamente ✅"
+                                                            else "Error al eliminar rutina ❌"
                                                         )
                                                     }
                                                 }
@@ -184,8 +184,8 @@ fun PredefinedRoutinesScreen(
                                                 ) { success ->
                                                     scope.launch {
                                                         snackbarHostState.showSnackbar(
-                                                            if (success) "Rutina añadida correctamente"
-                                                            else "Error al añadir rutina"
+                                                            if (success) "Rutina añadida correctamente ✅"
+                                                            else "Error al añadir rutina ❌"
                                                         )
                                                     }
                                                 }

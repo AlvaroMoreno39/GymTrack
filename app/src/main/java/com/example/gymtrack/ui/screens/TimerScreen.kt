@@ -115,7 +115,7 @@ fun TimerScreen(navController: NavHostController) {
                 }
 
                 scope.launch {
-                    snackbarHostState.showSnackbar("¡Tiempo terminado!")
+                    snackbarHostState.showSnackbar("¡Tiempo terminado! ⏰")
                 }
             }
 
@@ -266,7 +266,7 @@ fun TimerScreen(navController: NavHostController) {
                             timeLeft = totalMillis
                         } else {
                             scope.launch {
-                                snackbarHostState.showSnackbar("Introduce un tiempo válido")
+                                snackbarHostState.showSnackbar("Introduce un tiempo válido ⚠️")
                             }
                         }
                     }
