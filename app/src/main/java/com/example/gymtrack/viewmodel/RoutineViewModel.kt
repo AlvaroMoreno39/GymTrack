@@ -37,8 +37,10 @@ data class RoutineData(
     val userId: String = "",
     val fechaCreacion: Timestamp = Timestamp.now(),
     val ejercicios: List<Exercise> = emptyList(),
-    val esFavorita: Boolean = false
+    val esFavorita: Boolean = false,
+    val nivel: String? = null // <- nuevo campo opcional
 ) : Parcelable
+
 
 // ViewModel que maneja toda la lógica de operaciones sobre rutinas (CRUD)
 class RoutineViewModel : ViewModel() {
@@ -219,19 +221,21 @@ class RoutineViewModel : ViewModel() {
     fun savePredefinedRoutine(
         nombreRutina: String,
         ejercicios: List<Exercise>,
+        nivel: String,
         onResult: (Boolean) -> Unit
     ) {
-        val rutina = RoutineData(
-            nombreRutina = nombreRutina,
-            userId = "admin",
-            fechaCreacion = Timestamp.now(),
-            ejercicios = ejercicios
+        val rutina = hashMapOf(
+            "nombreRutina" to nombreRutina,
+            "userId" to "admin",
+            "fechaCreacion" to Timestamp.now(),
+            "ejercicios" to ejercicios,
+            "nivel" to nivel
         )
 
         db.collection("rutinasPredefinidas")
             .add(rutina)
             .addOnSuccessListener {
-                Log.d("RoutineViewModel", "✅ Rutina predefinida guardada")
+                Log.d("RoutineViewModel", "✅ Rutina predefinida guardada con nivel")
                 onResult(true)
             }
             .addOnFailureListener {
