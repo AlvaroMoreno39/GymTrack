@@ -61,6 +61,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.TextUnit
 import com.example.gymtrack.navigation.AnimatedAccessButton
 import com.example.gymtrack.navigation.FancySnackbarHost
+import com.example.gymtrack.navigation.ScreenHeader
 import com.example.gymtrack.ui.theme.LightGray
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -150,7 +151,12 @@ fun TimerScreen(navController: NavHostController) {
         ) {
 
             item {
-                TimerHeader()
+                ScreenHeader(
+                    image = R.drawable.timer,
+                    title = "Temporizador",
+                    subtitle = "Controla tu entrenamiento"
+                )
+
             }
 
 
@@ -377,50 +383,6 @@ fun RoundBlackButton(
                 fontWeight = FontWeight.Medium,
                 textAlign = TextAlign.Center
             )
-        }
-    }
-}
-
-
-
-@Composable
-fun TimerHeader() {
-    AnimatedEntrance {
-        Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(250.dp)
-        ) {
-            Image(
-                painter = painterResource(id = R.drawable.timer),
-                contentDescription = null,
-                contentScale = ContentScale.Crop,
-                modifier = Modifier.fillMaxSize()
-            )
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(120.dp)
-                    .align(Alignment.BottomCenter)
-                    .background(MaterialTheme.colorScheme.background.copy(alpha = 0.65f))
-            )
-            Column(
-                modifier = Modifier
-                    .align(Alignment.BottomStart)
-                    .padding(horizontal = 24.dp, vertical = 16.dp)
-            ) {
-                Text(
-                    "Temporizador",
-                    fontSize = 28.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-                Text(
-                    "Controla tu entrenamiento",
-                    fontSize = 24.sp,
-                    color = MaterialTheme.colorScheme.onBackground
-                )
-            }
         }
     }
 }

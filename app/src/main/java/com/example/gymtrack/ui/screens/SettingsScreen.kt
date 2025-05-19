@@ -30,6 +30,7 @@ import com.google.firebase.auth.FirebaseAuth
 import com.example.gymtrack.R
 import com.example.gymtrack.navigation.AnimatedAccessButton
 import com.example.gymtrack.navigation.FancySnackbarHost
+import com.example.gymtrack.navigation.ScreenHeader
 import com.example.gymtrack.navigation.SmoothSwitch
 import com.example.gymtrack.notification.NotificationWorker
 import com.example.gymtrack.viewmodel.ThemeViewModel
@@ -54,35 +55,12 @@ fun SettingsScreen(
                 .padding(innerPadding)
                 .background(MaterialTheme.colorScheme.background) // ← Fondo blanco
         ) {
-            // 🔝 Cabecera animada
-            AnimatedEntrance {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(220.dp)
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.settings),
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(100.dp)
-                            .align(Alignment.BottomCenter)
-                            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.65f))
-                    )
-                    Column(
-                        modifier = Modifier
-                            .align(Alignment.BottomStart)
-                            .padding(horizontal = 24.dp, vertical = 16.dp)
-                    ) {
-                        Text("Ajustes", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
-                    }
-                }
-            }
+
+            ScreenHeader(
+                image = R.drawable.settings,
+                title = "Ajustes",
+                subtitle = "Personaliza tu experiencia"
+            )
 
             // 🧩 Contenido principal
             AnimatedEntrance {

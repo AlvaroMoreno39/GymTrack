@@ -53,6 +53,7 @@ import com.example.gymtrack.navigation.AnimatedAccessButton
 import com.example.gymtrack.navigation.AnimatedEntrance
 
 import com.example.gymtrack.navigation.FancySnackbarHost
+import com.example.gymtrack.navigation.ScreenHeader
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -102,36 +103,12 @@ fun RoutineDetailScreen(
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.background)
             ) {
-                // Cabecera
-                AnimatedEntrance {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(250.dp)
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.my_routines),
-                            contentDescription = null,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(120.dp)
-                                .align(Alignment.BottomCenter)
-                                .background(MaterialTheme.colorScheme.background.copy(alpha = 0.65f))
-                        )
-                        Column(
-                            modifier = Modifier
-                                .align(Alignment.BottomStart)
-                                .padding(horizontal = 24.dp, vertical = 16.dp)
-                        ) {
-                            Text("Rutina", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
-                            Text(rutina.nombreRutina, fontSize = 28.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
-                        }
-                    }
-                }
+
+                ScreenHeader(
+                    image = R.drawable.my_routines,
+                    title = "Rutina",
+                    subtitle = rutina.nombreRutina
+                )
 
                 Column(
                     modifier = Modifier

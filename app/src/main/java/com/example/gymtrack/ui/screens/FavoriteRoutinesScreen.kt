@@ -40,6 +40,7 @@ import androidx.compose.material.icons.outlined.StarBorder
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gymtrack.navigation.AnimatedAccessButton
 import com.example.gymtrack.navigation.FancySnackbarHost
+import com.example.gymtrack.navigation.ScreenHeader
 import com.example.gymtrack.ui.theme.FavoriteYellow
 import com.example.gymtrack.ui.theme.LightGray
 import kotlinx.coroutines.launch
@@ -71,33 +72,12 @@ fun FavoriteRoutinesScreen(
         Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
 
             // Cabecera visual
-            AnimatedEntrance {
-                Box(
-                    modifier = Modifier.fillMaxWidth().height(250.dp)
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.favorite_routines),
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(120.dp)
-                            .align(Alignment.BottomCenter)
-                            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.65f))
-                    )
-                    Column(
-                        modifier = Modifier
-                            .align(Alignment.BottomStart)
-                            .padding(horizontal = 24.dp, vertical = 16.dp)
-                    ) {
-                        Text("Tus", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
-                        Text("favoritas ⭐", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
-                    }
-                }
-            }
+            ScreenHeader(
+                image = R.drawable.favorite_routines,
+                title = "Tus elegidas",
+                subtitle = "Rutinas que te motivan"
+            )
+
 
             // Lista
             AnimatedEntrance {
