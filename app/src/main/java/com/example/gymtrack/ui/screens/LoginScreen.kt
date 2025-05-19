@@ -105,7 +105,7 @@ fun LoginScreen(
                 .addOnCompleteListener { loginTask ->
                     if (loginTask.isSuccessful) {
                         scope.launch {
-                            snackbarHostState.showSnackbar("Inicio de sesión exitoso")
+                            snackbarHostState.showSnackbar("Inicio de sesión exitoso ✅")
                         }
                         onLoginSuccess()
                     } else {
@@ -124,7 +124,7 @@ fun LoginScreen(
             }
         } else if (!email.isBlank() && !password.isBlank() && error != null) {
             scope.launch {
-                snackbarHostState.showSnackbar("Usuario o contraseña incorrectos")
+                snackbarHostState.showSnackbar("Usuario o contraseña incorrectos ❌")
             }
         }
     }
@@ -268,7 +268,7 @@ fun LoginScreen(
                                 authViewModel.login(email, password)
                             } else {
                                 scope.launch {
-                                    snackbarHostState.showSnackbar("Por favor, completa todos los campos correctamente")
+                                    snackbarHostState.showSnackbar("Por favor, completa todos los campos correctamente ⚠️")
                                 }
                             }
                         }

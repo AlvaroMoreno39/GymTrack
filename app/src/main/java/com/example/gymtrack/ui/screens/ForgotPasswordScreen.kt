@@ -128,7 +128,7 @@ fun ForgotPasswordScreen(
                             authViewModel.resetPassword(email)
                         } else {
                             scope.launch {
-                                snackbarHostState.showSnackbar("Introduce un correo electrónico válido")
+                                snackbarHostState.showSnackbar("Introduce un correo electrónico válido 📧")
                             }
                         }
                     }
@@ -165,7 +165,7 @@ fun ForgotPasswordScreen(
             scope.launch {
                 val esCorrecto = it.contains("enviado", ignoreCase = true)
                 snackbarHostState.showSnackbar(
-                    if (esCorrecto) "Correo de recuperación enviado con éxito"
+                    if (esCorrecto) "Correo de recuperación enviado con éxito ✅"
                     else it
                 )
             }

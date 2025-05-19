@@ -108,7 +108,7 @@ fun SettingsScreen(
                         onClick = {
                             authViewModel.logout()
                             coroutineScope.launch {
-                                snackbarHostState.showSnackbar("Sesión cerrada")
+                                snackbarHostState.showSnackbar("Sesión cerrada 🔒")
                             }
                             navController.navigate(Screen.Login.route) {
                                 popUpTo(0) { inclusive = true }

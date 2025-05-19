@@ -225,7 +225,7 @@ fun RoutineDetailScreen(
                                         onClick = {
                                             if (editing) {
                                                 scope.launch {
-                                                    snackbarHostState.showSnackbar("Cambios guardados")
+                                                    snackbarHostState.showSnackbar("Cambios guardados ✅")
                                                 }
                                             }
                                             editing = !editing
@@ -245,7 +245,7 @@ fun RoutineDetailScreen(
                                             onClick = {
                                                 viewModel.deleteExerciseFromRoutine(routineId, index)
                                                 scope.launch {
-                                                    snackbarHostState.showSnackbar("Ejercicio eliminado correctamente")
+                                                    snackbarHostState.showSnackbar("Ejercicio eliminado correctamente ✅")
                                                 }
                                             },
                                             color = MaterialTheme.colorScheme.error,
@@ -337,7 +337,7 @@ fun RoutineDetailScreen(
 
                                     if (errores.any { it }) {
                                         scope.launch {
-                                            snackbarHostState.showSnackbar("Rellena todos los campos obligatorios")
+                                            snackbarHostState.showSnackbar("Rellena todos los campos obligatorios ⚠️")
                                         }
                                     } else {
                                         val newExercise = Exercise(
@@ -355,11 +355,11 @@ fun RoutineDetailScreen(
                                                     routine = list.find { it.first == routineId }?.second
                                                 }
                                                 scope.launch {
-                                                    snackbarHostState.showSnackbar("Ejercicio añadido correctamente")
+                                                    snackbarHostState.showSnackbar("Ejercicio añadido correctamente ✅")
                                                 }
                                             } else {
                                                 scope.launch {
-                                                    snackbarHostState.showSnackbar("Error al añadir ejercicio")
+                                                    snackbarHostState.showSnackbar("Error al añadir ejercicio ❌")
                                                 }
                                             }
                                         }

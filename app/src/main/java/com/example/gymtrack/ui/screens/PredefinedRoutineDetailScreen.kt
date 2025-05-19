@@ -201,7 +201,7 @@ fun PredefinedRoutineDetailScreen(
                                                 buttonText = "Eliminar",
                                                 onClick = {
                                                     scope.launch {
-                                                        snackbarHostState.showSnackbar("Ejercicio eliminado")
+                                                        snackbarHostState.showSnackbar("Ejercicio eliminado 🗑️")
                                                     }
                                                 },
                                                 color = MaterialTheme.colorScheme.error,
@@ -289,11 +289,12 @@ fun PredefinedRoutineDetailScreen(
 
                                             if (errores.any { it }) {
                                                 scope.launch {
-                                                    snackbarHostState.showSnackbar("Rellena todos los campos obligatorios")
+                                                    snackbarHostState.showSnackbar("Rellena todos los campos obligatorios ⚠️")
                                                 }
                                             } else {
                                                 scope.launch {
-                                                    snackbarHostState.showSnackbar("Ejercicio añadido (mock)")
+                                                    snackbarHostState.showSnackbar("Ejercicio añadido 🏋️")
+
                                                 }
                                             }
                                         }
