@@ -15,11 +15,14 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.WorkManager
 import com.example.gymtrack.navigation.AnimatedEntrance
 import com.example.gymtrack.navigation.Screen
 import com.example.gymtrack.viewmodel.AuthViewModel
@@ -28,6 +31,7 @@ import com.example.gymtrack.R
 import com.example.gymtrack.navigation.AnimatedAccessButton
 import com.example.gymtrack.navigation.FancySnackbarHost
 import com.example.gymtrack.navigation.SmoothSwitch
+import com.example.gymtrack.notification.NotificationWorker
 import com.example.gymtrack.viewmodel.ThemeViewModel
 import kotlinx.coroutines.launch
 
@@ -157,6 +161,17 @@ fun SettingsScreen(
                             onCheckedChange = { enabled -> themeViewModel.toggleDarkMode(enabled) }
                         )
                     }
+
+                    val context = LocalContext.current
+
+                    // Probar notificaciones
+//                    Button(onClick = {
+//                        val request = OneTimeWorkRequestBuilder<NotificationWorker>().build()
+//                        WorkManager.getInstance(context).enqueue(request)
+//                    }) {
+//                        Text("Probar notificación")
+//                    }
+
                 }
             }
         }

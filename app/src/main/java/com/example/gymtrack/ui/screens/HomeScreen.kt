@@ -63,7 +63,8 @@ fun HomeScreen(navController: NavHostController, authViewModel: AuthViewModel) {
     val cards = if (isAdmin) {
         listOf(
             Triple("Registrar nueva rutina predefinida", "Crea una rutina para todos los usuarios", R.drawable.register_routine),
-            Triple("Ver rutinas predefinidas", "Explora y gestiona tus rutinas predefinidas", R.drawable.predefined_routine)
+            Triple("Ver rutinas predefinidas", "Explora y gestiona tus rutinas predefinidas", R.drawable.predefined_routine),
+            Triple("Ajustes", "Gestiona tu cuenta, tema y más", R.drawable.settings) // <- AÑADIDO
         )
     } else {
         listOf(
@@ -72,7 +73,7 @@ fun HomeScreen(navController: NavHostController, authViewModel: AuthViewModel) {
             Triple("Ver mis rutinas", "Accede a todas tus rutinas guardadas", R.drawable.my_routines),
             Triple("Rutinas favoritas", "Consulta tus rutinas destacadas", R.drawable.favorite_routines),
             Triple("Temporizador", "Controla tu tiempo de entrenamiento", R.drawable.timer),
-            Triple("Ajustes", "Gestiona tu cuenta, tema y más", R.drawable.settings)
+            Triple("Ajustes", "Gestiona tu cuenta, tema y más", R.drawable.settings) // <- AÑADIDO
         )
     }
 
@@ -135,7 +136,7 @@ fun HomeScreen(navController: NavHostController, authViewModel: AuthViewModel) {
                                 "Ver mis rutinas" -> navController.navigate(Screen.MyRoutines.route)
                                 "Rutinas favoritas" -> navController.navigate("favoritas")
                                 "Temporizador" -> navController.navigate(Screen.Timer.route)
-                                "Ajustes" -> navController.navigate(Screen.Settings.route)
+                                "Ajustes" -> navController.navigate(Screen.Settings.route) // <- AÑADIDO
                             }
                         }
                     )
