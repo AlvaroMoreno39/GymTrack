@@ -30,6 +30,7 @@ import com.example.gymtrack.viewmodel.RoutineViewModel
 import com.example.gymtrack.R
 import com.example.gymtrack.navigation.AnimatedAccessButton
 import com.example.gymtrack.navigation.FancySnackbarHost
+import com.example.gymtrack.navigation.ScreenHeader
 import com.example.gymtrack.ui.theme.LightGray
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
@@ -57,35 +58,12 @@ fun PredefinedRoutinesScreen(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
         ) {
-            AnimatedEntrance {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(250.dp)
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.predefined_routine),
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(120.dp)
-                            .align(Alignment.BottomCenter)
-                            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.65f))
-                    )
-                    Column(
-                        modifier = Modifier
-                            .align(Alignment.BottomStart)
-                            .padding(horizontal = 24.dp, vertical = 16.dp)
-                    ) {
-                        Text("Rutinas", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
-                        Text("predefinidas", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
-                    }
-                }
-            }
+
+            ScreenHeader(
+                image = R.drawable.predefined_routine,
+                title = "Rutinas listas",
+                subtitle = "Encuentra inspiración y empieza ya"
+            )
 
             AnimatedEntrance {
                 LazyColumn(

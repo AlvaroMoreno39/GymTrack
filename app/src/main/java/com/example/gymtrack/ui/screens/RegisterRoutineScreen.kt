@@ -33,6 +33,7 @@ import com.example.gymtrack.viewmodel.RoutineViewModel
 import com.example.gymtrack.R
 import com.example.gymtrack.navigation.AnimatedAccessButton
 import com.example.gymtrack.navigation.FancySnackbarHost
+import com.example.gymtrack.navigation.ScreenHeader
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -79,35 +80,13 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
         ) {
-            AnimatedEntrance {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(250.dp)
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.registerroutine),
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(120.dp)
-                            .align(Alignment.BottomCenter)
-                            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.65f))
-                    )
-                    Column(
-                        modifier = Modifier
-                            .align(Alignment.BottomStart)
-                            .padding(horizontal = 24.dp, vertical = 16.dp)
-                    ) {
-                        Text("Crea tu", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
-                        Text("nueva rutina", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
-                    }
-                }
-            }
+
+            ScreenHeader(
+                image = R.drawable.registerroutine,
+                title = "Diseña tu progreso",
+                subtitle = "Crea tu rutina a medida"
+            )
+
 
             AnimatedEntrance {
                 Column(

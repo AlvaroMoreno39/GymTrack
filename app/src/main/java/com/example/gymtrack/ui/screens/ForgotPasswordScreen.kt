@@ -37,6 +37,7 @@ import kotlinx.coroutines.launch
 import com.example.gymtrack.R
 import com.example.gymtrack.navigation.AnimatedAccessButton
 import com.example.gymtrack.navigation.FancySnackbarHost
+import com.example.gymtrack.navigation.ScreenHeader
 import com.example.gymtrack.ui.theme.LightGray
 
 @SuppressLint("UnrememberedMutableState")
@@ -68,46 +69,11 @@ fun ForgotPasswordScreen(
     }) { padding ->
         Column(modifier = Modifier.fillMaxSize()) {
 
-            // Cabecera visual
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(250.dp)
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.forgotpasswordphoto),
-                    contentDescription = null,
-                    contentScale = ContentScale.Crop,
-                    modifier = Modifier.fillMaxSize()
-                )
-
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(120.dp)
-                        .align(Alignment.BottomCenter)
-                        .background(MaterialTheme.colorScheme.background.copy(alpha = 0.65f))
-                )
-
-                Column(
-                    modifier = Modifier
-                        .align(Alignment.BottomStart)
-                        .padding(horizontal = 24.dp, vertical = 16.dp)
-                ) {
-                    Text(
-                        if (isChangePassword) "Restablece tu" else "Recupera tu",
-                        fontSize = 28.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                    Text(
-                        "contraseña",
-                        fontSize = 28.sp,
-                        fontWeight = FontWeight.Bold,
-                        color = MaterialTheme.colorScheme.onBackground
-                    )
-                }
-            }
+            ScreenHeader(
+                image = R.drawable.forgotpasswordphoto,
+                title = if (isChangePassword) "Restablece tu" else "Recupera tu",
+                subtitle = if (isChangePassword) "nueva contraseña" else "contraseña olvidada"
+            )
 
             // FORMULARIO animado
             AnimatedVisibility(

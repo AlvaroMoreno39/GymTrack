@@ -39,6 +39,7 @@ import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarBorder
 import com.example.gymtrack.navigation.AnimatedAccessButton
 import com.example.gymtrack.navigation.FancySnackbarHost
+import com.example.gymtrack.navigation.ScreenHeader
 import com.example.gymtrack.ui.theme.FavoriteYellow
 import com.example.gymtrack.ui.theme.LightGray
 import kotlinx.coroutines.launch
@@ -73,46 +74,11 @@ fun MyRoutineScreen(
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)) {
 
-            // Cabecera animada
-            AnimatedEntrance {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(250.dp)
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.my_routines),
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(120.dp)
-                            .align(Alignment.BottomCenter)
-                            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.65f))
-                    )
-                    Column(
-                        modifier = Modifier
-                            .align(Alignment.BottomStart)
-                            .padding(horizontal = 24.dp, vertical = 16.dp)
-                    ) {
-                        Text(
-                            "Tus",
-                            fontSize = 28.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-                        Text(
-                            "rutinas",
-                            fontSize = 28.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-                    }
-                }
-            }
+            ScreenHeader(
+                image = R.drawable.my_routines,
+                title = "Tus rutinas",
+                subtitle = "Entrena con lo que ya tienes"
+            )
 
             // Lista de rutinas animada
             AnimatedEntrance {

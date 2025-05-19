@@ -50,6 +50,7 @@ import com.example.gymtrack.R
 import com.example.gymtrack.navigation.AnimatedAccessButton
 import com.example.gymtrack.navigation.AnimatedEntrance
 import com.example.gymtrack.navigation.Screen
+import com.example.gymtrack.navigation.ScreenHeader
 import com.example.gymtrack.ui.theme.LightGray
 import com.example.gymtrack.viewmodel.AuthViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -84,35 +85,13 @@ fun HomeScreen(navController: NavHostController, authViewModel: AuthViewModel) {
                 .background(MaterialTheme.colorScheme.background)
         ) {
             item {
-                AnimatedEntrance {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(250.dp)
-                    ) {
-                        Image(
-                            painter = painterResource(id = R.drawable.homephoto),
-                            contentDescription = null,
-                            contentScale = ContentScale.Crop,
-                            modifier = Modifier.fillMaxSize()
-                        )
-                        Box(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .height(120.dp)
-                                .align(Alignment.BottomCenter)
-                                .background(MaterialTheme.colorScheme.background.copy(alpha = 0.65f))
-                        )
-                        Column(
-                            modifier = Modifier
-                                .align(Alignment.BottomStart)
-                                .padding(horizontal = 24.dp, vertical = 16.dp)
-                        ) {
-                            Text("Bienvenido", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
-                            Text("¿Qué quieres hacer?", fontSize = 24.sp, color = MaterialTheme.colorScheme.onBackground)
-                        }
-                    }
-                }
+
+                ScreenHeader(
+                    image = R.drawable.homephoto,
+                    title = "Bienvenido",
+                    subtitle = "¿Qué quieres hacer?"
+                )
+
             }
 
             itemsIndexed(cards) { index, (title, desc, img) ->

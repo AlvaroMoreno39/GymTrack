@@ -38,6 +38,7 @@ import com.example.gymtrack.navigation.AnimatedAccessButton
 import com.example.gymtrack.navigation.AnimatedEntrance
 import com.example.gymtrack.navigation.FancySnackbarHost
 import com.example.gymtrack.navigation.Screen
+import com.example.gymtrack.navigation.ScreenHeader
 import com.example.gymtrack.ui.theme.LightGray
 import com.example.gymtrack.ui.theme.ValidGreen
 import com.example.gymtrack.viewmodel.AuthViewModel
@@ -95,45 +96,13 @@ fun RegisterScreen(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background) // ← Fondo blanco
         ) {
-            AnimatedEntrance {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(250.dp)
-                ) {
-                    Image(
-                        painter = painterResource(id = R.drawable.registerphoto),
-                        contentDescription = null,
-                        contentScale = ContentScale.Crop,
-                        modifier = Modifier.fillMaxSize()
-                    )
-                    Box(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(120.dp)
-                            .align(Alignment.BottomCenter)
-                            .background(MaterialTheme.colorScheme.background.copy(alpha = 0.65f))
-                    )
-                    Column(
-                        modifier = Modifier
-                            .align(Alignment.BottomStart)
-                            .padding(horizontal = 24.dp, vertical = 16.dp)
-                    ) {
-                        Text(
-                            "Crea tu",
-                            fontSize = 28.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-                        Text(
-                            "cuenta",
-                            fontSize = 28.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-                    }
-                }
-            }
+
+            ScreenHeader(
+                image = R.drawable.registerphoto,
+                title = "Empieza tu camino",
+                subtitle = "Crea tu cuenta y comienza"
+            )
+
 
             AnimatedEntrance {
                 Column(
