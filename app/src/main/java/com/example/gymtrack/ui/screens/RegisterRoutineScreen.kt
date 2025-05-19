@@ -43,6 +43,12 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
+    val esAdmin = FirebaseAuth.getInstance().currentUser?.email == "admin@gymtrack.com"
+
+    val niveles = listOf("Principiante", "Intermedio", "Avanzado")
+    var nivelSeleccionado by remember { mutableStateOf("") }
+    var showNivelError by remember { mutableStateOf(false) }
+
     var nombreRutina by remember { mutableStateOf("") }
     var nombreEjercicio by remember { mutableStateOf("") }
     var grupoMuscular by remember { mutableStateOf("") }
@@ -56,29 +62,23 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
 
     val isCardio = tipo.lowercase() == "cardio"
 
-    val gruposMusculares =
-        listOf("Pecho", "Espalda", "Piernas", "Hombros", "Bíceps", "Tríceps", "Abdomen")
+    val gruposMusculares = listOf("Pecho", "Espalda", "Piernas", "Hombros", "Bíceps", "Tríceps", "Abdomen")
     val tipos = listOf("Fuerza", "Cardio", "Mixto")
     val intensidades = listOf("Baja", "Media", "Alta")
 
-    // Estados de error visual
     var showNombreRutinaError by remember { mutableStateOf(false) }
     var showNombreEjercicioError by remember { mutableStateOf(false) }
     var showGrupoMuscularError by remember { mutableStateOf(false) }
     var showTipoError by remember { mutableStateOf(false) }
     var showIntensidadError by remember { mutableStateOf(false) }
 
-    Scaffold(snackbarHost = {
-        FancySnackbarHost(snackbarHostState)
-    }) { padding ->
+    Scaffold(snackbarHost = { FancySnackbarHost(snackbarHostState) }) { padding ->
 
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background) // ← Fondo blanco
+                .background(MaterialTheme.colorScheme.background)
         ) {
-
-            // Cabecera animada
             AnimatedEntrance {
                 Box(
                     modifier = Modifier
@@ -103,23 +103,12 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
                             .align(Alignment.BottomStart)
                             .padding(horizontal = 24.dp, vertical = 16.dp)
                     ) {
-                        Text(
-                            "Crea tu",
-                            fontSize = 28.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
-                        Text(
-                            "nueva rutina",
-                            fontSize = 28.sp,
-                            fontWeight = FontWeight.Bold,
-                            color = MaterialTheme.colorScheme.onBackground
-                        )
+                        Text("Crea tu", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
+                        Text("nueva rutina", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.onBackground)
                     }
                 }
             }
 
-            // Formulario animado
             AnimatedEntrance {
                 Column(
                     modifier = Modifier
@@ -128,7 +117,6 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
                         .verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    // Campo nombre de rutina
                     OutlinedTextField(
                         value = nombreRutina,
                         onValueChange = {
@@ -140,17 +128,26 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
                         modifier = Modifier.fillMaxWidth()
                     )
                     if (showNombreRutinaError) {
-                        Text(
-                            text = "Introduce el nombre de la rutina",
-                            color = MaterialTheme.colorScheme.error,
-                            fontSize = 12.sp,
-                            modifier = Modifier.padding(start = 4.dp)
-                        )
+                        Text("Introduce el nombre de la rutina", color = MaterialTheme.colorScheme.error, fontSize = 12.sp, modifier = Modifier.padding(start = 4.dp))
                     }
 
-                    Text(text = "Añadir ejercicio", style = MaterialTheme.typography.titleMedium)
+                    if (esAdmin) {
+                        DropDownSelector(
+                            label = "Nivel de dificultad",
+                            options = niveles,
+                            selectedOption = nivelSeleccionado,
+                            onOptionSelected = {
+                                nivelSeleccionado = it
+                                showNivelError = false
+                            }
+                        )
+                        if (showNivelError) {
+                            Text("Selecciona un nivel", color = MaterialTheme.colorScheme.error, fontSize = 12.sp, modifier = Modifier.padding(start = 4.dp))
+                        }
+                    }
 
-                    // Campo nombre del ejercicio
+                    Text("Añadir ejercicio", style = MaterialTheme.typography.titleMedium)
+
                     OutlinedTextField(
                         value = nombreEjercicio,
                         onValueChange = {
@@ -162,53 +159,25 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
                         modifier = Modifier.fillMaxWidth()
                     )
                     if (showNombreEjercicioError) {
-                        Text(
-                            text = "Introduce el nombre del ejercicio",
-                            color = MaterialTheme.colorScheme.error,
-                            fontSize = 12.sp,
-                            modifier = Modifier.padding(start = 4.dp)
-                        )
+                        Text("Introduce el nombre del ejercicio", color = MaterialTheme.colorScheme.error, fontSize = 12.sp, modifier = Modifier.padding(start = 4.dp))
                     }
 
-                    // Selector grupo muscular
-                    DropDownSelector(
-                        label = "Grupo Muscular",
-                        options = gruposMusculares,
-                        selectedOption = grupoMuscular,
-                        onOptionSelected = {
-                            grupoMuscular = it
-                            showGrupoMuscularError = false
-                        }
-                    )
+                    DropDownSelector("Grupo Muscular", gruposMusculares, grupoMuscular) {
+                        grupoMuscular = it
+                        showGrupoMuscularError = false
+                    }
                     if (showGrupoMuscularError) {
-                        Text(
-                            text = "Selecciona un grupo muscular",
-                            color = MaterialTheme.colorScheme.error,
-                            fontSize = 12.sp,
-                            modifier = Modifier.padding(start = 4.dp)
-                        )
+                        Text("Selecciona un grupo muscular", color = MaterialTheme.colorScheme.error, fontSize = 12.sp, modifier = Modifier.padding(start = 4.dp))
                     }
 
-                    // Selector tipo ejercicio
-                    DropDownSelector(
-                        label = "Tipo de Ejercicio",
-                        options = tipos,
-                        selectedOption = tipo,
-                        onOptionSelected = {
-                            tipo = it
-                            showTipoError = false
-                        }
-                    )
+                    DropDownSelector("Tipo de Ejercicio", tipos, tipo) {
+                        tipo = it
+                        showTipoError = false
+                    }
                     if (showTipoError) {
-                        Text(
-                            text = "Selecciona un tipo de ejercicio",
-                            color = MaterialTheme.colorScheme.error,
-                            fontSize = 12.sp,
-                            modifier = Modifier.padding(start = 4.dp)
-                        )
+                        Text("Selecciona un tipo de ejercicio", color = MaterialTheme.colorScheme.error, fontSize = 12.sp, modifier = Modifier.padding(start = 4.dp))
                     }
 
-                    // Campo duración o series + reps según tipo
                     if (isCardio) {
                         OutlinedTextField(
                             value = duracion,
@@ -234,26 +203,14 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
                         )
                     }
 
-                    // Selector intensidad
-                    DropDownSelector(
-                        label = "Intensidad",
-                        options = intensidades,
-                        selectedOption = intensidad,
-                        onOptionSelected = {
-                            intensidad = it
-                            showIntensidadError = false
-                        }
-                    )
+                    DropDownSelector("Intensidad", intensidades, intensidad) {
+                        intensidad = it
+                        showIntensidadError = false
+                    }
                     if (showIntensidadError) {
-                        Text(
-                            text = "Selecciona la intensidad",
-                            color = MaterialTheme.colorScheme.error,
-                            fontSize = 12.sp,
-                            modifier = Modifier.padding(start = 4.dp)
-                        )
+                        Text("Selecciona la intensidad", color = MaterialTheme.colorScheme.error, fontSize = 12.sp, modifier = Modifier.padding(start = 4.dp))
                     }
 
-                    // Botón añadir ejercicio
                     AnimatedAccessButton(buttonText = "Añadir ejercicio", modifier = Modifier.fillMaxWidth()) {
                         val errorNombreEjercicio = nombreEjercicio.isBlank()
                         val errorGrupoMuscular = grupoMuscular.isBlank()
@@ -266,22 +223,19 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
                         showIntensidadError = errorIntensidad
 
                         if (errorNombreEjercicio || errorGrupoMuscular || errorTipo || errorIntensidad) {
-                            scope.launch {
-                                snackbarHostState.showSnackbar("Rellena todos los campos del ejercicio")
-                            }
+                            scope.launch { snackbarHostState.showSnackbar("Rellena todos los campos del ejercicio") }
                         } else {
-                            val nuevoEjercicio = Exercise(
-                                nombre = nombreEjercicio,
-                                grupoMuscular = grupoMuscular,
-                                tipo = tipo.lowercase(),
-                                series = series.toIntOrNull() ?: 0,
-                                reps = reps.toIntOrNull() ?: 0,
-                                duracion = if (isCardio) duracion.toIntOrNull() ?: 0 else 0,
-                                intensidad = intensidad.lowercase(),
+                            ejercicios.add(
+                                Exercise(
+                                    nombre = nombreEjercicio,
+                                    grupoMuscular = grupoMuscular,
+                                    tipo = tipo.lowercase(),
+                                    series = series.toIntOrNull() ?: 0,
+                                    reps = reps.toIntOrNull() ?: 0,
+                                    duracion = if (isCardio) duracion.toIntOrNull() ?: 0 else 0,
+                                    intensidad = intensidad.lowercase()
+                                )
                             )
-                            ejercicios.add(nuevoEjercicio)
-
-                            // Reset
                             nombreEjercicio = ""
                             grupoMuscular = ""
                             tipo = ""
@@ -289,55 +243,50 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
                             reps = ""
                             duracion = ""
                             intensidad = ""
-
-                            scope.launch {
-                                snackbarHostState.showSnackbar("Ejercicio añadido correctamente")
-                            }
+                            scope.launch { snackbarHostState.showSnackbar("Ejercicio añadido correctamente") }
                         }
                     }
 
-                    Text(
-                        text = "Ejercicios añadidos: ${ejercicios.size}",
-                        style = MaterialTheme.typography.bodyLarge,
-                        modifier = Modifier.align(Alignment.CenterHorizontally)
-                    )
+                    Text("Ejercicios añadidos: ${ejercicios.size}", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.align(Alignment.CenterHorizontally))
 
-                    // Botón guardar rutina
                     AnimatedAccessButton(buttonText = "Guardar rutina completa", modifier = Modifier.fillMaxWidth()) {
                         val errorNombreRutina = nombreRutina.isBlank()
                         showNombreRutinaError = errorNombreRutina
+                        showNivelError = esAdmin && nivelSeleccionado.isBlank()
 
-                        if (errorNombreRutina || ejercicios.isEmpty()) {
-                            scope.launch {
-                                snackbarHostState.showSnackbar("Añade un nombre de rutina y al menos un ejercicio")
-                            }
+                        if (errorNombreRutina || ejercicios.isEmpty() || showNivelError) {
+                            scope.launch { snackbarHostState.showSnackbar("Rellena todos los campos obligatorios") }
                         } else {
-                            val esAdmin =
-                                FirebaseAuth.getInstance().currentUser?.email == "admin@gymtrack.com"
-
-                            val guardarRutina = if (esAdmin) {
-                                viewModel::savePredefinedRoutine
+                            if (esAdmin) {
+                                viewModel.savePredefinedRoutine(nombreRutina, ejercicios, nivelSeleccionado) { success ->
+                                    scope.launch {
+                                        if (success) {
+                                            snackbarHostState.showSnackbar("Rutina guardada con éxito")
+                                            nombreRutina = ""
+                                            ejercicios = mutableListOf()
+                                            nivelSeleccionado = ""
+                                        } else {
+                                            snackbarHostState.showSnackbar("Error al guardar la rutina")
+                                        }
+                                    }
+                                }
                             } else {
-                                viewModel::saveFullRoutine
-                            }
-
-                            guardarRutina(nombreRutina, ejercicios) { success ->
-                                scope.launch {
-                                    if (success) {
-                                        snackbarHostState.showSnackbar("Rutina guardada con éxito")
-                                        nombreRutina = ""
-                                        ejercicios = mutableListOf()
-                                    } else {
-                                        snackbarHostState.showSnackbar("Error al guardar la rutina")
+                                viewModel.saveFullRoutine(nombreRutina, ejercicios) { success ->
+                                    scope.launch {
+                                        if (success) {
+                                            snackbarHostState.showSnackbar("Rutina guardada con éxito")
+                                            nombreRutina = ""
+                                            ejercicios = mutableListOf()
+                                        } else {
+                                            snackbarHostState.showSnackbar("Error al guardar la rutina")
+                                        }
                                     }
                                 }
                             }
                         }
                     }
 
-
-
-                    Spacer(modifier = Modifier.height(100.dp)) // Espacio extra para no solapar el menú inferior
+                    Spacer(modifier = Modifier.height(100.dp))
                 }
             }
         }

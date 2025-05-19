@@ -118,6 +118,31 @@ fun PredefinedRoutinesScreen(
                                     )
                                 }
 
+                                // Nivel de dificultad (solo si existe)
+                                rutina.nivel?.let { nivel ->
+                                    Spacer(modifier = Modifier.height(8.dp))
+                                    Box(
+                                        modifier = Modifier
+                                            .background(
+                                                color = when (nivel.lowercase()) {
+                                                    "principiante" -> Color(0xFFB2FF59) // Verde lima
+                                                    "intermedio" -> Color(0xFFFFF176)   // Amarillo suave
+                                                    "avanzado" -> Color(0xFFFF8A65)     // Naranja/rojo
+                                                    else -> Color.LightGray
+                                                },
+                                                shape = RoundedCornerShape(12.dp)
+                                            )
+                                            .padding(horizontal = 12.dp, vertical = 4.dp)
+                                    ) {
+                                        Text(
+                                            text = nivel.replaceFirstChar { it.uppercase() },
+                                            color = Color.Black,
+                                            fontSize = 13.sp,
+                                            fontWeight = FontWeight.Medium
+                                        )
+                                    }
+                                }
+
                                 Spacer(modifier = Modifier.height(6.dp))
 
                                 Text(
@@ -206,7 +231,3 @@ fun PredefinedRoutinesScreen(
         }
     }
 }
-
-
-
-
