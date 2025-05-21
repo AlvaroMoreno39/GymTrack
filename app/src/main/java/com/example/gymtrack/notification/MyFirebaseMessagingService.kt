@@ -16,7 +16,7 @@ class MyFirebaseMessagingService : FirebaseMessagingService() {
     override fun onMessageReceived(remoteMessage: RemoteMessage) {
         remoteMessage.notification?.let {
             val builder = NotificationCompat.Builder(this, "rutinas_channel")
-                .setSmallIcon(R.drawable.ic_launcher_foreground) // Cambia por tu icono real
+                .setSmallIcon(R.drawable.ic_notification)
                 .setContentTitle(it.title)
                 .setContentText(it.body)
                 .setPriority(NotificationCompat.PRIORITY_HIGH)
