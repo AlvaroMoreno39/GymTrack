@@ -3,6 +3,7 @@ package com.example.gymtrack
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -21,6 +22,7 @@ import com.example.gymtrack.notification.NotificationWorker
 import com.example.gymtrack.notification.createNotificationChannel
 import com.example.gymtrack.ui.theme.GymTrackTheme
 import com.example.gymtrack.viewmodel.ThemeViewModel
+import com.google.firebase.messaging.FirebaseMessaging
 import java.util.concurrent.TimeUnit
 
 class MainActivity : ComponentActivity() {
@@ -44,6 +46,16 @@ class MainActivity : ComponentActivity() {
 
         // 🔔 Crear canal de notificaciones
         createNotificationChannel(this)
+
+        FirebaseMessaging.getInstance().subscribeToTopic("nuevas_rutinas")
+            .addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    Log.d("FCM", "✅ Suscrito al topic nuevas_rutinas")
+                } else {
+                    Log.e("FCM", "❌ Error al suscribirse", task.exception)
+                }
+            }
+
 
         // ⏱️ Programar notificación diaria
         val workRequest = PeriodicWorkRequestBuilder<NotificationWorker>(
