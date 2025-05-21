@@ -23,12 +23,12 @@ class NotificationWorker(
         val notificationId = Random.nextInt(1000)
 
         val messages = listOf(
-            Pair("¿Hoy entrenas?", "No olvides revisar tus rutinas favoritas."),
-            Pair("¿Ya cronometraste tu descanso?", "Recuerda usar el temporizador para optimizar tus entrenos."),
+            Pair("¿Hoy entrenas?", "No olvides revisar tus rutinas favoritas"),
+            Pair("¿Ya cronometraste tu descanso?", "Recuerda usar el temporizador para optimizar tus entrenos"),
             Pair("Consejo del día", listOf(
-                "La constancia vence al talento.",
-                "Hoy puede ser un gran día para empezar una nueva rutina.",
-                "El progreso viene del hábito, no de la perfección."
+                "La constancia vence al talento",
+                "Hoy puede ser un gran día para empezar una nueva rutina",
+                "El progreso viene del hábito, no de la perfección"
             ).random())
         )
 
@@ -44,7 +44,7 @@ class NotificationWorker(
         }
 
         val builder = NotificationCompat.Builder(context, "gymtrack_channel")
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setSmallIcon(R.drawable.ic_notification)
             .setContentTitle(title)
             .setContentText(message)
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)

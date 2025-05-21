@@ -143,12 +143,12 @@ fun SettingsScreen(
                     val context = LocalContext.current
 
                     // Probar notificaciones
-//                    Button(onClick = {
-//                        val request = OneTimeWorkRequestBuilder<NotificationWorker>().build()
-//                        WorkManager.getInstance(context).enqueue(request)
-//                    }) {
-//                        Text("Probar notificación")
-//                    }
+                    Button(onClick = {
+                        val request = OneTimeWorkRequestBuilder<NotificationWorker>().build()
+                        WorkManager.getInstance(context).enqueue(request)
+                    }) {
+                        Text("Probar notificación")
+                    }
 
                 }
             }
