@@ -18,7 +18,6 @@ import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.animateColorAsState
 import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
@@ -37,7 +36,6 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -49,7 +47,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.gymtrack.R
 import com.example.gymtrack.navigation.AnimatedAccessButton
-import com.example.gymtrack.navigation.AnimatedEntrance
 import com.example.gymtrack.navigation.FancySnackbarHost
 import com.example.gymtrack.navigation.Screen
 import com.example.gymtrack.navigation.ScreenHeader
@@ -60,7 +57,6 @@ import com.google.android.gms.auth.api.signin.GoogleSignInOptions
 import com.google.android.gms.common.api.ApiException
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnrememberedMutableState")
@@ -140,7 +136,7 @@ fun LoginScreen(
         ) {
 
             ScreenHeader(
-                image = R.drawable.loginphoto,
+                image = R.drawable.login,
                 title = "Bienvenido de nuevo",
                 subtitle = "Accede a tu cuenta personal"
             )
