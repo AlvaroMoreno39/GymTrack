@@ -178,7 +178,9 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
                     if (isCardio) {
                         OutlinedTextField(
                             value = duracion,
-                            onValueChange = { duracion = it },
+                            onValueChange = { value ->
+                                if (value.all { it.isDigit() }) duracion = value
+                            },
                             label = { Text("Duración (minutos)") },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             modifier = Modifier.fillMaxWidth()
@@ -186,14 +188,18 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
                     } else {
                         OutlinedTextField(
                             value = series,
-                            onValueChange = { series = it },
+                            onValueChange = { value ->
+                                if (value.all { it.isDigit() }) series = value
+                            },
                             label = { Text("Series") },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             modifier = Modifier.fillMaxWidth()
                         )
                         OutlinedTextField(
                             value = reps,
-                            onValueChange = { reps = it },
+                            onValueChange = { value ->
+                                if (value.all { it.isDigit() }) reps = value
+                            },
                             label = { Text("Repeticiones") },
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                             modifier = Modifier.fillMaxWidth()
