@@ -183,11 +183,15 @@ fun PredefinedRoutineDetailScreen(
                                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                                         Text("Grupo: ${ejercicio.grupoMuscular}")
                                         Text("Tipo: ${ejercicio.tipo}")
-                                        if (ejercicio.series > 0) Text("Series: ${ejercicio.series}")
-                                        if (ejercicio.reps > 0) Text("Reps: ${ejercicio.reps}")
-                                        if (ejercicio.duracion > 0) Text("Duración: ${ejercicio.duracion} min")
+                                        if (ejercicio.tipo.lowercase() == "cardio" && ejercicio.duracion > 0) {
+                                            Text("Duración: ${ejercicio.duracion} min")
+                                        } else {
+                                            if (ejercicio.series > 0) Text("Series: ${ejercicio.series}")
+                                            if (ejercicio.reps > 0) Text("Reps: ${ejercicio.reps}")
+                                        }
                                         Text("Intensidad: ${ejercicio.intensidad}")
                                     }
+
                                 }
 
                                 Spacer(modifier = Modifier.height(12.dp))

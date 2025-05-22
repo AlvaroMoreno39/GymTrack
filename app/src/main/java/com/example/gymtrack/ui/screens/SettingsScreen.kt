@@ -149,7 +149,7 @@ fun SettingsScreen(
 
                     // --- (OPCIONAL) Botón para probar notificaciones ---
                     // Descomentar si se quiere testear notificaciones locales con WorkManager
-                    /*
+
                     val context = LocalContext.current
                     Button(onClick = {
                         val request = OneTimeWorkRequestBuilder<NotificationWorker>().build()
@@ -157,7 +157,7 @@ fun SettingsScreen(
                     }) {
                         Text("Probar notificación")
                     }
-                    */
+
                 }
             }
         }
