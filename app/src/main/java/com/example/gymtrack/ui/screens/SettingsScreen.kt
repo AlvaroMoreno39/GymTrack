@@ -149,14 +149,20 @@ fun SettingsScreen(
 
                     // --- (OPCIONAL) Botón para probar notificaciones ---
                     // Descomentar si se quiere testear notificaciones locales con WorkManager
-
                     val context = LocalContext.current
-                    Button(onClick = {
-                        val request = OneTimeWorkRequestBuilder<NotificationWorker>().build()
-                        WorkManager.getInstance(context).enqueue(request)
-                    }) {
-                        Text("Probar notificación")
-                    }
+                    AnimatedAccessButton(
+                        buttonText = "Generar notificacion (solo prueba)",
+                        onClick = {
+                            val request = OneTimeWorkRequestBuilder<NotificationWorker>().build()
+                            WorkManager.getInstance(context).enqueue(request)
+                        },
+                        color = MaterialTheme.colorScheme.onBackground,
+                        contentColor = MaterialTheme.colorScheme.background,
+                        border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(56.dp)
+                    )
 
                 }
             }

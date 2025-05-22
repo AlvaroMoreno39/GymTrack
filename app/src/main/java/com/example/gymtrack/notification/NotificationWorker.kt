@@ -59,7 +59,7 @@ class NotificationWorker(
 
         // Construye la notificación con todos sus parámetros visuales y de comportamiento
         val builder = NotificationCompat.Builder(context, "gymtrack_channel")
-            .setSmallIcon(R.drawable.ic_notification)   // Icono de la notificación
+            .setSmallIcon(R.drawable.ic_fitness_center)   // Icono de la notificación
             .setContentTitle(title)                     // Título dinámico
             .setContentText(message)                    // Mensaje dinámico
             .setPriority(NotificationCompat.PRIORITY_DEFAULT) // Prioridad media

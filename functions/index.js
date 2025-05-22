@@ -5,13 +5,17 @@ const logger = require("firebase-functions/logger");
 
 initializeApp();
 
-// Cloud Function que se ejecuta cuando se crea una nueva rutina predefinida
 exports.notifyNewPredefinedRoutine = onDocumentCreated("rutinasPredefinidas/{docId}", (event) => {
   const data = event.data.data();
   const nombreRutina = data?.nombreRutina || "una rutina";
 
+  // --- ENVÍA TANTO notification COMO data ---
   const message = {
     notification: {
+      title: "💪 ¡Nueva rutina disponible!",
+      body: `Se ha publicado ${nombreRutina}`,
+    },
+    data: {
       title: "💪 ¡Nueva rutina disponible!",
       body: `Se ha publicado ${nombreRutina}`,
     },
