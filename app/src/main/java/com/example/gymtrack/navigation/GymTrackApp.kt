@@ -69,47 +69,42 @@ fun GymTrackApp(
     themeViewModel: ThemeViewModel,
     darkMode: Boolean
 ) {
-    // Crea y recuerda el controlador de navegación para movernos entre pantallas
     val navController = rememberNavController()
-
-    // Obtenemos la ruta actual a través del BackStack (útil para saber dónde estamos)
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
-
-    // Recupera el usuario actual y comprueba si es administrador (por email)
     val currentUser = FirebaseAuth.getInstance().currentUser
     val isAdmin = currentUser?.email == "admin@gymtrack.com"
 
-    // Lista de pantallas donde no queremos mostrar el menú (pantallas de autenticación)
+    // Lista de pantallas donde NO debe mostrarse el botón flotante del menú
     val noMenuScreens = listOf(
         Screen.Login.route,
         Screen.Register.route,
         Screen.ForgotPassword.route
     )
 
-    // Crossfade permite animar el cambio entre temas claro/oscuro
+    // Comprobamos si la pantalla actual está en las pantallas "prohibidas" (incluyendo variantes con parámetros)
+    val hideFab = noMenuScreens.any { route -> currentRoute?.startsWith(route) == true }
+
     Crossfade(targetState = darkMode, label = "theme") { isDark ->
-        // Aplica el tema global de la app (colores, tipografías, formas...)
         GymTrackTheme(darkTheme = isDark) {
-            // Scaffold es la estructura base de Material Design (gestiona barras, FAB, etc.)
             Scaffold(
-                topBar = {},    // Aquí podrías poner una TopAppBar si quieres cabecera fija global
-                bottomBar = {}, // Menu flotante en vez de BottomNavigation tradicional
+                topBar = {},
+                bottomBar = {},
+                // SOLO mostramos el menú flotante si NO estamos en una pantalla prohibida
                 floatingActionButton = {
-                    // Muestra el menú flotante salvo en pantallas de auth
-                    if (currentRoute !in noMenuScreens) {
+                    if (!hideFab) {
                         ShareMenuSample(navController)
                     }
                 },
                 floatingActionButtonPosition = FabPosition.Center,
                 containerColor = MaterialTheme.colorScheme.background
             ) { innerPadding ->
-                // Contenedor principal donde se monta el sistema de navegación de pantallas
                 GymTrackNavHost(navController, innerPadding, themeViewModel)
             }
         }
     }
 }
+
 
 /**
  * Componente que representa el menú flotante de la app (accesible desde el botón central).
