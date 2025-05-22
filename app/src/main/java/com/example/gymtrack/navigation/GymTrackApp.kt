@@ -1,5 +1,6 @@
 package com.example.gymtrack.navigation
 
+import android.util.Log
 import androidx.annotation.DrawableRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
@@ -75,15 +76,26 @@ fun GymTrackApp(
     val currentUser = FirebaseAuth.getInstance().currentUser
     val isAdmin = currentUser?.email == "admin@gymtrack.com"
 
-    // Lista de pantallas donde NO debe mostrarse el botón flotante del menú
+    // Lista de rutas en las que NO queremos mostrar el botón flotante del menú (FAB).
+    // Esto incluye las pantallas de Login, Registro y Recuperar contraseña.
     val noMenuScreens = listOf(
         Screen.Login.route,
         Screen.Register.route,
         Screen.ForgotPassword.route
     )
 
-    // Comprobamos si la pantalla actual está en las pantallas "prohibidas" (incluyendo variantes con parámetros)
-    val hideFab = noMenuScreens.any { route -> currentRoute?.startsWith(route) == true }
+    // Comprobamos si la ruta actual está en la lista de rutas "prohibidas" o si comienza por alguna de ellas,
+    // incluyendo posibles variantes con parámetros (por ejemplo, "forgot_password?change=true").
+    // De esta forma, nos aseguramos de ocultar el FAB en todas sus variantes.
+    val hideFab = noMenuScreens.any { route ->
+        currentRoute == route || // Ruta exacta (ej: "login")
+                currentRoute?.startsWith("$route?") == true || // Variante con parámetros (ej: "forgot_password?change=true")
+                currentRoute?.startsWith("$route/") == true    // Variante con subrutas (si las hubiera)
+    }
+
+
+    // Log para pruebas específicamente para ver donde la ruta actual, si se oculta el FAB y si es admin
+    Log.d("NAV_DEBUG", "Ruta actual: $currentRoute | Ocultar FAB: $hideFab | Admin: $isAdmin")
 
     Crossfade(targetState = darkMode, label = "theme") { isDark ->
         GymTrackTheme(darkTheme = isDark) {
