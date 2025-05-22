@@ -45,20 +45,33 @@ import com.example.gymtrack.ui.theme.FavoriteYellow
 import com.example.gymtrack.ui.theme.LightGray
 import kotlinx.coroutines.launch
 
+/**
+ * FavoriteRoutinesScreen.kt
+ *
+ * Pantalla que muestra todas las rutinas marcadas como favoritas por el usuario en la app GymTrack.
+ * Permite visualizar, desmarcar/marcar como favorito y navegar al detalle de cada rutina.
+ * Utiliza Jetpack Compose y el patrón MVVM con RoutineViewModel.
+ */
+
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun FavoriteRoutinesScreen(
-    viewModel: RoutineViewModel = viewModel(),
-    navController: NavHostController
+    viewModel: RoutineViewModel = viewModel(),   // ViewModel para manejar lógica de rutinas y favoritos
+    navController: NavHostController             // Controlador de navegación para moverse entre pantallas
 ) {
+    // Scope para lanzar corutinas en la UI (ej: mostrar Snackbars)
     val scope = rememberCoroutineScope()
+    // Estado para manejar los mensajes emergentes visuales
     val snackbarHostState = remember { SnackbarHostState() }
+    // Estado reactivo con la lista de rutinas favoritas (ID y datos de rutina)
     var favorites by remember { mutableStateOf<List<Pair<String, RoutineData>>>(emptyList()) }
 
+    // Lógica de carga inicial: obtiene las rutinas favoritas al montar la pantalla
     LaunchedEffect(Unit) {
         viewModel.getUserRoutines { allRoutines ->
             favorites = allRoutines.filter { it.second.esFavorita }
             if (favorites.isEmpty()) {
+                // Si no hay favoritas, muestra un mensaje con una estrella
                 scope.launch {
                     snackbarHostState.showSnackbar("No tienes rutinas favoritas aún ⭐")
                 }
@@ -67,19 +80,22 @@ fun FavoriteRoutinesScreen(
     }
 
     Scaffold(
-        snackbarHost = { FancySnackbarHost(snackbarHostState) }
+        snackbarHost = { FancySnackbarHost(snackbarHostState) } // Snackbar personalizado animado
     ) {
-        Column(modifier = Modifier.fillMaxSize().background(MaterialTheme.colorScheme.background)) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+        ) {
 
-            // Cabecera visual
+            // Cabecera visual común (imagen, título y subtítulo animados)
             ScreenHeader(
                 image = R.drawable.favorite_routines,
                 title = "Tus elegidas",
                 subtitle = "Rutinas que te motivan"
             )
 
-
-            // Lista
+            // Lista animada de rutinas favoritas
             AnimatedEntrance {
                 LazyColumn(
                     modifier = Modifier
@@ -87,6 +103,7 @@ fun FavoriteRoutinesScreen(
                         .padding(horizontal = 20.dp, vertical = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(20.dp)
                 ) {
+                    // Renderiza cada rutina favorita como una Card
                     items(favorites, key = { it.first }) { (id_rutina, rutina) ->
                         Card(
                             modifier = Modifier.fillMaxWidth(),
@@ -97,12 +114,13 @@ fun FavoriteRoutinesScreen(
                             Column(modifier = Modifier.padding(16.dp)) {
 
                                 Box(modifier = Modifier.fillMaxWidth()) {
-                                    // ⭐ Estrella para desmarcar
+                                    // Botón de estrella para marcar/desmarcar favorito
                                     IconToggleButton(
                                         checked = rutina.esFavorita,
                                         onCheckedChange = { isFavorite ->
                                             viewModel.toggleFavorite(id_rutina, isFavorite) { success ->
                                                 if (success) {
+                                                    // Si se marca/desmarca, recarga la lista filtrando solo favoritas
                                                     viewModel.getUserRoutines { updated ->
                                                         favorites = updated.filter { it.second.esFavorita }
                                                     }
@@ -112,6 +130,7 @@ fun FavoriteRoutinesScreen(
                                                         )
                                                     }
                                                 } else {
+                                                    // Error al actualizar favorito
                                                     scope.launch {
                                                         snackbarHostState.showSnackbar("Error al actualizar favorito ❌")
                                                     }
@@ -130,7 +149,7 @@ fun FavoriteRoutinesScreen(
                                         )
                                     }
 
-                                    // Contenido
+                                    // Contenido principal de la Card (nombre, nº ejercicios, botón de acceso)
                                     Column(modifier = Modifier.padding(16.dp)) {
                                         Row(verticalAlignment = Alignment.CenterVertically) {
                                             Icon(
@@ -158,6 +177,7 @@ fun FavoriteRoutinesScreen(
 
                                         Spacer(modifier = Modifier.height(16.dp))
 
+                                        // Botón animado para ir al detalle de la rutina
                                         AnimatedAccessButton(
                                             buttonText = "Ver rutina",
                                             onClick = {
@@ -175,7 +195,7 @@ fun FavoriteRoutinesScreen(
                             }
                         }
                     }
-
+                    // Espacio extra al final para evitar que el último elemento quede oculto
                     item { Spacer(modifier = Modifier.height(100.dp)) }
                 }
             }

@@ -1,15 +1,5 @@
 package com.example.gymtrack.ui.screens
 
-/*
-RegisterScreen.kt
-
-Este archivo contiene la pantalla de registro de la app GymTrack.
-Permite a los usuarios crear una cuenta utilizando su correo electrónico y una contraseña segura.
-Implementa validaciones visuales (correo válido, requisitos de contraseña, coincidencia de contraseñas) y mensajes de error mediante Snackbar.
-También permite navegar a la pantalla de login si el usuario ya tiene una cuenta.
-La lógica de autenticación está conectada al ViewModel `AuthViewModel` que gestiona Firebase Auth.
-*/
-
 import android.annotation.SuppressLint
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -40,35 +30,59 @@ import com.example.gymtrack.ui.theme.ValidGreen
 import com.example.gymtrack.viewmodel.AuthViewModel
 import kotlinx.coroutines.launch
 
+/*
+RegisterScreen.kt
+
+Pantalla de registro de usuario para la app GymTrack.
+Permite a cualquier usuario crear una cuenta mediante correo electrónico y contraseña segura (integración con Firebase Auth).
+Incluye:
+- Validación visual de email y contraseña (requisitos mínimos, confirmación, feedback en tiempo real).
+- Mensajes de error y confirmación mediante Snackbar.
+- Enlace directo a la pantalla de login si ya tienes cuenta.
+- Diseño moderno y coherente con el resto de la app.
+- Toda la lógica de autenticación delegada al AuthViewModel.
+
+El objetivo es ofrecer una experiencia de registro clara, cuidada y segura, ayudando al usuario a no cometer errores habituales.
+*/
+
 @SuppressLint("UnrememberedMutableState")
 @Composable
 fun RegisterScreen(
     navController: NavHostController,
     authViewModel: AuthViewModel = viewModel()
 ) {
+    // Al abrir la pantalla, limpia cualquier error anterior
     LaunchedEffect(Unit) {
         authViewModel.clearError()
     }
 
+    // Obtiene contexto para uso interno (por si quieres mostrar Toast o recursos)
     val context = LocalContext.current
+    // Estado reactivo para mostrar errores de autenticación del ViewModel
     val error by authViewModel.error.collectAsState()
+    // Estado reactivo para saber si ya hay usuario logueado (tras registrarse)
     val user by authViewModel.user.collectAsState()
 
+    // Estados locales para los campos del formulario
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var confirmPassword by remember { mutableStateOf("") }
 
+    // Estados para controlar visibilidad de contraseñas (iconos)
     var passwordVisible by remember { mutableStateOf(false) }
     var confirmPasswordVisible by remember { mutableStateOf(false) }
 
+    // Estados de error visual para cada campo
     var showEmailError by remember { mutableStateOf(false) }
     var showPasswordEmptyError by remember { mutableStateOf(false) }
     var showConfirmEmptyError by remember { mutableStateOf(false) }
     var showConfirmPasswordError by remember { mutableStateOf(false) }
 
+    // Snackbar personalizado para mostrar errores/éxitos
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
+    // Validaciones en tiempo real para la contraseña
     val passwordLengthValid by derivedStateOf { password.length >= 6 }
     val passwordDigitValid by derivedStateOf { password.any { it.isDigit() } }
     val passwordSpecialCharValid by derivedStateOf { password.any { !it.isLetterOrDigit() } }
@@ -76,12 +90,15 @@ fun RegisterScreen(
         passwordLengthValid && passwordDigitValid && passwordSpecialCharValid
     }
 
+    // Validación de email usando patrón de Android
     val isValidEmail by derivedStateOf {
         android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
     }
 
+    // Comprobación de coincidencia de contraseñas
     val passwordsMatch by derivedStateOf { confirmPassword == password }
 
+    // Estructura visual principal: Scaffold con Snackbar y fondo consistente
     Scaffold(
         snackbarHost = {
             FancySnackbarHost(snackbarHostState)
@@ -90,16 +107,17 @@ fun RegisterScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background) // ← Fondo blanco
+                .background(MaterialTheme.colorScheme.background) // Fondo blanco/oscuro
         ) {
 
+            // Cabecera visual animada
             ScreenHeader(
                 image = R.drawable.register,
                 title = "Empieza tu camino",
                 subtitle = "Crea tu cuenta y comienza"
             )
 
-
+            // Formulario animado de entrada
             AnimatedEntrance {
                 Column(
                     modifier = Modifier
@@ -108,6 +126,7 @@ fun RegisterScreen(
                     verticalArrangement = Arrangement.Top,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
+                    // Campo de email con validación visual
                     OutlinedTextField(
                         value = email,
                         onValueChange = {
@@ -125,6 +144,7 @@ fun RegisterScreen(
                             cursorColor = MaterialTheme.colorScheme.onBackground
                         )
                     )
+                    // Muestra mensaje de error si el email es inválido
                     if (showEmailError) {
                         Text(
                             text = "Introduce un correo electrónico válido",
@@ -137,6 +157,7 @@ fun RegisterScreen(
                     }
                     Spacer(modifier = Modifier.height(16.dp))
 
+                    // Campo de contraseña con icono para mostrar/ocultar y validación visual
                     OutlinedTextField(
                         value = password,
                         onValueChange = {
@@ -147,9 +168,9 @@ fun RegisterScreen(
                         visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                         trailingIcon = {
                             val icon =
-                                if (confirmPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+                                if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
                             val description =
-                                if (confirmPasswordVisible) "Mostrar contraseña" else "Ocultar contraseña"
+                                if (passwordVisible) "Ocultar contraseña" else "Mostrar contraseña"
                             IconButton(onClick = { passwordVisible = !passwordVisible }) {
                                 Icon(imageVector = icon, contentDescription = description)
                             }
@@ -165,7 +186,7 @@ fun RegisterScreen(
                         )
                     )
 
-
+                    // Requisitos de la contraseña (colores verdes al cumplirlos)
                     Column(
                         modifier = Modifier
                             .align(Alignment.Start)
@@ -189,6 +210,7 @@ fun RegisterScreen(
                     }
                     Spacer(modifier = Modifier.height(16.dp))
 
+                    // Campo para confirmar contraseña (igual que el anterior, con su propio icono y validación)
                     OutlinedTextField(
                         value = confirmPassword,
                         onValueChange = {
@@ -202,7 +224,7 @@ fun RegisterScreen(
                             val icon =
                                 if (confirmPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
                             val description =
-                                if (confirmPasswordVisible) "Mostrar contraseña" else "Ocultar contraseña"
+                                if (confirmPasswordVisible) "Ocultar contraseña" else "Mostrar contraseña"
                             IconButton(onClick = {
                                 confirmPasswordVisible = !confirmPasswordVisible
                             }) {
@@ -220,6 +242,7 @@ fun RegisterScreen(
                         )
                     )
 
+                    // Mensaje de error si no coinciden las contraseñas
                     if (showConfirmPasswordError) {
                         Text(
                             text = "Las contraseñas no coinciden",
@@ -232,6 +255,7 @@ fun RegisterScreen(
                     }
                     Spacer(modifier = Modifier.height(24.dp))
 
+                    // Botón de registro con validación previa de todos los campos
                     AnimatedAccessButton(buttonText = "Registrarse", modifier = Modifier.fillMaxWidth()) {
                         val emailError = email.isBlank() || !isValidEmail
                         val passwordEmpty = password.isBlank()
@@ -244,6 +268,7 @@ fun RegisterScreen(
                         showConfirmPasswordError = !confirmEmpty && confirmMismatch
 
                         if (!emailError && !passwordEmpty && !confirmEmpty && passwordValid && !confirmMismatch) {
+                            // Llama al ViewModel para registrar
                             authViewModel.register(email, password)
                         } else if (!passwordValid && !passwordEmpty) {
                             scope.launch {
@@ -258,6 +283,7 @@ fun RegisterScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
+                    // Enlace visual a la pantalla de login si ya tienes cuenta
                     Row(
                         modifier = Modifier.fillMaxSize(),
                         horizontalArrangement = Arrangement.Center,
@@ -279,7 +305,7 @@ fun RegisterScreen(
         }
     }
 
-    // Mostrar error si viene
+    // Muestra cualquier error de registro por Snackbar en tiempo real
     LaunchedEffect(error) {
         error?.let {
             scope.launch {
@@ -288,7 +314,7 @@ fun RegisterScreen(
         }
     }
 
-    // Mostrar éxito cuando el usuario no sea null (registro correcto)
+    // Muestra confirmación de registro cuando el usuario se crea con éxito
     LaunchedEffect(user) {
         user?.let {
             scope.launch {

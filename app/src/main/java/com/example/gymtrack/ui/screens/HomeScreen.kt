@@ -40,11 +40,23 @@ import com.example.gymtrack.ui.theme.LightGray
 import com.example.gymtrack.viewmodel.AuthViewModel
 import com.google.firebase.auth.FirebaseAuth
 
-@Composable
-fun HomeScreen(navController: NavHostController, authViewModel: AuthViewModel) {
+/**
+ * HomeScreen.kt
+ *
+ * Pantalla principal de GymTrack. Actúa como un hub visual desde el que el usuario (normal o admin)
+ * accede a todas las funcionalidades clave de la app. Presenta las opciones en forma de cards animadas.
+ * El contenido se adapta dinámicamente según si el usuario es administrador o no.
+ */
 
+@Composable
+fun HomeScreen(
+    navController: NavHostController,   // Navegador para movernos entre pantallas
+    authViewModel: AuthViewModel        // ViewModel para autenticación (por si necesitas datos de usuario)
+) {
+    // Comprueba si el usuario actual es admin, usando el email
     val isAdmin = FirebaseAuth.getInstance().currentUser?.email == "admin@gymtrack.com"
 
+    // Define las opciones (cards) a mostrar según el tipo de usuario (admin o no)
     val cards = if (isAdmin) {
         listOf(
             Triple(
@@ -57,7 +69,11 @@ fun HomeScreen(navController: NavHostController, authViewModel: AuthViewModel) {
                 "Explora y gestiona tus rutinas predefinidas",
                 R.drawable.predefined_routine
             ),
-            Triple("Ajustes", "Gestiona tu cuenta, tema y más", R.drawable.settings) // <- AÑADIDO
+            Triple(
+                "Ajustes",
+                "Gestiona tu cuenta, tema y más",
+                R.drawable.settings
+            )
         )
     } else {
         listOf(
@@ -81,29 +97,38 @@ fun HomeScreen(navController: NavHostController, authViewModel: AuthViewModel) {
                 "Consulta tus rutinas destacadas",
                 R.drawable.favorite_routines
             ),
-            Triple("Temporizador", "Controla tu tiempo de entrenamiento", R.drawable.timer),
-            Triple("Ajustes", "Gestiona tu cuenta, tema y más", R.drawable.settings) // <- AÑADIDO
+            Triple(
+                "Temporizador",
+                "Controla tu tiempo de entrenamiento",
+                R.drawable.timer
+            ),
+            Triple(
+                "Ajustes",
+                "Gestiona tu cuenta, tema y más",
+                R.drawable.settings
+            )
         )
-
     }
 
+    // Estructura principal de la pantalla (Scaffold = layout de Material Design)
     Scaffold { padding ->
+        // Lista vertical animada con las cards de navegación
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding()
                 .background(MaterialTheme.colorScheme.background)
         ) {
+            // Cabecera animada de la pantalla principal
             item {
-
                 ScreenHeader(
                     image = R.drawable.home,
                     title = "Bienvenido",
                     subtitle = "¿Qué quieres hacer?"
                 )
-
             }
 
+            // Muestra cada card de opción con animación de entrada y acceso directo
             itemsIndexed(cards) { index, (title, desc, img) ->
                 AnimatedVisibility(
                     visible = true,
@@ -118,37 +143,42 @@ fun HomeScreen(navController: NavHostController, authViewModel: AuthViewModel) {
                         description = desc,
                         imageRes = img,
                         onClick = {
+                            // Navegación a la pantalla correspondiente según la opción pulsada
                             when (title) {
-                                "Registrar nueva rutina predefinida" -> navController.navigate(
-                                    Screen.RegisterRoutine.route
-                                )
-
+                                "Registrar nueva rutina predefinida" -> navController.navigate(Screen.RegisterRoutine.route)
                                 "Registrar nueva rutina" -> navController.navigate(Screen.RegisterRoutine.route)
                                 "Ver rutinas predefinidas" -> navController.navigate(Screen.PredefinedRoutines.route)
                                 "Ver mis rutinas" -> navController.navigate(Screen.MyRoutines.route)
                                 "Rutinas favoritas" -> navController.navigate("favoritas")
                                 "Temporizador" -> navController.navigate(Screen.Timer.route)
-                                "Ajustes" -> navController.navigate(Screen.Settings.route) // <- AÑADIDO
+                                "Ajustes" -> navController.navigate(Screen.Settings.route)
                             }
                         }
                     )
                 }
             }
 
+            // Espaciado extra al final para que no tape el menú
             item { Spacer(modifier = Modifier.height(100.dp)) }
         }
     }
 }
 
+/**
+ * RutinasCard
+ *
+ * Componente reutilizable que muestra una opción de la Home en formato Card visual.
+ * Incluye imagen, título, descripción y un botón animado de acceso.
+ */
 @Composable
 fun RutinasCard(
-    title: String,
-    description: String,
-    imageRes: Int,
-    onClick: () -> Unit
+    title: String,            // Título principal de la opción
+    description: String,      // Descripción breve de la opción
+    imageRes: Int,            // Recurso de imagen asociado a la opción
+    onClick: () -> Unit       // Acción a ejecutar al pulsar el botón "Acceder"
 ) {
     Card(
-        shape = RoundedCornerShape(16.dp),
+        shape = RoundedCornerShape(16.dp),   // Esquinas redondeadas
         elevation = CardDefaults.cardElevation(defaultElevation = 6.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         modifier = Modifier
@@ -159,6 +189,7 @@ fun RutinasCard(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.fillMaxWidth()
         ) {
+            // Imagen decorativa en la parte superior de la card
             Image(
                 painter = painterResource(id = imageRes),
                 contentDescription = null,
@@ -169,6 +200,7 @@ fun RutinasCard(
                     .clip(RoundedCornerShape(topStart = 16.dp, topEnd = 16.dp))
             )
 
+            // Contenido textual y botón
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -191,6 +223,7 @@ fun RutinasCard(
                     textAlign = TextAlign.Center
                 )
 
+                // Botón de acceso animado, estilizado como el resto de la app
                 AnimatedAccessButton(
                     buttonText = "Acceder",
                     color = MaterialTheme.colorScheme.onBackground,
@@ -206,6 +239,3 @@ fun RutinasCard(
         }
     }
 }
-
-
-

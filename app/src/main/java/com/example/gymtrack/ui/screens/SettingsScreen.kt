@@ -38,14 +38,18 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun SettingsScreen(
-    navController: NavHostController,
-    authViewModel: AuthViewModel,
-    themeViewModel: ThemeViewModel
+    navController: NavHostController,           // Controlador de navegación para volver/cambiar de pantalla
+    authViewModel: AuthViewModel,               // ViewModel de autenticación para logout, etc.
+    themeViewModel: ThemeViewModel              // ViewModel de tema para cambiar modo claro/oscuro
 ) {
+    // Estado para mostrar Snackbars (mensajes de aviso/feedback)
     val snackbarHostState = remember { SnackbarHostState() }
+    // Scope para lanzar corrutinas (necesario para mostrar Snackbars)
     val coroutineScope = rememberCoroutineScope()
+    // Usuario actualmente autenticado (si no hay, muestra 'desconocido')
     val user = FirebaseAuth.getInstance().currentUser
 
+    // Estructura principal: Scaffold con barra superior personalizada
     Scaffold(
         snackbarHost = { FancySnackbarHost(snackbarHostState) }
     ) { innerPadding ->
@@ -53,26 +57,28 @@ fun SettingsScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .background(MaterialTheme.colorScheme.background) // ← Fondo blanco
+                .background(MaterialTheme.colorScheme.background) // Fondo adaptable a tema claro/oscuro
         ) {
 
+            // Cabecera visual animada y consistente con resto de la app
             ScreenHeader(
                 image = R.drawable.settings,
                 title = "Ajustes",
                 subtitle = "Personaliza tu experiencia"
             )
 
-            // 🧩 Contenido principal
+            // Contenido principal animado (se desliza al aparecer)
             AnimatedEntrance {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(horizontal = 24.dp, vertical = 24.dp),
-                    verticalArrangement = Arrangement.spacedBy(24.dp) // 🔽 Espaciado reducido
+                    verticalArrangement = Arrangement.spacedBy(24.dp) // Espaciado vertical estándar
                 ) {
-                    // 🔐 Cuenta
+                    // --- Sección de CUENTA ---
                     Text("Cuenta", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
 
+                    // Muestra el email del usuario autenticado
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
                             imageVector = Icons.Default.Person,
@@ -88,7 +94,7 @@ fun SettingsScreen(
                         )
                     }
 
-                    // 🖤 Botón cambiar contraseña (negro)
+                    // Botón para cambiar contraseña (navega a ForgotPasswordScreen en modo cambio)
                     AnimatedAccessButton(
                         buttonText = "Cambiar contraseña",
                         onClick = {
@@ -102,14 +108,15 @@ fun SettingsScreen(
                             .height(56.dp)
                     )
 
-                    // ❤️ Botón cerrar sesión (rojo)
+                    // Botón para cerrar sesión (llama a logout en AuthViewModel y navega a login)
                     AnimatedAccessButton(
                         buttonText = "Cerrar sesión",
                         onClick = {
-                            authViewModel.logout()
+                            authViewModel.logout() // Cierra la sesión en FirebaseAuth
                             coroutineScope.launch {
                                 snackbarHostState.showSnackbar("Sesión cerrada 🔒")
                             }
+                            // Navega a login eliminando el historial (para no volver atrás tras logout)
                             navController.navigate(Screen.Login.route) {
                                 popUpTo(0) { inclusive = true }
                             }
@@ -122,10 +129,10 @@ fun SettingsScreen(
                             .height(56.dp)
                     )
 
-
-
+                    // --- Sección de PREFERENCIAS (tema) ---
                     Text("Preferencias", fontSize = 18.sp, fontWeight = FontWeight.SemiBold)
 
+                    // Switch para activar/desactivar modo oscuro (con reactividad y animación)
                     val darkMode by themeViewModel.darkMode.collectAsState()
 
                     Row(
@@ -140,19 +147,19 @@ fun SettingsScreen(
                         )
                     }
 
+                    // --- (OPCIONAL) Botón para probar notificaciones ---
+                    // Descomentar si se quiere testear notificaciones locales con WorkManager
+                    /*
                     val context = LocalContext.current
-
-                    // Probar notificaciones
                     Button(onClick = {
                         val request = OneTimeWorkRequestBuilder<NotificationWorker>().build()
                         WorkManager.getInstance(context).enqueue(request)
                     }) {
                         Text("Probar notificación")
                     }
-
+                    */
                 }
             }
         }
     }
 }
-

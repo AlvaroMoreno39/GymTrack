@@ -37,25 +37,36 @@ import com.example.gymtrack.navigation.ScreenHeader
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
+/*
+PredefinedRoutineDetailScreen.kt
+
+Pantalla que muestra el detalle de una rutina predefinida.
+Permite a usuarios normales consultar los ejercicios y, si eres admin, editar, añadir o eliminar ejercicios.
+Todo el diseño y la lógica es reactiva, profesional y consistente con el resto de la app.
+*/
+
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun PredefinedRoutineDetailScreen(
-    navController: NavHostController,
-    viewModel: RoutineViewModel
+    navController: NavHostController,      // Navegador para moverse entre pantallas
+    viewModel: RoutineViewModel            // ViewModel para gestionar la lógica de rutinas (Firebase, etc)
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
 
+    // Recupera la rutina predefinida pasada por navigation handle
     val rutina = navController.previousBackStackEntry
         ?.savedStateHandle
         ?.get<RoutineData>("predefined_routine")
 
+    // Detecta si el usuario es admin para activar edición/añadir/eliminar
     val isAdmin = FirebaseAuth.getInstance().currentUser?.email == "admin@gymtrack.com"
 
+    // Estado: ¿mostrar el formulario de añadir ejercicio?
     var showAddCard by remember { mutableStateOf(false) }
 
-    // Estados para nuevo ejercicio
+    // Estados para el nuevo ejercicio (si admin pulsa "Añadir ejercicio")
     var nombreEjercicio by remember { mutableStateOf("") }
     var grupoMuscular by remember { mutableStateOf("") }
     var tipo by remember { mutableStateOf("") }
@@ -64,12 +75,13 @@ fun PredefinedRoutineDetailScreen(
     var duracion by remember { mutableStateOf("") }
     var intensidad by remember { mutableStateOf("") }
 
-    // Validaciones
+    // Validaciones visuales de los campos obligatorios
     var showNombreError by remember { mutableStateOf(false) }
     var showGrupoError by remember { mutableStateOf(false) }
     var showTipoError by remember { mutableStateOf(false) }
     var showIntensidadError by remember { mutableStateOf(false) }
 
+    // Opciones para los desplegables (drop-down)
     val gruposMusculares = listOf("Pecho", "Espalda", "Piernas", "Hombros", "Bíceps", "Tríceps", "Abdomen")
     val tipos = listOf("Fuerza", "Cardio", "Mixto")
     val intensidades = listOf("Baja", "Media", "Alta")
@@ -79,29 +91,29 @@ fun PredefinedRoutineDetailScreen(
         FancySnackbarHost(snackbarHostState)
     }) {
         rutina?.let { rutina ->
-
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .background(MaterialTheme.colorScheme.background)
             ) {
-
+                // Cabecera animada profesional
                 ScreenHeader(
                     image = R.drawable.predefined_routine,
                     title = "Rutina",
                     subtitle = rutina.nombreRutina
                 )
 
-
+                // Lista de ejercicios de la rutina
                 LazyColumn(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(horizontal = 20.dp, vertical = 12.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
+                    // Para cada ejercicio de la rutina, renderiza una card visual
                     itemsIndexed(rutina.ejercicios) { index, ejercicio ->
-                        var editing by remember { mutableStateOf(false) }
-                        var ejercicioEditable by remember { mutableStateOf(ejercicio) }
+                        var editing by remember { mutableStateOf(false) }                // ¿Se está editando el ejercicio?
+                        var ejercicioEditable by remember { mutableStateOf(ejercicio) }   // Copia editable temporal
 
                         Card(
                             modifier = Modifier.fillMaxWidth(),
@@ -120,6 +132,7 @@ fun PredefinedRoutineDetailScreen(
                                 Text("• ${ejercicio.nombre}", fontWeight = FontWeight.Bold)
                                 Spacer(modifier = Modifier.height(6.dp))
 
+                                // Si eres admin y quieres editar, muestra inputs editables (nombre, grupo, tipo, etc)
                                 if (isAdmin && editing) {
                                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                         OutlinedTextField(
@@ -166,6 +179,7 @@ fun PredefinedRoutineDetailScreen(
                                         }
                                     }
                                 } else {
+                                    // Si no eres admin o no estás editando, muestra los datos en texto
                                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                                         Text("Grupo: ${ejercicio.grupoMuscular}")
                                         Text("Tipo: ${ejercicio.tipo}")
@@ -178,6 +192,7 @@ fun PredefinedRoutineDetailScreen(
 
                                 Spacer(modifier = Modifier.height(12.dp))
 
+                                // Botones de editar/guardar y eliminar (solo para admin)
                                 if (isAdmin) {
                                     Row(
                                         modifier = Modifier.fillMaxWidth(),
@@ -218,6 +233,7 @@ fun PredefinedRoutineDetailScreen(
                         }
                     }
 
+                    // BLOQUE DE AÑADIR NUEVO EJERCICIO (solo admin)
                     if (isAdmin) {
                         item {
                             if (showAddCard) {
@@ -241,17 +257,14 @@ fun PredefinedRoutineDetailScreen(
                                             isError = showNombreError,
                                             modifier = Modifier.fillMaxWidth()
                                         )
-
                                         DropDownSelector("Grupo", gruposMusculares, grupoMuscular) {
                                             grupoMuscular = it
                                             showGrupoError = false
                                         }
-
                                         DropDownSelector("Tipo", tipos, tipo) {
                                             tipo = it
                                             showTipoError = false
                                         }
-
                                         if (isCardio) {
                                             OutlinedTextField(
                                                 value = duracion,
@@ -273,12 +286,11 @@ fun PredefinedRoutineDetailScreen(
                                                 modifier = Modifier.fillMaxWidth()
                                             )
                                         }
-
                                         DropDownSelector("Intensidad", intensidades, intensidad) {
                                             intensidad = it
                                             showIntensidadError = false
                                         }
-
+                                        // Botón para añadir el ejercicio
                                         AnimatedAccessButton(buttonText = "Añadir ejercicio") {
                                             val errores = listOf(
                                                 nombreEjercicio.isBlank(),
@@ -294,17 +306,16 @@ fun PredefinedRoutineDetailScreen(
                                             } else {
                                                 scope.launch {
                                                     snackbarHostState.showSnackbar("Ejercicio añadido 🏋️")
-
                                                 }
                                             }
                                         }
-
+                                        // Botón para cancelar la creación del ejercicio
                                         AnimatedAccessButton(
                                             buttonText = "Cancelar",
                                             onClick = { showAddCard = false },
                                             color = MaterialTheme.colorScheme.error,
                                             contentColor = MaterialTheme.colorScheme.background,
-                                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.error	),
+                                            border = BorderStroke(1.dp, MaterialTheme.colorScheme.error),
                                             modifier = Modifier
                                                 .fillMaxWidth()
                                                 .height(50.dp)
@@ -314,6 +325,7 @@ fun PredefinedRoutineDetailScreen(
                             }
                         }
 
+                        // Botón flotante para mostrar el card de añadir
                         item {
                             if (!showAddCard) {
                                 AnimatedAccessButton(
@@ -329,6 +341,7 @@ fun PredefinedRoutineDetailScreen(
                             }
                         }
 
+                        // Espaciado extra al final
                         item {
                             Spacer(modifier = Modifier.height(100.dp))
                         }
@@ -336,7 +349,9 @@ fun PredefinedRoutineDetailScreen(
                 }
             }
         } ?: Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            // Si la rutina aún no se ha cargado, muestra un loader (círculo de progreso)
             CircularProgressIndicator()
         }
     }
 }
+

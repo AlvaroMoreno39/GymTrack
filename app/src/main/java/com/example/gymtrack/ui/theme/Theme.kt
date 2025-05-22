@@ -18,41 +18,46 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberUpdatedState
 import androidx.compose.ui.graphics.Color
 
+// Definición del esquema de colores para el modo claro
 private val LightColorScheme = lightColorScheme(
-    primary = PureBlack,
-    onPrimary = PureWhite,
-    background = SoftWhite,
-    onBackground = PureBlack,
-    surface = PureWhite,
-    onSurface = PureBlack,
-    error = Color.Red,
-    onError = PureWhite
+    primary = PureBlack,           // Color principal (botones, iconos, destacados)
+    onPrimary = PureWhite,         // Color del contenido que se muestra sobre primary
+    background = SoftWhite,        // Color del fondo principal de la app
+    onBackground = PureBlack,      // Texto e iconos sobre el fondo
+    surface = PureWhite,           // Color de las superficies (cards, menús, etc.)
+    onSurface = PureBlack,         // Texto e iconos sobre superficies
+    error = Color.Red,             // Color para errores (formularios, validaciones)
+    onError = PureWhite            // Texto sobre fondo de error
 )
 
+// Definición del esquema de colores para el modo oscuro
 private val DarkColorScheme = darkColorScheme(
-    primary = PureWhite,
-    onPrimary = PureBlack,
-    background = Color(0xFF1A1A1A),
-    onBackground = PureWhite,
-    surface = Color(0xFF3A3A3A),
-    onSurface = PureWhite,
-    error = Color.Red,
-    onError = PureBlack
+    primary = PureWhite,           // Color principal (cambia a blanco en modo oscuro)
+    onPrimary = PureBlack,         // Texto sobre el color principal
+    background = Color(0xFF1A1A1A),// Fondo oscuro personalizado
+    onBackground = PureWhite,      // Texto sobre fondo oscuro
+    surface = Color(0xFF3A3A3A),   // Color de tarjetas o menús en modo oscuro
+    onSurface = PureWhite,         // Texto sobre superficies
+    error = Color.Red,             // Error (mantiene el rojo por claridad)
+    onError = PureBlack            // Texto sobre fondo de error (rojo)
 )
 
 @Composable
 fun GymTrackTheme(
-    darkTheme: Boolean = isSystemInDarkTheme(),
-    content: @Composable () -> Unit
+    darkTheme: Boolean = isSystemInDarkTheme(), // Por defecto sigue el tema del sistema
+    content: @Composable () -> Unit             // Contenido a renderizar dentro del tema
 ) {
+    // Determina cuál esquema de colores usar en función del modo oscuro/claro
     val targetColors = if (darkTheme) DarkColorScheme else LightColorScheme
+
+    // Envuelve el esquema en un estado para que sea reactivo
     val colorScheme = rememberUpdatedState(targetColors)
 
+    // Aplica el tema usando MaterialTheme de Jetpack Compose
     MaterialTheme(
-        colorScheme = colorScheme.value,
-        typography = Typography(),
-        shapes = Shapes(),
-        content = content
+        colorScheme = colorScheme.value,     // Esquema de colores actual
+        typography = Typography(),           // Tipografía definida en Type.kt
+        shapes = Shapes(),                   // Formas por defecto (esquinas redondeadas, etc.)
+        content = content                    // Contenido visual que se dibuja con este tema
     )
 }
-

@@ -64,23 +64,39 @@ import com.example.gymtrack.navigation.FancySnackbarHost
 import com.example.gymtrack.navigation.ScreenHeader
 import com.example.gymtrack.ui.theme.LightGray
 
+/*
+TimerScreen.kt
+
+Pantalla de temporizador de GymTrack.
+Permite seleccionar tiempos predefinidos, establecer tiempos personalizados, iniciar, pausar y restablecer el temporizador.
+Incluye animación de progreso, vibración al terminar y feedback mediante Snackbars.
+Todo el diseño es minimalista y coherente con el resto de la app.
+*/
+
+// Importante: ExperimentalMaterial3Api necesario por los componentes usados
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TimerScreen(navController: NavHostController) {
+    // Contexto necesario para vibrar y mostrar Snackbars
     val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
-    var customMinutes by remember { mutableStateOf("") }
-    var customSeconds by remember { mutableStateOf("") }
-    var selectedTime by remember { mutableStateOf(60_000L) }
-    var timeLeft by remember { mutableStateOf(selectedTime) }
-    var isRunning by remember { mutableStateOf(false) }
-    var timer: CountDownTimer? by remember { mutableStateOf(null) }
-    var finished by remember { mutableStateOf(false) }
+    // Estado de inputs y temporizador
+    var customMinutes by remember { mutableStateOf("") }         // Minutos para input personalizado
+    var customSeconds by remember { mutableStateOf("") }         // Segundos para input personalizado
+    var selectedTime by remember { mutableStateOf(60_000L) }     // Tiempo seleccionado en milisegundos
+    var timeLeft by remember { mutableStateOf(selectedTime) }    // Tiempo restante (se actualiza cada tick)
+    var isRunning by remember { mutableStateOf(false) }          // ¿Está el temporizador corriendo?
+    var timer: CountDownTimer? by remember { mutableStateOf(null) } // Referencia al temporizador actual
+    var finished by remember { mutableStateOf(false) }           // ¿El temporizador ha terminado?
 
+    // Vibrador del sistema para feedback al terminar
     val vibrator = context.getSystemService(Context.VIBRATOR_SERVICE) as Vibrator
 
+    /**
+     * Formatea el tiempo de milisegundos a mm:ss
+     */
     fun formatTime(millis: Long): String {
         val totalSeconds = millis / 1000
         val minutes = totalSeconds / 60
@@ -88,6 +104,10 @@ fun TimerScreen(navController: NavHostController) {
         return String.format("%02d:%02d", minutes, seconds)
     }
 
+    /**
+     * Inicia el temporizador y gestiona los ticks/cuenta atrás
+     * Al finalizar, vibra y muestra un mensaje por Snackbar
+     */
     fun startTimer() {
         timer?.cancel()
         timer = object : CountDownTimer(timeLeft, 1000) {
@@ -100,11 +120,12 @@ fun TimerScreen(navController: NavHostController) {
                 isRunning = false
                 finished = true
 
+                // Vibración adaptada según versión de Android
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     val pattern =
-                        longArrayOf(0, 400, 300, 400, 300, 400) // espera, vibra, espera, vibra...
+                        longArrayOf(0, 400, 300, 400, 300, 400)
                     vibrator.vibrate(
-                        VibrationEffect.createWaveform(pattern, -1) // -1 = no repetir
+                        VibrationEffect.createWaveform(pattern, -1)
                     )
                 } else {
                     @Suppress("DEPRECATION")
@@ -114,6 +135,7 @@ fun TimerScreen(navController: NavHostController) {
                     }
                 }
 
+                // Feedback visual con Snackbar
                 scope.launch {
                     snackbarHostState.showSnackbar("¡Tiempo terminado! ⏰")
                 }
@@ -123,43 +145,49 @@ fun TimerScreen(navController: NavHostController) {
         isRunning = true
     }
 
+    /**
+     * Pausa la cuenta atrás (sin reiniciar el tiempo)
+     */
     fun pauseTimer() {
         timer?.cancel()
         isRunning = false
     }
 
+    /**
+     * Resetea el temporizador al tiempo seleccionado (no inicia)
+     */
     fun resetTimer() {
         timer?.cancel()
         timeLeft = selectedTime
         isRunning = false
     }
 
+    // Lista de tiempos rápidos/predefinidos (minutos y segundos en ms y formato string)
     val presetTimes = listOf(
         60_000L to "1:00", 90_000L to "1:30",
         120_000L to "2:00", 150_000L to "2:30",
         180_000L to "3:00", 300_000L to "5:00"
     )
 
+    // --- UI principal de la pantalla ---
     Scaffold(snackbarHost = {
         FancySnackbarHost(snackbarHostState)
     }) { padding ->
         LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background) // ← Fondo blanco
-
+                .background(MaterialTheme.colorScheme.background)
         ) {
-
+            // --- Cabecera visual con imagen y título ---
             item {
                 ScreenHeader(
                     image = R.drawable.timer,
                     title = "Temporizador",
                     subtitle = "Controla tu entrenamiento"
                 )
-
             }
 
-
+            // --- Sección: tiempos rápidos ---
             item {
                 Spacer(modifier = Modifier.height(24.dp))
                 Text(
@@ -171,6 +199,7 @@ fun TimerScreen(navController: NavHostController) {
             }
 
             item {
+                // Grid de botones redondos para tiempos predefinidos
                 LazyVerticalGrid(
                     columns = GridCells.Fixed(3),
                     modifier = Modifier
@@ -191,15 +220,16 @@ fun TimerScreen(navController: NavHostController) {
                             String.format("%d:%02d", minutes, seconds)
                         }
 
+                        // Botón circular para seleccionar el tiempo
                         RoundBlackButton(label = label) {
                             selectedTime = millis
                             timeLeft = millis
                         }
                     }
-
                 }
             }
 
+            // --- Sección: tiempo personalizado ---
             item {
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
@@ -211,6 +241,7 @@ fun TimerScreen(navController: NavHostController) {
             }
 
             item {
+                // Inputs de minutos y segundos personalizados
                 Row(
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                     verticalAlignment = Alignment.CenterVertically,
@@ -251,7 +282,7 @@ fun TimerScreen(navController: NavHostController) {
                         textStyle = LocalTextStyle.current.copy(fontSize = 16.sp)
                     )
 
-                    // Botón perfectamente alineado con inputs
+                    // Botón para establecer el tiempo personalizado
                     AnimatedAccessButton(
                         buttonText = "Establecer",
                         modifier = Modifier
@@ -273,10 +304,9 @@ fun TimerScreen(navController: NavHostController) {
                 }
             }
 
-            item {
-                Spacer(modifier = Modifier.height(24.dp))
-            }
+            item { Spacer(modifier = Modifier.height(24.dp)) }
 
+            // --- Sección: indicador de progreso y control del temporizador ---
             item {
                 Column(
                     horizontalAlignment = Alignment.CenterHorizontally,
@@ -285,6 +315,7 @@ fun TimerScreen(navController: NavHostController) {
                 ) {
                     val progress = (timeLeft / selectedTime.toFloat()).coerceIn(0f, 1f)
 
+                    // Indicador circular de progreso del temporizador
                     Box(contentAlignment = Alignment.Center) {
                         CircularProgressIndicator(
                             progress = { progress },
@@ -305,7 +336,7 @@ fun TimerScreen(navController: NavHostController) {
                         modifier = Modifier.padding(16.dp)
                     ) {
                         if (finished) {
-                            // Solo se muestra el botón negro "Reiniciar"
+                            // Si el tiempo ha terminado, solo se muestra "Reiniciar"
                             AnimatedAccessButton(
                                 buttonText = "Reiniciar",
                                 modifier = Modifier
@@ -315,7 +346,7 @@ fun TimerScreen(navController: NavHostController) {
                                 finished = false
                             }
                         } else {
-                            // Modo normal: botones Iniciar/Pausar + Restablecer
+                            // Si está corriendo: botón Pausar, si no: botón Iniciar
                             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                                 AnimatedAccessButton(buttonText = if (isRunning) "Pausar" else "Iniciar", modifier = Modifier.fillMaxWidth()) {
                                     if (isRunning) pauseTimer() else startTimer()
@@ -324,6 +355,7 @@ fun TimerScreen(navController: NavHostController) {
 
                             Spacer(modifier = Modifier.height(12.dp))
 
+                            // Botón de "Restablecer" (rojo)
                             AnimatedAccessButton(
                                 buttonText = "Restablecer",
                                 color = MaterialTheme.colorScheme.error,
@@ -338,17 +370,18 @@ fun TimerScreen(navController: NavHostController) {
                                 timer?.cancel()
                             }
                         }
-
-
                     }
                     Spacer(modifier = Modifier.height(100.dp))
-
                 }
             }
         }
     }
 }
 
+/**
+ * RoundBlackButton
+ * Botón circular animado, usado para los tiempos predefinidos del temporizador.
+ */
 @Composable
 fun RoundBlackButton(
     label: String,
