@@ -58,20 +58,39 @@ import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+/*
+RoutineDetailScreen.kt
+
+Pantalla de detalle para visualizar y editar una rutina del usuario en GymTrack.
+Permite:
+- Ver todos los ejercicios de una rutina concreta (nombre, grupo, tipo, series, reps, etc.).
+- Editar ejercicios en línea (todos los campos, incluidos selects).
+- Eliminar ejercicios individualmente.
+- Añadir nuevos ejercicios con validación visual.
+- Interfaz moderna, con Snackbars para feedback y cards limpias.
+- Gestión 100% reactiva y sincronizada con Firebase Firestore a través de RoutineViewModel.
+*/
+
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun RoutineDetailScreen(
-    routineId: String,
-    viewModel: RoutineViewModel,
+    routineId: String, // ID de la rutina a mostrar
+    viewModel: RoutineViewModel, // ViewModel de rutinas para gestionar operaciones
     navController: NavHostController
 ) {
+    // Contexto para uso de recursos y Snackbars
     val context = LocalContext.current
+    // Estado para mostrar Snackbars personalizados
     val snackbarHostState = remember { SnackbarHostState() }
+    // Scope para lanzar corrutinas en la UI
     val scope = rememberCoroutineScope()
 
+    // Estado principal: rutina a mostrar (se carga desde Firestore por ID)
     var routine by remember { mutableStateOf<RoutineData?>(null) }
+    // Estado para mostrar/ocultar card de añadir ejercicio
     var showAddCard by remember { mutableStateOf(false) }
 
+    // Estados para los campos del nuevo ejercicio a añadir
     var nombreEjercicio by remember { mutableStateOf("") }
     var grupoMuscular by remember { mutableStateOf("") }
     var tipo by remember { mutableStateOf("") }
@@ -80,23 +99,29 @@ fun RoutineDetailScreen(
     var duracion by remember { mutableStateOf("") }
     var intensidad by remember { mutableStateOf("") }
 
+    // Estados para validación visual de los campos del nuevo ejercicio
     var showNombreError by remember { mutableStateOf(false) }
     var showGrupoError by remember { mutableStateOf(false) }
     var showTipoError by remember { mutableStateOf(false) }
     var showIntensidadError by remember { mutableStateOf(false) }
 
+    // Opciones para selects
     val gruposMusculares = listOf("Pecho", "Espalda", "Piernas", "Hombros", "Bíceps", "Tríceps", "Abdomen")
     val tipos = listOf("Fuerza", "Cardio", "Mixto")
     val intensidades = listOf("Baja", "Media", "Alta")
+    // Booleano para saber si el tipo actual es Cardio (y mostrar duración en vez de series/reps)
     val isCardio = tipo.lowercase() == "cardio"
 
+    // Al entrar a la pantalla, carga la rutina seleccionada desde el ViewModel
     LaunchedEffect(routineId) {
         viewModel.getUserRoutines { list ->
             routine = list.find { it.first == routineId }?.second
         }
     }
 
+    // Estructura principal: Scaffold con Snackbar personalizado y fondo de tema
     Scaffold(snackbarHost = { FancySnackbarHost(snackbarHostState) }) {
+        // Solo si la rutina ya está cargada (sino muestra spinner de carga)
         routine?.let { rutina ->
             Column(
                 modifier = Modifier
@@ -104,12 +129,14 @@ fun RoutineDetailScreen(
                     .background(MaterialTheme.colorScheme.background)
             ) {
 
+                // Cabecera con imagen y título de la rutina
                 ScreenHeader(
                     image = R.drawable.my_routines,
                     title = "Rutina",
                     subtitle = rutina.nombreRutina
                 )
 
+                // Scroll principal de ejercicios
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -117,7 +144,9 @@ fun RoutineDetailScreen(
                         .padding(horizontal = 20.dp, vertical = 12.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
+                    // Recorre todos los ejercicios de la rutina y los pinta como Card
                     rutina.ejercicios.forEachIndexed { index, ejercicioOriginal ->
+                        // Estados locales para editar cada ejercicio individualmente
                         var editing by remember { mutableStateOf(false) }
                         var ejercicio by remember { mutableStateOf(ejercicioOriginal) }
 
@@ -125,10 +154,11 @@ fun RoutineDetailScreen(
                             modifier = Modifier.fillMaxWidth(),
                             shape = RoundedCornerShape(16.dp),
                             elevation = CardDefaults.cardElevation(4.dp),
-                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface) // Fondo blanco
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
 
+                                // Si no está editando, muestra solo los datos
                                 if (!editing) {
                                     Text(
                                         "• ${ejercicio.nombre}",
@@ -139,6 +169,7 @@ fun RoutineDetailScreen(
                                     Spacer(modifier = Modifier.height(6.dp))
                                 }
 
+                                // Si está editando, muestra campos editables (incluidos selects)
                                 if (editing) {
                                     Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
                                         OutlinedTextField(
@@ -204,6 +235,7 @@ fun RoutineDetailScreen(
                                         }
                                     }
                                 } else {
+                                    // Si no está editando, muestra los datos en modo solo lectura
                                     Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
                                         Text("Grupo: ${ejercicio.grupoMuscular}")
                                         Text("Tipo: ${ejercicio.tipo}")
@@ -216,6 +248,7 @@ fun RoutineDetailScreen(
 
                                 Spacer(modifier = Modifier.height(12.dp))
 
+                                // Botones: editar/guardar (si está editando) y eliminar (solo si NO está editando)
                                 Row(
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     modifier = Modifier.fillMaxWidth()
@@ -224,6 +257,7 @@ fun RoutineDetailScreen(
                                         buttonText = if (editing) "Guardar" else "Editar",
                                         onClick = {
                                             if (editing) {
+                                                // Aquí podrías actualizar en base de datos si implementas edición real
                                                 scope.launch {
                                                     snackbarHostState.showSnackbar("Cambios guardados ✅")
                                                 }
@@ -238,11 +272,13 @@ fun RoutineDetailScreen(
                                             .height(50.dp)
                                     )
 
+                                    // Botón eliminar, solo visible cuando NO se está editando
                                     if (!editing) {
                                         Spacer(modifier = Modifier.width(12.dp))
                                         AnimatedAccessButton(
                                             buttonText = "Eliminar",
                                             onClick = {
+                                                // Llama al ViewModel para eliminar ejercicio (por índice)
                                                 viewModel.deleteExerciseFromRoutine(routineId, index)
                                                 scope.launch {
                                                     snackbarHostState.showSnackbar("Ejercicio eliminado correctamente ✅")
@@ -261,7 +297,7 @@ fun RoutineDetailScreen(
                         }
                     }
 
-                    // Añadir ejercicio
+                    // Card para añadir nuevo ejercicio (visible solo si el usuario pulsa "Añadir ejercicio")
                     if (showAddCard) {
                         Card(
                             modifier = Modifier.fillMaxWidth(),
@@ -322,6 +358,7 @@ fun RoutineDetailScreen(
                                     showIntensidadError = false
                                 }
 
+                                // Botón para añadir el nuevo ejercicio (con validación)
                                 AnimatedAccessButton(buttonText = "Añadir ejercicio", modifier = Modifier.fillMaxWidth()) {
                                     val errores = listOf(
                                         nombreEjercicio.isBlank(),
@@ -349,8 +386,9 @@ fun RoutineDetailScreen(
                                             duracion = if (isCardio) duracion.toIntOrNull() ?: 0 else 0,
                                             intensidad = intensidad
                                         )
-                                        viewModel.addExerciseToRoutine(routineId, newExercise) { success ->
+                                        viewModel.addExerciseToRoutine(routineId, newExercise) { success -> // Añade el ejercicio en Firestore
                                             if (success) {
+                                                // Recarga la rutina para mostrar el nuevo ejercicio al instante
                                                 viewModel.getUserRoutines { list ->
                                                     routine = list.find { it.first == routineId }?.second
                                                 }
@@ -366,6 +404,7 @@ fun RoutineDetailScreen(
                                     }
                                 }
 
+                                // Botón para cancelar (oculta la card de añadir)
                                 AnimatedAccessButton(
                                     buttonText = "Cancelar",
                                     onClick = { showAddCard = false },
@@ -380,6 +419,7 @@ fun RoutineDetailScreen(
                         }
                     }
 
+                    // Botón para mostrar card de añadir ejercicio (si no se está mostrando ya)
                     if (!showAddCard) {
                         AnimatedAccessButton(
                             buttonText = "Añadir ejercicio",
@@ -393,11 +433,14 @@ fun RoutineDetailScreen(
                         )
                     }
 
+                    // Espaciado inferior para que no tape el FAB/menu
                     Spacer(modifier = Modifier.height(100.dp))
                 }
             }
         } ?: Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+            // Muestra spinner de carga hasta que se obtenga la rutina de Firestore
             CircularProgressIndicator()
         }
     }
 }
+

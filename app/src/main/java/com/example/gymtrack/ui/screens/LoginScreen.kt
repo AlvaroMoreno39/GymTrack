@@ -1,18 +1,5 @@
 package com.example.gymtrack.ui.screens
 
-/*
-LoginScreen.kt
-
-Esta pantalla permite al usuario iniciar sesión en GymTrack mediante:
-- Correo electrónico y contraseña.
-- Inicio de sesión con Google (integrado con Firebase Auth).
-También ofrece:
-- Validación de campos vacíos y errores.
-- Mostrar mensajes de error mediante Snackbar.
-- Navegación a las pantallas de registro y recuperación de contraseña.
-- Un diseño atractivo con imagen de cabecera y estilos personalizados.
-*/
-
 import android.annotation.SuppressLint
 import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -59,30 +46,40 @@ import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.GoogleAuthProvider
 import kotlinx.coroutines.launch
 
+/*
+LoginScreen.kt
+
+Pantalla de inicio de sesión de GymTrack.
+Permite el login con email/contraseña o con Google, valida campos y muestra errores.
+Incluye navegación a registro y recuperación, feedback con Snackbar, y una UI coherente con el resto de la app.
+*/
+
 @SuppressLint("UnrememberedMutableState")
 @Composable
 fun LoginScreen(
-    navController: NavHostController,
-    authViewModel: AuthViewModel = viewModel(),
-    onLoginSuccess: () -> Unit
+    navController: NavHostController,      // Controlador de navegación
+    authViewModel: AuthViewModel = viewModel(), // ViewModel que gestiona la autenticación
+    onLoginSuccess: () -> Unit             // Callback a ejecutar tras login correcto (normal o Google)
 ) {
+    // Limpia errores previos al montar la pantalla
     LaunchedEffect(Unit) {
         authViewModel.clearError()
     }
 
     val context = LocalContext.current
 
+    // Observa el usuario autenticado y los errores mediante StateFlow
     val user by authViewModel.user.collectAsState()
     val error by authViewModel.error.collectAsState()
 
+    // Estados para los campos de formulario y su validación
     var email by remember { mutableStateOf("") }
-
     var showEmailError by remember { mutableStateOf(false) }
-
     var password by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     var showPasswordError by remember { mutableStateOf(false) }
 
+    // Valida el email en tiempo real usando patrones estándar de Android
     val isValidEmail by derivedStateOf {
         android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
     }
@@ -90,6 +87,7 @@ fun LoginScreen(
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
+    // Lógica de inicio de sesión con Google, usando ActivityResult API y Firebase Auth
     val launcher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.StartActivityForResult()
     ) { result ->
@@ -113,6 +111,7 @@ fun LoginScreen(
         }
     }
 
+    // Reacciona al cambio de usuario o error: navega o muestra mensaje según el caso
     LaunchedEffect(user, error) {
         if (user != null) {
             scope.launch {
@@ -132,17 +131,17 @@ fun LoginScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background) // ← Fondo blanco total
+                .background(MaterialTheme.colorScheme.background)
         ) {
 
+            // Cabecera visual animada (imagen, título, subtítulo)
             ScreenHeader(
                 image = R.drawable.login,
                 title = "Bienvenido de nuevo",
                 subtitle = "Accede a tu cuenta personal"
             )
 
-
-            // ✅ El formulario SÍ SE ANIMA
+            // Formulario animado de entrada
             AnimatedVisibility(
                 visible = true,
                 enter = slideInVertically(
@@ -159,8 +158,7 @@ fun LoginScreen(
                     verticalArrangement = Arrangement.Top,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    // A partir de aquí ya todo igual: los campos, botones, etc
-
+                    // Campo de email con validación y feedback visual
                     OutlinedTextField(
                         value = email,
                         onValueChange = {
@@ -191,7 +189,7 @@ fun LoginScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Campo de contraseña con validación
+                    // Campo de contraseña, con opción de mostrar/ocultar y feedback de error
                     OutlinedTextField(
                         value = password,
                         onValueChange = {
@@ -202,10 +200,8 @@ fun LoginScreen(
                         isError = showPasswordError,
                         visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                         trailingIcon = {
-                            val icon =
-                                if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
-                            val description =
-                                if (passwordVisible) "Mostrar contraseña" else "Ocultar contraseña"
+                            val icon = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+                            val description = if (passwordVisible) "Mostrar contraseña" else "Ocultar contraseña"
 
                             IconButton(onClick = { passwordVisible = !passwordVisible }) {
                                 Icon(imageVector = icon, contentDescription = description)
@@ -248,7 +244,7 @@ fun LoginScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Botón de login con validación previa
+                    // Botón principal de login, con validación previa de campos
                     AnimatedAccessButton(
                         buttonText = "Acceder",
                         color = MaterialTheme.colorScheme.onBackground,
@@ -272,7 +268,7 @@ fun LoginScreen(
 
                     Spacer(modifier = Modifier.height(24.dp))
 
-                    // Separador visual
+                    // Separador visual con texto
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
                         modifier = Modifier.fillMaxWidth()
@@ -284,7 +280,7 @@ fun LoginScreen(
 
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Botón de login con Google
+                    // Botón de login con Google, integrado con Firebase Auth
                     Button(
                         onClick = {
                             val gso =
@@ -317,7 +313,7 @@ fun LoginScreen(
 
                     Spacer(modifier = Modifier.height(32.dp))
 
-                    // Enlace a registro
+                    // Enlace a pantalla de registro
                     Row(
                         modifier = Modifier.fillMaxSize(),
                         horizontalArrangement = Arrangement.Center,

@@ -44,18 +44,27 @@ import com.example.gymtrack.ui.theme.FavoriteYellow
 import com.example.gymtrack.ui.theme.LightGray
 import kotlinx.coroutines.launch
 
+/*
+MyRoutineScreen.kt
+
+Pantalla para visualizar, gestionar y eliminar todas las rutinas personalizadas del usuario.
+Permite marcar/desmarcar como favoritas, acceder al detalle y borrar rutinas.
+UI profesional, feedback animado y uso intensivo de Jetpack Compose y ViewModel.
+*/
+
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun MyRoutineScreen(
-    viewModel: RoutineViewModel,
-    navController: NavHostController
+    viewModel: RoutineViewModel,        // ViewModel que gestiona la lógica de rutinas del usuario
+    navController: NavHostController    // Controlador para navegación entre pantallas
 ) {
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
     val snackbarHostState = remember { SnackbarHostState() }
+    // Estado reactivo con la lista de rutinas (ID y datos de rutina)
     var routines by remember { mutableStateOf<List<Pair<String, RoutineData>>>(emptyList()) }
 
-    // Carga las rutinas al abrir la pantalla
+    // Al entrar en la pantalla, carga todas las rutinas del usuario y muestra un mensaje si no hay ninguna
     LaunchedEffect(Unit) {
         viewModel.getUserRoutines { loaded ->
             routines = loaded
@@ -67,20 +76,23 @@ fun MyRoutineScreen(
         }
     }
 
+    // Estructura principal de la pantalla con Scaffold (incluye Snackbar animado)
     Scaffold(
         snackbarHost = { FancySnackbarHost(snackbarHostState) }
     ) {
-        Column(modifier = Modifier
-            .fillMaxSize()
-            .background(MaterialTheme.colorScheme.background)) {
-
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(MaterialTheme.colorScheme.background)
+        ) {
+            // Cabecera animada y consistente
             ScreenHeader(
                 image = R.drawable.my_routines,
                 title = "Tus rutinas",
                 subtitle = "Entrena con lo que ya tienes"
             )
 
-            // Lista de rutinas animada
+            // Lista animada de rutinas
             AnimatedEntrance {
                 LazyColumn(
                     modifier = Modifier
@@ -88,6 +100,7 @@ fun MyRoutineScreen(
                         .padding(horizontal = 20.dp, vertical = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(20.dp)
                 ) {
+                    // Renderiza cada rutina como una Card visual
                     items(routines, key = { it.first }) { (id_rutina, rutina) ->
 
                         Card(
@@ -99,7 +112,7 @@ fun MyRoutineScreen(
                             Column(modifier = Modifier.padding(10.dp)) {
 
                                 Box(modifier = Modifier.fillMaxWidth()) {
-                                    // ⭐ Estrella de favoritos arriba a la derecha
+                                    // Estrella de favoritos arriba a la derecha
                                     IconToggleButton(
                                         checked = rutina.esFavorita,
                                         onCheckedChange = { isFavorite ->
@@ -126,13 +139,13 @@ fun MyRoutineScreen(
                                             imageVector = if (rutina.esFavorita) Icons.Filled.Star else Icons.Outlined.StarBorder,
                                             contentDescription = "Favorita",
                                             tint = if (rutina.esFavorita) FavoriteYellow else LightGray,
-                                            modifier = Modifier.size(27.dp) // ⭐ TAMAÑO MÁS GRANDE
+                                            modifier = Modifier.size(27.dp)
                                         )
                                     }
 
-                                    // 📦 Contenido principal dentro de una Column
+                                    // Contenido principal de la Card (nombre, nº ejercicios, botones)
                                     Column(modifier = Modifier.padding(10.dp)) {
-                                        // 🏋️‍♂️ Nombre de la rutina
+                                        // Nombre de la rutina y su icono
                                         Row(verticalAlignment = Alignment.CenterVertically) {
                                             Icon(
                                                 imageVector = Icons.Default.FitnessCenter,
@@ -151,7 +164,7 @@ fun MyRoutineScreen(
 
                                         Spacer(modifier = Modifier.height(6.dp))
 
-                                        // 🧮 Cantidad de ejercicios
+                                        // Cantidad de ejercicios
                                         Text(
                                             text = "${rutina.ejercicios.size} ejercicio${if (rutina.ejercicios.size == 1) "" else "s"}",
                                             color = LightGray,
@@ -160,12 +173,12 @@ fun MyRoutineScreen(
 
                                         Spacer(modifier = Modifier.height(16.dp))
 
-                                        // Botones
+                                        // Botones de acciones: ver y eliminar
                                         Row(
                                             modifier = Modifier.fillMaxWidth(),
                                             horizontalArrangement = Arrangement.SpaceBetween
                                         ) {
-                                            // 🔍 Ver rutina
+                                            // Botón para acceder al detalle de la rutina
                                             AnimatedAccessButton(
                                                 buttonText = "Ver rutina",
                                                 color = MaterialTheme.colorScheme.onBackground,
@@ -180,7 +193,7 @@ fun MyRoutineScreen(
                                             )
                                             Spacer(modifier = Modifier.width(12.dp))
 
-                                            // 🗑️ Eliminar rutina
+                                            // Botón para eliminar la rutina
                                             AnimatedAccessButton(
                                                 buttonText = "Eliminar",
                                                 color = MaterialTheme.colorScheme.error,
@@ -212,6 +225,7 @@ fun MyRoutineScreen(
                         }
                     }
 
+                    // Espacio extra al final para evitar solapamiento con menú/flotante
                     item {
                         Spacer(modifier = Modifier.height(100.dp))
                     }
@@ -220,4 +234,3 @@ fun MyRoutineScreen(
         }
     }
 }
-

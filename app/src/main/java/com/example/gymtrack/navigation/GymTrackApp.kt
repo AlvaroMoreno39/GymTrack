@@ -54,55 +54,82 @@ import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+/**
+ * GymTrackApp.kt
+ *
+ * Este archivo contiene los componentes de UI principales para la estructura base de la app GymTrack.
+ * Aquí se gestiona la navegación principal, la integración del tema claro/oscuro, el menú flotante personalizado
+ * y varios componentes reutilizables de UI como botones animados, Snackbars y cabeceras animadas.
+ *
+ * El objetivo es ofrecer una estructura moderna, flexible y coherente para toda la app usando Jetpack Compose.
+ */
+
 @Composable
 fun GymTrackApp(
     themeViewModel: ThemeViewModel,
     darkMode: Boolean
 ) {
+    // Crea y recuerda el controlador de navegación para movernos entre pantallas
     val navController = rememberNavController()
+
+    // Obtenemos la ruta actual a través del BackStack (útil para saber dónde estamos)
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
+
+    // Recupera el usuario actual y comprueba si es administrador (por email)
     val currentUser = FirebaseAuth.getInstance().currentUser
     val isAdmin = currentUser?.email == "admin@gymtrack.com"
 
+    // Lista de pantallas donde no queremos mostrar el menú (pantallas de autenticación)
     val noMenuScreens = listOf(
         Screen.Login.route,
         Screen.Register.route,
         Screen.ForgotPassword.route
     )
 
+    // Crossfade permite animar el cambio entre temas claro/oscuro
     Crossfade(targetState = darkMode, label = "theme") { isDark ->
+        // Aplica el tema global de la app (colores, tipografías, formas...)
         GymTrackTheme(darkTheme = isDark) {
+            // Scaffold es la estructura base de Material Design (gestiona barras, FAB, etc.)
             Scaffold(
-                topBar = {},
-                bottomBar = {},
+                topBar = {},    // Aquí podrías poner una TopAppBar si quieres cabecera fija global
+                bottomBar = {}, // Menu flotante en vez de BottomNavigation tradicional
                 floatingActionButton = {
-                    if (currentRoute !in noMenuScreens && !isAdmin) {
+                    // Muestra el menú flotante salvo en pantallas de auth
+                    if (currentRoute !in noMenuScreens) {
                         ShareMenuSample(navController)
                     }
                 },
                 floatingActionButtonPosition = FabPosition.Center,
                 containerColor = MaterialTheme.colorScheme.background
             ) { innerPadding ->
+                // Contenedor principal donde se monta el sistema de navegación de pantallas
                 GymTrackNavHost(navController, innerPadding, themeViewModel)
             }
         }
     }
 }
 
-
+/**
+ * Componente que representa el menú flotante de la app (accesible desde el botón central).
+ * Utiliza una hoja modal inferior (ModalBottomSheet) y un botón animado con icono de menú.
+ */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ShareMenuSample(navController: NavHostController) {
     val sheetState = rememberModalBottomSheetState()
     val coroutineScope = rememberCoroutineScope()
     var showSheet by remember { mutableStateOf(false) }
+    val isAdmin = FirebaseAuth.getInstance().currentUser?.email == "admin@gymtrack.com"
 
     Box {
+        // Botón flotante animado
         AnimatedIconButton(
             onClick = { coroutineScope.launch { showSheet = true } }
         )
 
+        // Menú flotante que se muestra al pulsar el botón
         if (showSheet) {
             ModalBottomSheet(
                 onDismissRequest = { showSheet = false },
@@ -114,39 +141,52 @@ fun ShareMenuSample(navController: NavHostController) {
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
                         .padding(16.dp)
-                        .background(MaterialTheme.colorScheme.background) // ← Fondo blanco
-
+                        .background(MaterialTheme.colorScheme.background)
                 ) {
-                    ShareOption(Icons.Filled.Home, "Inicio") {
-                        navController.navigate(Screen.Home.route)
-                        showSheet = false
-                    }
-                    ShareOption(Icons.Filled.FitnessCenter, "Mis rutinas") {
-                        navController.navigate(Screen.MyRoutines.route)
-                        showSheet = false
-                    }
-
-                    ShareOption(Icons.Filled.Star, "Rutinas favoritas") {
-                        navController.navigate("favoritas")
-                        showSheet = false
-                    }
-
-                    ShareOption(Icons.Filled.AddCircle, "Registrar rutina") {
-                        navController.navigate(Screen.RegisterRoutine.route)
-                        showSheet = false
-                    }
-
-                    ShareOption(Icons.Filled.LibraryAdd, "Rutinas predefinidas") {
-                        navController.navigate(Screen.PredefinedRoutines.route)
-                        showSheet = false
-                    }
-                    ShareOption(Icons.Filled.Timer, "Temporizador") {
-                        navController.navigate(Screen.Timer.route)
-                        showSheet = false
-                    }
-                    ShareOption(Icons.Filled.Settings, "Ajustes") {
-                        navController.navigate(Screen.Settings.route)
-                        showSheet = false
+                    // Opciones del admin: solo Inicio, Crear rutina predefinida, Rutinas predefinidas
+                    if (isAdmin) {
+                        ShareOption(Icons.Filled.Home, "Inicio") {
+                            navController.navigate(Screen.Home.route)
+                            showSheet = false
+                        }
+                        ShareOption(Icons.Filled.LibraryAdd, "Crear rutina predefinida") {
+                            navController.navigate(Screen.RegisterRoutine.route)
+                            showSheet = false
+                        }
+                        ShareOption(Icons.Filled.FitnessCenter, "Rutinas predefinidas") {
+                            navController.navigate(Screen.PredefinedRoutines.route)
+                            showSheet = false
+                        }
+                        ShareOption(Icons.Filled.Settings, "Ajustes") {
+                            navController.navigate(Screen.Settings.route)
+                            showSheet = false
+                        }
+                    } else {
+                        // Opciones normales (todas)
+                        ShareOption(Icons.Filled.Home, "Inicio") {
+                            navController.navigate(Screen.Home.route)
+                            showSheet = false
+                        }
+                        ShareOption(Icons.Filled.AddCircle, "Registrar rutina") {
+                            navController.navigate(Screen.RegisterRoutine.route)
+                            showSheet = false
+                        }
+                        ShareOption(Icons.Filled.FitnessCenter, "Mis rutinas") {
+                            navController.navigate(Screen.MyRoutines.route)
+                            showSheet = false
+                        }
+                        ShareOption(Icons.Filled.Star, "Rutinas favoritas") {
+                            navController.navigate("favoritas")
+                            showSheet = false
+                        }
+                        ShareOption(Icons.Filled.Timer, "Temporizador") {
+                            navController.navigate(Screen.Timer.route)
+                            showSheet = false
+                        }
+                        ShareOption(Icons.Filled.Settings, "Ajustes") {
+                            navController.navigate(Screen.Settings.route)
+                            showSheet = false
+                        }
                     }
                     Spacer(modifier = Modifier.height(16.dp))
                 }
@@ -155,6 +195,10 @@ fun ShareMenuSample(navController: NavHostController) {
     }
 }
 
+/**
+ * Botón circular animado con icono de menú.
+ * Al hacer clic, invierte los colores y lanza la animación de pulsación.
+ */
 @Composable
 fun AnimatedIconButton(
     onClick: () -> Unit,
@@ -162,23 +206,27 @@ fun AnimatedIconButton(
 ) {
     var pressed by remember { mutableStateOf(false) }
 
+    // Configuración de la animación de color para el fondo del botón
     val animationSpec = tween<Color>(
         durationMillis = 350,
         easing = FastOutSlowInEasing
     )
 
+    // Animación para el color de fondo según el estado de pulsado
     val backgroundColor by animateColorAsState(
         targetValue = if (pressed) VeryLightGray else MaterialTheme.colorScheme.background,
         animationSpec = animationSpec,
         label = "BackgroundColor"
     )
 
+    // Animación para el color del icono
     val iconColor by animateColorAsState(
         targetValue = MaterialTheme.colorScheme.onBackground,
         animationSpec = animationSpec,
         label = "IconColor"
     )
 
+    // Efecto de pulsación: cuando se pulsa, se retrasa la acción para ver la animación
     LaunchedEffect(pressed) {
         if (pressed) {
             delay(200)
@@ -189,14 +237,14 @@ fun AnimatedIconButton(
 
     Surface(
         shape = CircleShape,
-        shadowElevation = 6.dp, // 👈 sombra PRO bien aplicada
+        shadowElevation = 6.dp,
         color = backgroundColor,
-        modifier = modifier.size(50.dp) // tamaño elegante
+        modifier = modifier.size(50.dp)
     ) {
         Box(
             modifier = Modifier
                 .clip(CircleShape)
-                .border(BorderStroke(1.dp, Color.LightGray), CircleShape) // borde perfecto
+                .border(BorderStroke(1.dp, Color.LightGray), CircleShape)
                 .clickable { pressed = true },
             contentAlignment = Alignment.Center
         ) {
@@ -209,6 +257,10 @@ fun AnimatedIconButton(
     }
 }
 
+/**
+ * Opción visual individual para el menú compartido.
+ * Muestra un icono y texto, con animación de color y click navegable.
+ */
 @Composable
 fun ShareOption(icon: ImageVector, text: String, onClick: () -> Unit) {
     Row(
@@ -216,8 +268,8 @@ fun ShareOption(icon: ImageVector, text: String, onClick: () -> Unit) {
         modifier = Modifier
             .fillMaxWidth()
             .padding(vertical = 12.dp, horizontal = 8.dp)
-            .clickable { onClick() } // Aquí hacemos que al pulsar, navegue
-            .background(MaterialTheme.colorScheme.background) // ← Fondo blanco
+            .clickable { onClick() }
+            .background(MaterialTheme.colorScheme.background)
     ) {
         Icon(
             imageVector = icon,
@@ -233,6 +285,10 @@ fun ShareOption(icon: ImageVector, text: String, onClick: () -> Unit) {
     }
 }
 
+/**
+ * Botón animado reutilizable para acciones principales.
+ * Al pulsar, invierte colores con animación y ejecuta la acción tras un breve retardo.
+ */
 @Composable
 fun AnimatedAccessButton(
     buttonText: String,
@@ -284,6 +340,10 @@ fun AnimatedAccessButton(
     }
 }
 
+/**
+ * Permite que un bloque de contenido aparezca con animación de entrada (fade + slide).
+ * Ideal para cabeceras y pantallas de bienvenida.
+ */
 @Composable
 fun AnimatedEntrance(content: @Composable () -> Unit) {
     AnimatedVisibility(
@@ -297,6 +357,10 @@ fun AnimatedEntrance(content: @Composable () -> Unit) {
     }
 }
 
+/**
+ * Componente Snackbar personalizado animado, para notificaciones visuales en la app.
+ * Aparece/desaparece con animación y diseño profesional.
+ */
 @Composable
 fun FancySnackbarHost(
     snackbarHostState: SnackbarHostState,
@@ -306,6 +370,7 @@ fun FancySnackbarHost(
     val snackbarData = snackbarHostState.currentSnackbarData
     var show by remember { mutableStateOf(false) }
 
+    // Controla la aparición/desaparición automática de la Snackbar
     LaunchedEffect(snackbarData) {
         if (snackbarData != null) {
             show = true
@@ -361,6 +426,10 @@ fun FancySnackbarHost(
     }
 }
 
+/**
+ * Switch personalizado animado que adapta colores a claro/oscuro.
+ * Mantiene transiciones suaves y accesibles.
+ */
 @Composable
 fun SmoothSwitch(
     checked: Boolean,
@@ -368,11 +437,8 @@ fun SmoothSwitch(
     modifier: Modifier = Modifier
 ) {
     val interactionSource = remember { MutableInteractionSource() }
-
-    // Detecta si el sistema está en modo oscuro (o puedes pasar un parámetro si prefieres)
     val isDark = isSystemInDarkTheme()
 
-    // Colores adaptados a cada tema
     val switchColors = if (isDark) {
         SwitchDefaults.colors(
             checkedThumbColor = Color.White,
@@ -389,16 +455,12 @@ fun SmoothSwitch(
         )
     }
 
-    // Valor animado para la posición del thumb
     val transition = updateTransition(targetState = checked, label = "SwitchTransition")
     val thumbOffset by transition.animateDp(
         label = "ThumbOffset",
         transitionSpec = { tween(durationMillis = 400) }
-    ) { state ->
-        if (state) 20.dp else 0.dp
-    }
+    ) { state -> if (state) 20.dp else 0.dp }
 
-    // Usamos el Switch base pero con animación suave
     Switch(
         checked = checked,
         onCheckedChange = onCheckedChange,
@@ -408,11 +470,15 @@ fun SmoothSwitch(
     )
 }
 
+/**
+ * Cabecera de pantalla animada, con imagen superior, título y subtítulo.
+ * Ofrece un diseño moderno y profesional, coherente en toda la app.
+ */
 @Composable
 fun ScreenHeader(
     @DrawableRes image: Int,
     title: String,
-    subtitle: String? = null // es opcional
+    subtitle: String? = null
 ) {
     AnimatedEntrance {
         Box(

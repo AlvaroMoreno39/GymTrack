@@ -35,19 +35,32 @@ import com.example.gymtrack.ui.theme.LightGray
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
+/*
+PredefinedRoutinesScreen.kt
+
+Pantalla que muestra todas las rutinas predefinidas disponibles en la app.
+Permite a cualquier usuario visualizarlas y añadirlas a sus rutinas personales.
+Si eres administrador, puedes además eliminar rutinas predefinidas.
+Presenta cards visuales para cada rutina, con animaciones, nivel de dificultad y feedback inmediato por Snackbar.
+*/
+
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun PredefinedRoutinesScreen(
-    viewModel: PredefinedRoutinesViewModel,
-    navController: NavHostController,
-    routineViewModel: RoutineViewModel
+    viewModel: PredefinedRoutinesViewModel,   // ViewModel que obtiene las rutinas predefinidas de Firebase
+    navController: NavHostController,         // Navegador de pantallas
+    routineViewModel: RoutineViewModel        // ViewModel para copiar/eliminar rutinas
 ) {
+    // Estado para mostrar mensajes animados (snackbar)
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+    // Estado reactivo que almacena la lista de rutinas predefinidas
     var routines by remember { mutableStateOf<List<RoutineData>>(emptyList()) }
 
+    // Detecta si el usuario actual es el admin
     val isAdmin = FirebaseAuth.getInstance().currentUser?.email == "admin@gymtrack.com"
 
+    // Al montar la pantalla, recupera todas las rutinas predefinidas de Firestore
     LaunchedEffect(Unit) {
         viewModel.fetchRoutines { result -> routines = result }
     }
@@ -59,12 +72,14 @@ fun PredefinedRoutinesScreen(
                 .background(MaterialTheme.colorScheme.background)
         ) {
 
+            // Cabecera visual animada, coherente con el resto de la app
             ScreenHeader(
                 image = R.drawable.predefined_routine,
                 title = "Rutinas predefinidas",
                 subtitle = "Encuentra inspiración y empieza ya"
             )
 
+            // Lista animada de rutinas
             AnimatedEntrance {
                 LazyColumn(
                     modifier = Modifier
@@ -72,6 +87,7 @@ fun PredefinedRoutinesScreen(
                         .padding(horizontal = 20.dp, vertical = 16.dp),
                     verticalArrangement = Arrangement.spacedBy(20.dp)
                 ) {
+                    // Renderiza cada rutina como una Card profesional
                     items(routines) { rutina ->
                         Card(
                             modifier = Modifier.fillMaxWidth(),
@@ -80,6 +96,7 @@ fun PredefinedRoutinesScreen(
                             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
+                                // Título e icono
                                 Row(verticalAlignment = Alignment.CenterVertically) {
                                     Icon(
                                         imageVector = Icons.Default.FitnessCenter,
@@ -96,7 +113,7 @@ fun PredefinedRoutinesScreen(
                                     )
                                 }
 
-                                // Nivel de dificultad (solo si existe)
+                                // Muestra nivel de dificultad si existe (colores diferentes)
                                 rutina.nivel?.let { nivel ->
                                     Spacer(modifier = Modifier.height(8.dp))
                                     Box(
@@ -123,6 +140,7 @@ fun PredefinedRoutinesScreen(
 
                                 Spacer(modifier = Modifier.height(6.dp))
 
+                                // Cantidad de ejercicios de la rutina
                                 Text(
                                     text = "${rutina.ejercicios.size} ejercicio${if (rutina.ejercicios.size == 1) "" else "s"}",
                                     color = LightGray,
@@ -131,13 +149,16 @@ fun PredefinedRoutinesScreen(
 
                                 Spacer(modifier = Modifier.height(16.dp))
 
+                                // Acciones: ver detalle, eliminar (admin) o añadir (usuario)
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
                                     horizontalArrangement = Arrangement.SpaceBetween
                                 ) {
+                                    // Botón para ver el detalle completo de la rutina
                                     AnimatedAccessButton(
                                         buttonText = "Ver rutina",
                                         onClick = {
+                                            // Guarda la rutina seleccionada en el SavedStateHandle para la siguiente pantalla
                                             navController.currentBackStackEntry
                                                 ?.savedStateHandle
                                                 ?.set("predefined_routine", rutina)
@@ -153,10 +174,12 @@ fun PredefinedRoutinesScreen(
 
                                     Spacer(modifier = Modifier.width(12.dp))
 
+                                    // Si es admin, muestra botón de eliminar; si es usuario, muestra botón de añadir
                                     if (isAdmin) {
                                         AnimatedAccessButton(
                                             buttonText = "Eliminar",
                                             onClick = {
+                                                // Llama a la función de borrado del ViewModel y actualiza la UI tras borrar
                                                 routineViewModel.deletePredefinedRoutine(rutina.nombreRutina) { success ->
                                                     scope.launch {
                                                         routines = routines.filterNot { it.nombreRutina == rutina.nombreRutina }
@@ -178,6 +201,7 @@ fun PredefinedRoutinesScreen(
                                         AnimatedAccessButton(
                                             buttonText = "Añadir",
                                             onClick = {
+                                                // Copia la rutina predefinida al usuario actual y muestra feedback
                                                 routineViewModel.copyPredefinedRoutineToUser(
                                                     rutina.nombreRutina,
                                                     rutina.ejercicios
@@ -203,9 +227,11 @@ fun PredefinedRoutinesScreen(
                         }
                     }
 
+                    // Espaciado al final para evitar que el último elemento quede oculto
                     item { Spacer(modifier = Modifier.height(100.dp)) }
                 }
             }
         }
     }
 }
+

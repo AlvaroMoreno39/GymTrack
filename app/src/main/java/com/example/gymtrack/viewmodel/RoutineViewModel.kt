@@ -1,14 +1,5 @@
 package com.example.gymtrack.viewmodel
 
-/*
-RoutineViewModel.kt
-
-Este archivo define el modelo de vista (ViewModel) para gestionar las rutinas de entrenamiento en la app GymTrack.
-Contiene la lógica para guardar, obtener, eliminar y copiar rutinas desde Firebase Firestore.
-Está vinculado al modelo de datos `Exercise` y `RoutineData`, los cuales representan ejercicios individuales y rutinas completas respectivamente.
-Todas las operaciones están asociadas al usuario autenticado mediante FirebaseAuth.
-*/
-
 import android.content.Context
 import android.os.Parcelable
 import android.util.Log
@@ -19,36 +10,47 @@ import com.google.firebase.firestore.FirebaseFirestore
 import com.google.firebase.Timestamp
 import kotlinx.android.parcel.Parcelize
 
+/*
+RoutineViewModel.kt
+
+Este archivo define el modelo de vista (ViewModel) para gestionar las rutinas de entrenamiento en la app GymTrack.
+Contiene la lógica para guardar, obtener, eliminar y copiar rutinas desde Firebase Firestore.
+Está vinculado al modelo de datos `Exercise` y `RoutineData`, los cuales representan ejercicios individuales y rutinas completas respectivamente.
+Todas las operaciones están asociadas al usuario autenticado mediante FirebaseAuth.
+*/
+
 @Parcelize
 data class Exercise(
-    val nombre: String = "",
-    val grupoMuscular: String = "",
-    val tipo: String = "",
-    val series: Int = 0,
-    val reps: Int = 0,
-    val duracion: Int = 0,
-    val intensidad: String = "",
-    val peso: Int = 0
+    val nombre: String = "",              // Nombre del ejercicio
+    val grupoMuscular: String = "",       // Grupo muscular trabajado
+    val tipo: String = "",                // Tipo de ejercicio (fuerza, cardio, etc.)
+    val series: Int = 0,                  // Número de series
+    val reps: Int = 0,                    // Repeticiones por serie
+    val duracion: Int = 0,                // Duración en segundos (si aplica, para cardio)
+    val intensidad: String = "",          // Nivel de intensidad del ejercicio
+    val peso: Int = 0                     // Peso utilizado (en kg, si aplica)
 ) : Parcelable
 
 @Parcelize
 data class RoutineData(
-    val nombreRutina: String = "",
-    val userId: String = "",
-    val fechaCreacion: Timestamp = Timestamp.now(),
-    val ejercicios: List<Exercise> = emptyList(),
-    val esFavorita: Boolean = false,
-    val nivel: String? = null // <- nuevo campo opcional
+    val nombreRutina: String = "",                  // Nombre de la rutina
+    val userId: String = "",                        // ID del usuario que la ha creado
+    val fechaCreacion: Timestamp = Timestamp.now(),// Fecha de creación de la rutina
+    val ejercicios: List<Exercise> = emptyList(),   // Lista de ejercicios que la componen
+    val esFavorita: Boolean = false,                // Indica si la rutina está marcada como favorita
+    val nivel: String? = null                       // Nivel de dificultad (usado en rutinas predefinidas)
 ) : Parcelable
 
-
-// ViewModel que maneja toda la lógica de operaciones sobre rutinas (CRUD)
+// ViewModel que maneja la lógica de CRUD para rutinas del usuario y rutinas predefinidas.
 class RoutineViewModel : ViewModel() {
 
+    // Referencia a Firestore
     private val db = FirebaseFirestore.getInstance()
+
+    // Referencia a la sesión actual del usuario
     private val auth = FirebaseAuth.getInstance()
 
-    // ⭐ Marcar rutina como favorita o quitarla
+    // Marca una rutina como favorita o elimina esa marca
     fun toggleFavorite(routineId: String, isFavorite: Boolean, onResult: (Boolean) -> Unit) {
         db.collection("rutinas")
             .document(routineId)
@@ -61,8 +63,7 @@ class RoutineViewModel : ViewModel() {
             }
     }
 
-
-    // 🔄 Obtener rutinas del usuario
+    // Recupera todas las rutinas del usuario actual desde Firestore
     fun getUserRoutines(onResult: (List<Pair<String, RoutineData>>) -> Unit) {
         val currentUser = auth.currentUser
         if (currentUser == null) {
@@ -88,7 +89,7 @@ class RoutineViewModel : ViewModel() {
             }
     }
 
-    // 💾 Guardar rutina personalizada
+    // Guarda una nueva rutina creada por el usuario en la colección 'rutinas'
     fun saveFullRoutine(
         nombreRutina: String,
         ejercicios: List<Exercise>,
@@ -120,6 +121,7 @@ class RoutineViewModel : ViewModel() {
             }
     }
 
+    // Elimina una rutina existente por su ID
     fun deleteRoutine(routineId: String, onResult: (Boolean) -> Unit) {
         db.collection("rutinas")
             .document(routineId)
@@ -134,6 +136,7 @@ class RoutineViewModel : ViewModel() {
             }
     }
 
+    // Copia una rutina predefinida a la colección personal del usuario
     fun copyPredefinedRoutineToUser(
         nombreRutina: String,
         ejercicios: List<Exercise>,
@@ -160,6 +163,7 @@ class RoutineViewModel : ViewModel() {
             }
     }
 
+    // Añade un nuevo ejercicio a una rutina existente
     fun addExerciseToRoutine(routineId: String, nuevoEjercicio: Exercise, onResult: (Boolean) -> Unit) {
         val docRef = db.collection("rutinas").document(routineId)
 
@@ -191,6 +195,7 @@ class RoutineViewModel : ViewModel() {
             }
     }
 
+    // Elimina un ejercicio de una rutina por índice
     fun deleteExerciseFromRoutine(routineId: String, ejercicioIndex: Int) {
         val docRef = db.collection("rutinas").document(routineId)
 
@@ -218,12 +223,14 @@ class RoutineViewModel : ViewModel() {
             }
     }
 
+    // Guarda una rutina predefinida (usado por el administrador)
     fun savePredefinedRoutine(
         nombreRutina: String,
         ejercicios: List<Exercise>,
         nivel: String,
         onResult: (Boolean) -> Unit
     ) {
+        // Se utiliza un mapa explícito porque algunos campos como 'nivel' no están en RoutineData
         val rutina = hashMapOf(
             "nombreRutina" to nombreRutina,
             "userId" to "admin",
@@ -244,6 +251,7 @@ class RoutineViewModel : ViewModel() {
             }
     }
 
+    // Elimina una rutina predefinida según su nombre (solo disponible para el administrador)
     fun deletePredefinedRoutine(nombreRutina: String, onResult: (Boolean) -> Unit) {
         db.collection("rutinasPredefinidas")
             .whereEqualTo("nombreRutina", nombreRutina)
@@ -262,4 +270,3 @@ class RoutineViewModel : ViewModel() {
             .addOnFailureListener { onResult(false) }
     }
 }
-

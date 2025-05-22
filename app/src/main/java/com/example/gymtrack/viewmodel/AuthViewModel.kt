@@ -1,15 +1,5 @@
 package com.example.gymtrack.viewmodel
 
-/*
-AuthViewModel.kt
-
-Este archivo define el ViewModel que gestiona toda la autenticación de usuarios en la app GymTrack utilizando Firebase Authentication.
-Expone dos estados reactivos mediante StateFlow: el usuario actual (`user`) y los posibles errores (`error`).
-Aquí se implementan las funcionalidades de login, registro, recuperación de contraseña y cierre de sesión.
-
-Este ViewModel permite separar la lógica de autenticación del resto de la interfaz de usuario y mantiene el estado sincronizado.
-*/
-
 import android.content.Context
 import android.widget.Toast
 import androidx.lifecycle.ViewModel
@@ -22,42 +12,56 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
+/*
+AuthViewModel.kt
+
+Este archivo define el ViewModel que gestiona toda la autenticación de usuarios en la app GymTrack utilizando Firebase Authentication.
+Expone dos estados observables mediante StateFlow: el usuario actual (`user`) y los posibles errores (`error`).
+
+El objetivo principal es encapsular toda la lógica de autenticación en un único punto, manteniendo la interfaz de usuario desacoplada y reactiva.
+Aquí se implementan las funcionalidades de login, registro, recuperación de contraseña y cierre de sesión.
+*/
+
 class AuthViewModel : ViewModel() {
 
-    // Instancia de Firebase Authentication para acceder a las funciones de login, registro, etc.
+    // Instancia de FirebaseAuth que gestiona todo el sistema de autenticación
     private val auth: FirebaseAuth = FirebaseAuth.getInstance()
 
-    // Estado observable que representa el usuario actual autenticado (si está logueado, tendrá datos)
+    // Estado interno mutable que contiene el usuario actualmente autenticado (si lo hay)
     private val _user = MutableStateFlow<FirebaseUser?>(auth.currentUser)
+
+    // Estado externo de solo lectura expuesto a la UI
     val user: StateFlow<FirebaseUser?> get() = _user
 
-    // Estado observable para mensajes de error en login, registro u otras operaciones
+    // Estado interno mutable para guardar el mensaje de error más reciente
     private val _error = MutableStateFlow<String?>(null)
+
+    // Estado externo de solo lectura que la UI puede observar para mostrar errores
     val error: StateFlow<String?> get() = _error
 
     /**
-     * Inicia sesión con correo y contraseña proporcionados.
-     * Si la operación tiene éxito, se actualiza el usuario y se limpia el error.
-     * Si falla, se guarda el mensaje de error en el flujo de estado.
+     * Intenta iniciar sesión con el correo y contraseña proporcionados.
+     * Si la operación es exitosa, actualiza el usuario actual y limpia cualquier error.
+     * Si falla, almacena el mensaje de error para que la UI lo muestre.
      */
     fun login(email: String, password: String) {
         viewModelScope.launch {
             auth.signInWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        _user.value = auth.currentUser // Usuario logueado correctamente
-                        _error.value = null
+                        _user.value = auth.currentUser // Usuario autenticado correctamente
+                        _error.value = null             // Limpiar errores anteriores
                     } else {
-                        _error.value = task.exception?.message // Guarda el mensaje de error
+                        _error.value = task.exception?.message // Registrar mensaje de error
                     }
                 }
         }
     }
 
     /**
-     * Registra un nuevo usuario con correo y contraseña.
-     * Si tiene éxito, se establece el usuario actual en el flujo.
-     * Si no, se guarda el error devuelto por Firebase.
+     * Registra un nuevo usuario utilizando el correo y contraseña especificados.
+     * Si la operación tiene éxito, se actualiza el usuario.
+     * En caso de error, se expone el mensaje correspondiente.
      */
     fun register(email: String, password: String) {
         viewModelScope.launch {
@@ -74,17 +78,18 @@ class AuthViewModel : ViewModel() {
     }
 
     /**
-     * Envía un correo de recuperación de contraseña al email proporcionado.
-     * Actualiza el estado de error con un mensaje de éxito o de fallo.
+     * Envía un correo de recuperación de contraseña al email indicado.
+     * Si tiene éxito, se guarda un mensaje de confirmación.
+     * Si falla, se expone el mensaje de error devuelto por Firebase.
      */
     fun resetPassword(email: String) {
         viewModelScope.launch {
             auth.sendPasswordResetEmail(email)
                 .addOnCompleteListener { task ->
                     _error.value = if (task.isSuccessful) {
-                        "Correo de recuperación enviado" // Mensaje de confirmación
+                        "Correo de recuperación enviado"
                     } else {
-                        task.exception?.message // Mensaje de error
+                        task.exception?.message
                     }
                 }
         }
@@ -92,7 +97,7 @@ class AuthViewModel : ViewModel() {
 
     /**
      * Cierra la sesión del usuario actual.
-     * También muestra un Toast informando que se ha cerrado sesión.
+     * Actualiza el flujo de usuario a null para que la UI reaccione (ej. redirigir al login).
      */
     fun logout() {
         FirebaseAuth.getInstance().signOut()
@@ -100,14 +105,16 @@ class AuthViewModel : ViewModel() {
     }
 
     /**
-     * Método auxiliar para establecer manualmente un mensaje de error.
+     * Establece manualmente un mensaje de error. Puede usarse desde otras capas (por ejemplo, validaciones).
      */
     fun setError(message: String) {
         _error.value = message
     }
 
+    /**
+     * Limpia el estado de error actual. Útil para reiniciar la pantalla o al cambiar de contexto.
+     */
     fun clearError() {
         _error.value = null
     }
-
 }
