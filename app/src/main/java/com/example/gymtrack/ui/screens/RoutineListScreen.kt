@@ -16,7 +16,6 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.gymtrack.navigation.AnimatedEntrance
 import com.example.gymtrack.navigation.Screen
 import com.example.gymtrack.viewmodel.RoutineData
 import com.example.gymtrack.viewmodel.RoutineViewModel
@@ -26,9 +25,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarBorder
-import com.example.gymtrack.navigation.AnimatedAccessButton
-import com.example.gymtrack.navigation.FancySnackbarHost
-import com.example.gymtrack.navigation.ScreenHeader
+import com.example.gymtrack.ui.components.AnimatedAccessButton
+import com.example.gymtrack.ui.components.AnimatedEntrance
+import com.example.gymtrack.ui.components.FancySnackbarHost
+import com.example.gymtrack.ui.components.ScreenHeader
 import com.example.gymtrack.ui.theme.FavoriteYellow
 import com.example.gymtrack.ui.theme.LightGray
 import com.google.firebase.auth.FirebaseAuth

@@ -1,13 +1,11 @@
-package com.example.gymtrack.ui.screens
+package com.example.gymtrack.ui.screens.RoutineDetailScreen
 
 import android.annotation.SuppressLint
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.*
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import com.example.gymtrack.viewmodel.RoutineData
 import com.example.gymtrack.viewmodel.RoutineViewModel
 import androidx.compose.foundation.layout.*
@@ -16,21 +14,17 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.gymtrack.R
-import com.example.gymtrack.navigation.FancySnackbarHost
 import com.example.gymtrack.viewmodel.Exercise
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.runtime.getValue
-import com.example.gymtrack.navigation.AddExerciseCard
-import com.example.gymtrack.navigation.AnimatedAccessButton
-import com.example.gymtrack.navigation.EditExerciseForm
-import com.example.gymtrack.navigation.ScreenHeader
+import com.example.gymtrack.ui.components.AnimatedAccessButton
+import com.example.gymtrack.ui.components.FancySnackbarHost
+import com.example.gymtrack.ui.components.ScreenHeader
 import com.google.firebase.auth.FirebaseAuth
 
 

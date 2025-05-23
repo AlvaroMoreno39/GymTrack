@@ -16,15 +16,14 @@ import com.example.gymtrack.ui.screens.HomeScreen
 import com.example.gymtrack.ui.screens.LoginScreen
 import com.example.gymtrack.ui.screens.RegisterRoutineScreen
 import com.example.gymtrack.ui.screens.RegisterScreen
-import com.example.gymtrack.ui.screens.RoutineDetailScreen
+import com.example.gymtrack.ui.screens.RoutineDetailScreen.RoutineDetailScreen
 import com.example.gymtrack.ui.screens.RoutineListScreen
-import com.example.gymtrack.ui.screens.SettingsScreen
+import com.example.gymtrack.ui.screens.SettingsScreen.SettingsScreen
 import com.example.gymtrack.ui.screens.TimerScreen
 import com.example.gymtrack.viewmodel.AuthViewModel
 import com.example.gymtrack.viewmodel.RoutineData
 import com.example.gymtrack.viewmodel.RoutineViewModel
 import com.example.gymtrack.viewmodel.ThemeViewModel
-import com.google.firebase.auth.FirebaseAuth
 
 /**
  * GymTrackNavHost.kt
@@ -98,9 +97,8 @@ fun GymTrackNavHost(
             HomeScreen(navController = navController, authViewModel = authViewModel)
         }
 
-
         composable(
-            route = "routineList?predefined={predefined}",
+            route = Screen.RoutineList.route,
             arguments = listOf(
                 navArgument("predefined") { type = NavType.BoolType; defaultValue = false }
             )
@@ -112,7 +110,6 @@ fun GymTrackNavHost(
                 showPredefined = isPredefined
             )
         }
-
 
         // ---- Detalle de una Rutina, recibe un argumento obligatorio "routineId" ----
         composable(
