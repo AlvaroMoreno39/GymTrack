@@ -33,6 +33,7 @@ import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.automirrored.filled.ShowChart
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -42,14 +43,17 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.compose.currentBackStackEntryAsState
+import com.example.gymtrack.ui.screens.DropDownSelector
 import com.example.gymtrack.ui.theme.GymTrackTheme
 import com.example.gymtrack.ui.theme.SoftWhite
 import com.example.gymtrack.ui.theme.VeryLightGray
+import com.example.gymtrack.viewmodel.Exercise
 import com.example.gymtrack.viewmodel.ThemeViewModel
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
@@ -525,6 +529,225 @@ fun ScreenHeader(
                     )
                 }
             }
+        }
+    }
+}
+
+
+@Composable
+fun AddExerciseCard(
+    nombre: String,
+    grupo: String,
+    tipo: String,
+    series: String,
+    reps: String,
+    duracion: String,
+    intensidad: String,
+    isCardio: Boolean,
+    gruposMusculares: List<String>,
+    tipos: List<String>,
+    intensidades: List<String>,
+    showNombreError: Boolean,
+    showGrupoError: Boolean,
+    showTipoError: Boolean,
+    showIntensidadError: Boolean,
+    onNombreChange: (String) -> Unit,
+    onGrupoChange: (String) -> Unit,
+    onTipoChange: (String) -> Unit,
+    onDuracionChange: (String) -> Unit,
+    onSeriesChange: (String) -> Unit,
+    onRepsChange: (String) -> Unit,
+    onIntensidadChange: (String) -> Unit,
+    onCancelar: () -> Unit,
+    onAceptar: () -> Unit
+) {
+    Card(
+        modifier = Modifier.fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(4.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(8.dp)
+        ) {
+            OutlinedTextField(
+                value = nombre,
+                onValueChange = onNombreChange,
+                label = { Text("Nombre del ejercicio") },
+                isError = showNombreError,
+                modifier = Modifier.fillMaxWidth()
+            )
+            DropDownSelector("Grupo Muscular", gruposMusculares, grupo, onGrupoChange)
+            DropDownSelector("Tipo", tipos, tipo, onTipoChange)
+
+            if (isCardio) {
+                OutlinedTextField(
+                    value = duracion,
+                    onValueChange = onDuracionChange,
+                    label = { Text("Duración (min)") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            } else {
+                OutlinedTextField(
+                    value = series,
+                    onValueChange = onSeriesChange,
+                    label = { Text("Series") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = reps,
+                    onValueChange = onRepsChange,
+                    label = { Text("Repeticiones") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            DropDownSelector("Intensidad", intensidades, intensidad, onIntensidadChange)
+
+            AnimatedAccessButton(
+                buttonText = "Añadir ejercicio",
+                modifier = Modifier.fillMaxWidth(),
+                onClick = onAceptar
+            )
+
+            AnimatedAccessButton(
+                buttonText = "Cancelar",
+                onClick = onCancelar,
+                color = MaterialTheme.colorScheme.error,
+                contentColor = MaterialTheme.colorScheme.background,
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.error),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp)
+            )
+        }
+    }
+}
+
+@Composable
+fun EditExerciseForm(
+    initial: Exercise,
+    gruposMusculares: List<String>,
+    tipos: List<String>,
+    intensidades: List<String>,
+    onSave: (Exercise) -> Unit,
+    onCancel: () -> Unit
+) {
+    var nombre by remember { mutableStateOf(initial.nombre) }
+    var grupo by remember { mutableStateOf(initial.grupoMuscular) }
+    var tipo by remember { mutableStateOf(initial.tipo) }
+    var series by remember { mutableStateOf(if (initial.tipo.lowercase() != "cardio") initial.series.toString() else "") }
+    var reps by remember { mutableStateOf(if (initial.tipo.lowercase() != "cardio") initial.reps.toString() else "") }
+    var duracion by remember { mutableStateOf(if (initial.tipo.lowercase() == "cardio") initial.duracion.toString() else "") }
+    var intensidad by remember { mutableStateOf(initial.intensidad) }
+
+    var showNombreError by remember { mutableStateOf(false) }
+    var showGrupoError by remember { mutableStateOf(false) }
+    var showTipoError by remember { mutableStateOf(false) }
+    var showIntensidadError by remember { mutableStateOf(false) }
+
+    val isCardio = tipo.lowercase() == "cardio"
+
+    LaunchedEffect(tipo) {
+        if (isCardio) {
+            series = ""
+            reps = ""
+        } else {
+            duracion = ""
+        }
+    }
+
+    Column(
+        verticalArrangement = Arrangement.spacedBy(8.dp),
+        modifier = Modifier.fillMaxWidth()
+    ) {
+        OutlinedTextField(
+            value = nombre,
+            onValueChange = { nombre = it; showNombreError = false },
+            label = { Text("Nombre del ejercicio") },
+            isError = showNombreError,
+            modifier = Modifier.fillMaxWidth()
+        )
+        DropDownSelector("Grupo Muscular", gruposMusculares, grupo) {
+            grupo = it; showGrupoError = false
+        }
+        DropDownSelector("Tipo", tipos, tipo) {
+            tipo = it; showTipoError = false
+        }
+        if (isCardio) {
+            OutlinedTextField(
+                value = duracion,
+                onValueChange = { duracion = it },
+                label = { Text("Duración (min)") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.fillMaxWidth()
+            )
+        } else {
+            OutlinedTextField(
+                value = series,
+                onValueChange = { series = it },
+                label = { Text("Series") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.fillMaxWidth()
+            )
+            OutlinedTextField(
+                value = reps,
+                onValueChange = { reps = it },
+                label = { Text("Repeticiones") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
+                modifier = Modifier.fillMaxWidth()
+            )
+        }
+        DropDownSelector("Intensidad", intensidades, intensidad) {
+            intensidad = it; showIntensidadError = false
+        }
+        Spacer(modifier = Modifier.height(2.dp))
+        Row {
+            AnimatedAccessButton(
+                buttonText = "Guardar",
+                onClick = {
+                    val errores = listOf(
+                        nombre.isBlank(),
+                        grupo.isBlank(),
+                        tipo.isBlank(),
+                        intensidad.isBlank(),
+                        if (isCardio) duracion.isBlank() else series.isBlank() || reps.isBlank()
+                    )
+                    showNombreError = nombre.isBlank()
+                    showGrupoError = grupo.isBlank()
+                    showTipoError = tipo.isBlank()
+                    showIntensidadError = intensidad.isBlank()
+                    if (errores.any { it }) return@AnimatedAccessButton
+
+                    val ejercicioEditado = Exercise(
+                        nombre = nombre,
+                        grupoMuscular = grupo,
+                        tipo = tipo,
+                        series = if (!isCardio) series.toIntOrNull() ?: 0 else 0,
+                        reps = if (!isCardio) reps.toIntOrNull() ?: 0 else 0,
+                        duracion = if (isCardio) duracion.toIntOrNull() ?: 0 else 0,
+                        intensidad = intensidad
+                    )
+                    onSave(ejercicioEditado)
+                },
+                color = MaterialTheme.colorScheme.onBackground,
+                contentColor = MaterialTheme.colorScheme.background,
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground),
+                modifier = Modifier.weight(1f).height(50.dp)
+            )
+            Spacer(modifier = Modifier.width(12.dp))
+            AnimatedAccessButton(
+                buttonText = "Cancelar",
+                onClick = onCancel,
+                color = MaterialTheme.colorScheme.error,
+                contentColor = MaterialTheme.colorScheme.background,
+                border = BorderStroke(1.dp, MaterialTheme.colorScheme.error),
+                modifier = Modifier.weight(1f).height(50.dp)
+            )
         }
     }
 }

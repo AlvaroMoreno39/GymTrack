@@ -24,7 +24,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.gymtrack.navigation.AnimatedEntrance
-import com.example.gymtrack.viewmodel.PredefinedRoutinesViewModel
 import com.example.gymtrack.viewmodel.RoutineData
 import com.example.gymtrack.viewmodel.RoutineViewModel
 import com.example.gymtrack.R
@@ -47,7 +46,7 @@ Presenta cards visuales para cada rutina, con animaciones, nivel de dificultad y
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun PredefinedRoutinesScreen(
-    viewModel: PredefinedRoutinesViewModel,   // ViewModel que obtiene las rutinas predefinidas de Firebase
+    viewModel: RoutineViewModel,   // ViewModel
     navController: NavHostController,         // Navegador de pantallas
     routineViewModel: RoutineViewModel        // ViewModel para copiar/eliminar rutinas
 ) {
@@ -62,7 +61,7 @@ fun PredefinedRoutinesScreen(
 
     // Al montar la pantalla, recupera todas las rutinas predefinidas de Firestore
     LaunchedEffect(Unit) {
-        viewModel.fetchRoutines { result -> routines = result }
+        viewModel.fetchPredefinedRoutines { result -> routines = result }
     }
 
     Scaffold(snackbarHost = { FancySnackbarHost(snackbarHostState) }) {
@@ -162,6 +161,7 @@ fun PredefinedRoutinesScreen(
                                             navController.currentBackStackEntry
                                                 ?.savedStateHandle
                                                 ?.set("predefined_routine", rutina)
+                                            navController.currentBackStackEntry?.savedStateHandle?.set("routine_arg", rutina)
                                             navController.navigate("predefined_routine_detail")
                                         },
                                         color = MaterialTheme.colorScheme.onBackground,
