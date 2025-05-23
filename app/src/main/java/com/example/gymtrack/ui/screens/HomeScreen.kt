@@ -42,9 +42,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
 import com.example.gymtrack.R
-import com.example.gymtrack.navigation.AnimatedAccessButton
 import com.example.gymtrack.navigation.Screen
-import com.example.gymtrack.navigation.ScreenHeader
+import com.example.gymtrack.ui.components.AnimatedAccessButton
+import com.example.gymtrack.ui.components.ScreenHeader
 import com.example.gymtrack.ui.theme.LightGray
 import com.example.gymtrack.viewmodel.AuthViewModel
 import com.google.firebase.auth.FirebaseAuth

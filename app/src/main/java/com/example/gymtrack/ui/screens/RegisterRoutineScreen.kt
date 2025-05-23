@@ -14,13 +14,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.gymtrack.navigation.AnimatedEntrance
 import com.example.gymtrack.viewmodel.Exercise
 import com.example.gymtrack.viewmodel.RoutineViewModel
 import com.example.gymtrack.R
-import com.example.gymtrack.navigation.AnimatedAccessButton
-import com.example.gymtrack.navigation.FancySnackbarHost
-import com.example.gymtrack.navigation.ScreenHeader
+import com.example.gymtrack.ui.components.AnimatedAccessButton
+import com.example.gymtrack.ui.components.AnimatedEntrance
+import com.example.gymtrack.ui.components.FancySnackbarHost
+import com.example.gymtrack.ui.components.ScreenHeader
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.launch
 
