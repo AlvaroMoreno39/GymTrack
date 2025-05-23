@@ -15,7 +15,6 @@ import com.example.gymtrack.ui.screens.ForgotPasswordScreen
 import com.example.gymtrack.ui.screens.HomeScreen
 import com.example.gymtrack.ui.screens.LoginScreen
 import com.example.gymtrack.ui.screens.MyRoutineScreen
-import com.example.gymtrack.ui.screens.PredefinedRoutineDetailScreen
 import com.example.gymtrack.ui.screens.PredefinedRoutinesScreen
 import com.example.gymtrack.ui.screens.RegisterRoutineScreen
 import com.example.gymtrack.ui.screens.RegisterScreen
@@ -23,7 +22,7 @@ import com.example.gymtrack.ui.screens.RoutineDetailScreen
 import com.example.gymtrack.ui.screens.SettingsScreen
 import com.example.gymtrack.ui.screens.TimerScreen
 import com.example.gymtrack.viewmodel.AuthViewModel
-import com.example.gymtrack.viewmodel.PredefinedRoutinesViewModel
+import com.example.gymtrack.viewmodel.RoutineData
 import com.example.gymtrack.viewmodel.RoutineViewModel
 import com.example.gymtrack.viewmodel.ThemeViewModel
 import com.google.firebase.auth.FirebaseAuth
@@ -72,7 +71,7 @@ fun GymTrackNavHost(
 
         // ---- Pantalla de Rutinas Predefinidas ----
         composable(Screen.PredefinedRoutines.route) {
-            val viewModel: PredefinedRoutinesViewModel = viewModel()
+            val viewModel: RoutineViewModel = viewModel()
             PredefinedRoutinesScreen(
                 viewModel = viewModel,
                 navController,
@@ -145,12 +144,18 @@ fun GymTrackNavHost(
             )
         }
 
-        // ---- Detalle de Rutina Predefinida ----
         composable("predefined_routine_detail") {
-            PredefinedRoutineDetailScreen(
+            val routine = navController.previousBackStackEntry
+                ?.savedStateHandle
+                ?.get<RoutineData>("routine_arg")
+
+            RoutineDetailScreen(
                 navController = navController,
-                viewModel = viewModel<RoutineViewModel>()  // ViewModel para las rutinas predefinidas
+                viewModel = routineViewModel,
+                routineArg = routine,
+                isPredefined = true
             )
         }
+
     }
 }
