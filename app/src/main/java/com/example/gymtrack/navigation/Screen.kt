@@ -22,7 +22,7 @@ sealed class Screen(val route: String, val title: String) {
 
     // --- Rutas relacionadas con rutinas ---
     object RegisterRoutine : Screen("register_routine", "Registrar rutina")     // Crear nueva rutina
-    object MyRoutines : Screen("my_routines", "Mis rutinas")                    // Ver todas mis rutinas
+    object RoutineList : Screen("routineList?predefined={predefined}", "Ver rutinas")
     object RoutineDetail : Screen("routine_detail/{routineId}", "Detalle rutina") {
         // Genera la ruta real al navegar pasando el ID de la rutina
         fun createRoute(routineId: String) = "routine_detail/$routineId"

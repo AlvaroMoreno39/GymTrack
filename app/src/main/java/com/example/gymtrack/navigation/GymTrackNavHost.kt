@@ -14,11 +14,10 @@ import com.example.gymtrack.ui.screens.FavoriteRoutinesScreen
 import com.example.gymtrack.ui.screens.ForgotPasswordScreen
 import com.example.gymtrack.ui.screens.HomeScreen
 import com.example.gymtrack.ui.screens.LoginScreen
-import com.example.gymtrack.ui.screens.MyRoutineScreen
-import com.example.gymtrack.ui.screens.PredefinedRoutinesScreen
 import com.example.gymtrack.ui.screens.RegisterRoutineScreen
 import com.example.gymtrack.ui.screens.RegisterScreen
 import com.example.gymtrack.ui.screens.RoutineDetailScreen
+import com.example.gymtrack.ui.screens.RoutineListScreen
 import com.example.gymtrack.ui.screens.SettingsScreen
 import com.example.gymtrack.ui.screens.TimerScreen
 import com.example.gymtrack.viewmodel.AuthViewModel
@@ -69,16 +68,6 @@ fun GymTrackNavHost(
             )
         }
 
-        // ---- Pantalla de Rutinas Predefinidas ----
-        composable(Screen.PredefinedRoutines.route) {
-            val viewModel: RoutineViewModel = viewModel()
-            PredefinedRoutinesScreen(
-                viewModel = viewModel,
-                navController,
-                routineViewModel = routineViewModel
-            )
-        }
-
         // ---- Pantalla de recuperación de contraseña, con argumento opcional "change" ----
         composable(
             route = Screen.ForgotPassword.route + "?change={change}",
@@ -109,13 +98,21 @@ fun GymTrackNavHost(
             HomeScreen(navController = navController, authViewModel = authViewModel)
         }
 
-        // ---- Pantalla de Mis Rutinas ----
-        composable(Screen.MyRoutines.route) {
-            MyRoutineScreen(
-                viewModel = viewModel(),          // ViewModel local (puede ser propio o compartido)
-                navController = navController
+
+        composable(
+            route = "routineList?predefined={predefined}",
+            arguments = listOf(
+                navArgument("predefined") { type = NavType.BoolType; defaultValue = false }
+            )
+        ) { backStackEntry ->
+            val isPredefined = backStackEntry.arguments?.getBoolean("predefined") ?: false
+            RoutineListScreen(
+                navController = navController,
+                viewModel = routineViewModel,
+                showPredefined = isPredefined
             )
         }
+
 
         // ---- Detalle de una Rutina, recibe un argumento obligatorio "routineId" ----
         composable(

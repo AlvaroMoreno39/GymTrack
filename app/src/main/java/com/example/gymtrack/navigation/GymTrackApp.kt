@@ -165,7 +165,7 @@ fun ShareMenuSample(navController: NavHostController) {
                             showSheet = false
                         }
                         ShareOption(Icons.Filled.FitnessCenter, "Rutinas predefinidas") {
-                            navController.navigate(Screen.PredefinedRoutines.route)
+                            navController.navigate("routineList?predefined=true")
                             showSheet = false
                         }
                         ShareOption(Icons.Filled.Settings, "Ajustes") {
@@ -183,9 +183,10 @@ fun ShareMenuSample(navController: NavHostController) {
                             showSheet = false
                         }
                         ShareOption(Icons.Filled.FitnessCenter, "Mis rutinas") {
-                            navController.navigate(Screen.MyRoutines.route)
+                            navController.navigate("routineList?predefined=false")
                             showSheet = false
                         }
+
                         ShareOption(Icons.Filled.Star, "Rutinas favoritas") {
                             navController.navigate("favoritas")
                             showSheet = false
