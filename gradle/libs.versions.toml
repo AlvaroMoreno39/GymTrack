@@ -1,5 +1,6 @@
 [versions]
 # Versiones globales de cada librería o plugin
+accompanistNavigationAnimation = "0.34.0"
 agp = "8.9.1"                        # Android Gradle Plugin
 kotlin = "2.0.21"                    # Versión de Kotlin
 coreKtx = "1.15.0"                   # Extensiones para Android en Kotlin
@@ -23,6 +24,7 @@ googleServiceVersion = "4.4.2"      # Plugin para integrar Firebase
 
 
 [libraries]
+accompanist-navigation-animation = { module = "com.google.accompanist:accompanist-navigation-animation", version.ref = "accompanistNavigationAnimation" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 google-firebase-auth = { module = "com.google.firebase:firebase-auth" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }

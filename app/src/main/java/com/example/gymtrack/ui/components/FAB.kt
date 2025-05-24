@@ -19,10 +19,14 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.List
+import androidx.compose.material.icons.automirrored.filled.ListAlt
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.LibraryAdd
+import androidx.compose.material.icons.filled.List
+import androidx.compose.material.icons.filled.ListAlt
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.Star
@@ -98,7 +102,7 @@ fun ShareMenuSample(navController: NavHostController) {
                             showSheet = false
                         }
                         ShareOption(Icons.Filled.FitnessCenter, "Rutinas predefinidas") {
-                            navController.navigate("routineList?predefined=true")
+                            navController.navigate(Screen.RoutineList.createRoute(predefined = true))
                             showSheet = false
                         }
                         ShareOption(Icons.Filled.Settings, "Ajustes") {
@@ -112,14 +116,17 @@ fun ShareMenuSample(navController: NavHostController) {
                             showSheet = false
                         }
                         ShareOption(Icons.Filled.AddCircle, "Registrar rutina") {
-                            navController.navigate(Screen.RegisterRoutine.route)
+                            navController.navigate(Screen.RoutineList.createRoute(predefined = true))
                             showSheet = false
                         }
-                        ShareOption(Icons.Filled.FitnessCenter, "Mis rutinas") {
-                            navController.navigate("routineList?predefined=false")
+                        ShareOption(Icons.Filled.FitnessCenter, "Rutinas predefinidas") {
+                            navController.navigate(Screen.RoutineList.createRoute(predefined = true))
                             showSheet = false
                         }
-
+                        ShareOption(Icons.AutoMirrored.Filled.ListAlt, "Mis rutinas") {
+                            navController.navigate(Screen.RoutineList.createRoute(predefined = false))
+                            showSheet = false
+                        }
                         ShareOption(Icons.Filled.Star, "Rutinas favoritas") {
                             navController.navigate("favoritas")
                             showSheet = false
