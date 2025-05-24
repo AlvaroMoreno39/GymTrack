@@ -56,6 +56,8 @@ android {
 // DEPENDENCIAS DEL PROYECTO
 // -------------------------------------------
 dependencies {
+    implementation(libs.accompanist.navigation.animation)
+
     // Autenticación con cuentas de Google
     implementation("com.google.android.gms:play-services-auth:21.3.0")
 

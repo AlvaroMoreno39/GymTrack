@@ -156,8 +156,8 @@ fun HomeScreen(
                             when (title) {
                                 "Registrar nueva rutina predefinida" -> navController.navigate(Screen.RegisterRoutine.route)
                                 "Registrar nueva rutina" -> navController.navigate(Screen.RegisterRoutine.route)
-                                "Ver rutinas predefinidas" -> navController.navigate("routineList?predefined=true")
-                                "Ver mis rutinas" -> navController.navigate("routineList?predefined=false")
+                                "Ver rutinas predefinidas" -> navController.navigate(Screen.RoutineList.createRoute(predefined = true))
+                                "Ver mis rutinas" -> navController.navigate(Screen.RoutineList.createRoute(predefined = false))
                                 "Rutinas favoritas" -> navController.navigate("favoritas")
                                 "Temporizador" -> navController.navigate(Screen.Timer.route)
                                 "Ajustes" -> navController.navigate(Screen.Settings.route)
