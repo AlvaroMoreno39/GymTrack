@@ -1,6 +1,12 @@
 package com.example.gymtrack.ui.screens.RoutineDetailScreen
 
 import android.annotation.SuppressLint
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.with
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
@@ -28,6 +34,7 @@ import com.example.gymtrack.ui.components.ScreenHeader
 import com.google.firebase.auth.FirebaseAuth
 
 
+@OptIn(ExperimentalAnimationApi::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun RoutineDetailScreen(
@@ -43,7 +50,6 @@ fun RoutineDetailScreen(
     var routine by remember { mutableStateOf<RoutineData?>(null) }
     var showAddCard by remember { mutableStateOf(false) }
 
-    // Estados para añadir ejercicio
     var nombreEjercicio by remember { mutableStateOf("") }
     var grupoMuscular by remember { mutableStateOf("") }
     var tipo by remember { mutableStateOf("") }
@@ -62,7 +68,6 @@ fun RoutineDetailScreen(
     val intensidades = listOf("Baja", "Media", "Alta")
     val isCardio = tipo.lowercase() == "cardio"
 
-    // Cargar rutina inicial
     LaunchedEffect(routineId, routineArg) {
         if (routineArg != null) {
             routine = routineArg
@@ -93,7 +98,6 @@ fun RoutineDetailScreen(
                         .padding(horizontal = 20.dp, vertical = 12.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
-                    // --- Lista de ejercicios ---
                     rutina.ejercicios.forEachIndexed { index, ejercicioOriginal ->
                         var editing by remember { mutableStateOf(false) }
 
@@ -103,24 +107,47 @@ fun RoutineDetailScreen(
                             elevation = CardDefaults.cardElevation(4.dp),
                             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                         ) {
-                            Column(modifier = Modifier.padding(16.dp)) {
-                                if (editing) {
-                                    // EDIT FORMULARIO SIN CARD (solo Column)
-                                    EditExerciseForm(
-                                        initial = ejercicioOriginal,
-                                        gruposMusculares = gruposMusculares,
-                                        tipos = tipos,
-                                        intensidades = intensidades,
-                                        onSave = { ejercicioEditado ->
-                                            // Guardar cambios
-                                            if (isPredefined && isAdmin) {
-                                                routine?.nombreRutina?.let { nombre ->
-                                                    viewModel.updateExerciseInPredefinedRoutine(
-                                                        nombre, index, ejercicioEditado
+                            AnimatedContent(
+                                targetState = editing,
+                                transitionSpec = {
+                                    fadeIn(animationSpec = tween(250)) with fadeOut(animationSpec = tween(180))
+                                },
+                                label = "EditTransition"
+                            ) { isEditing ->
+                                Column(modifier = Modifier.padding(16.dp)) {
+                                    if (isEditing) {
+                                        EditExerciseForm(
+                                            initial = ejercicioOriginal,
+                                            gruposMusculares = gruposMusculares,
+                                            tipos = tipos,
+                                            intensidades = intensidades,
+                                            onSave = { ejercicioEditado ->
+                                                if (isPredefined && isAdmin) {
+                                                    routine?.nombreRutina?.let { nombre ->
+                                                        viewModel.updateExerciseInPredefinedRoutine(
+                                                            nombre, index, ejercicioEditado
+                                                        ) { success ->
+                                                            if (success) {
+                                                                viewModel.fetchPredefinedRoutines { list ->
+                                                                    routine = list.find { it.nombreRutina == nombre }
+                                                                }
+                                                                scope.launch {
+                                                                    snackbarHostState.showSnackbar("Ejercicio editado ✅")
+                                                                }
+                                                            } else {
+                                                                scope.launch {
+                                                                    snackbarHostState.showSnackbar("Error al editar ❌")
+                                                                }
+                                                            }
+                                                        }
+                                                    }
+                                                } else if (!isPredefined && routineId != null) {
+                                                    viewModel.updateExerciseInRoutine(
+                                                        routineId, index, ejercicioEditado
                                                     ) { success ->
                                                         if (success) {
-                                                            viewModel.fetchPredefinedRoutines { list ->
-                                                                routine = list.find { it.nombreRutina == nombre }
+                                                            viewModel.getUserRoutines { list ->
+                                                                routine = list.find { it.first == routineId }?.second
                                                             }
                                                             scope.launch {
                                                                 snackbarHostState.showSnackbar("Ejercicio editado ✅")
@@ -132,71 +159,73 @@ fun RoutineDetailScreen(
                                                         }
                                                     }
                                                 }
-                                            } else if (!isPredefined && routineId != null) {
-                                                viewModel.updateExerciseInRoutine(
-                                                    routineId, index, ejercicioEditado
-                                                ) { success ->
-                                                    if (success) {
-                                                        viewModel.getUserRoutines { list ->
-                                                            routine = list.find { it.first == routineId }?.second
-                                                        }
-                                                        scope.launch { snackbarHostState.showSnackbar("Ejercicio editado ✅") }
-                                                    } else {
-                                                        scope.launch { snackbarHostState.showSnackbar("Error al editar ❌") }
-                                                    }
-                                                }
+                                                editing = false
+                                            },
+                                            onCancel = { editing = false }
+                                        )
+                                    } else {
+                                        Text(
+                                            "• ${ejercicioOriginal.nombre}",
+                                            style = MaterialTheme.typography.titleMedium,
+                                            fontWeight = FontWeight.Bold,
+                                            color = MaterialTheme.colorScheme.onBackground
+                                        )
+                                        Spacer(modifier = Modifier.height(6.dp))
+                                        Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                                            Text("Grupo: ${ejercicioOriginal.grupoMuscular}")
+                                            Text("Tipo: ${ejercicioOriginal.tipo}")
+                                            if (ejercicioOriginal.tipo.lowercase() == "cardio" && ejercicioOriginal.duracion > 0) {
+                                                Text("Duración: ${ejercicioOriginal.duracion} min")
+                                            } else {
+                                                if (ejercicioOriginal.series > 0) Text("Series: ${ejercicioOriginal.series}")
+                                                if (ejercicioOriginal.reps > 0) Text("Reps: ${ejercicioOriginal.reps}")
                                             }
-                                            editing = false
-                                        },
-                                        onCancel = { editing = false }
-                                    )
-                                } else {
-                                    // VISTA NORMAL
-                                    Text(
-                                        "• ${ejercicioOriginal.nombre}",
-                                        style = MaterialTheme.typography.titleMedium,
-                                        fontWeight = FontWeight.Bold,
-                                        color = MaterialTheme.colorScheme.onBackground
-                                    )
-                                    Spacer(modifier = Modifier.height(6.dp))
-                                    Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                        Text("Grupo: ${ejercicioOriginal.grupoMuscular}")
-                                        Text("Tipo: ${ejercicioOriginal.tipo}")
-                                        if (ejercicioOriginal.tipo.lowercase() == "cardio" && ejercicioOriginal.duracion > 0) {
-                                            Text("Duración: ${ejercicioOriginal.duracion} min")
-                                        } else {
-                                            if (ejercicioOriginal.series > 0) Text("Series: ${ejercicioOriginal.series}")
-                                            if (ejercicioOriginal.reps > 0) Text("Reps: ${ejercicioOriginal.reps}")
+                                            Text("Intensidad: ${ejercicioOriginal.intensidad}")
                                         }
-                                        Text("Intensidad: ${ejercicioOriginal.intensidad}")
-                                    }
-                                    Spacer(modifier = Modifier.height(12.dp))
-                                    if ((isPredefined && isAdmin) || !isPredefined) {
-                                        Row(
-                                            horizontalArrangement = Arrangement.SpaceBetween,
-                                            modifier = Modifier.fillMaxWidth()
-                                        ) {
-                                            AnimatedAccessButton(
-                                                buttonText = "Editar",
-                                                onClick = { editing = true },
-                                                color = MaterialTheme.colorScheme.onBackground,
-                                                contentColor = MaterialTheme.colorScheme.background,
-                                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground),
-                                                modifier = Modifier.weight(1f).height(50.dp)
-                                            )
-                                            Spacer(modifier = Modifier.width(12.dp))
-                                            AnimatedAccessButton(
-                                                buttonText = "Eliminar",
-                                                onClick = {
-                                                    if (isPredefined && isAdmin) {
-                                                        routine?.nombreRutina?.let { nombre ->
-                                                            viewModel.deleteExerciseFromPredefinedRoutine(
-                                                                nombre,
-                                                                index
+                                        Spacer(modifier = Modifier.height(12.dp))
+                                        if ((isPredefined && isAdmin) || !isPredefined) {
+                                            Row(
+                                                horizontalArrangement = Arrangement.SpaceBetween,
+                                                modifier = Modifier.fillMaxWidth()
+                                            ) {
+                                                AnimatedAccessButton(
+                                                    buttonText = "Editar",
+                                                    onClick = { editing = true },
+                                                    color = MaterialTheme.colorScheme.onBackground,
+                                                    contentColor = MaterialTheme.colorScheme.background,
+                                                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground),
+                                                    modifier = Modifier.weight(1f).height(50.dp)
+                                                )
+                                                Spacer(modifier = Modifier.width(12.dp))
+                                                AnimatedAccessButton(
+                                                    buttonText = "Eliminar",
+                                                    onClick = {
+                                                        if (isPredefined && isAdmin) {
+                                                            routine?.nombreRutina?.let { nombre ->
+                                                                viewModel.deleteExerciseFromPredefinedRoutine(
+                                                                    nombre, index
+                                                                ) { success ->
+                                                                    if (success) {
+                                                                        viewModel.fetchPredefinedRoutines { list ->
+                                                                            routine = list.find { it.nombreRutina == nombre }
+                                                                        }
+                                                                        scope.launch {
+                                                                            snackbarHostState.showSnackbar("Ejercicio eliminado correctamente ✅")
+                                                                        }
+                                                                    } else {
+                                                                        scope.launch {
+                                                                            snackbarHostState.showSnackbar("Error al eliminar ejercicio ❌")
+                                                                        }
+                                                                    }
+                                                                }
+                                                            }
+                                                        } else if (!isPredefined && routineId != null) {
+                                                            viewModel.deleteExerciseFromRoutine(
+                                                                routineId, index
                                                             ) { success ->
                                                                 if (success) {
-                                                                    viewModel.fetchPredefinedRoutines { list ->
-                                                                        routine = list.find { it.nombreRutina == nombre }
+                                                                    viewModel.getUserRoutines { list ->
+                                                                        routine = list.find { it.first == routineId }?.second
                                                                     }
                                                                     scope.launch {
                                                                         snackbarHostState.showSnackbar("Ejercicio eliminado correctamente ✅")
@@ -208,31 +237,13 @@ fun RoutineDetailScreen(
                                                                 }
                                                             }
                                                         }
-                                                    } else if (!isPredefined && routineId != null) {
-                                                        viewModel.deleteExerciseFromRoutine(
-                                                            routineId,
-                                                            index
-                                                        ) { success ->
-                                                            if (success) {
-                                                                viewModel.getUserRoutines { list ->
-                                                                    routine = list.find { it.first == routineId }?.second
-                                                                }
-                                                                scope.launch {
-                                                                    snackbarHostState.showSnackbar("Ejercicio eliminado correctamente ✅")
-                                                                }
-                                                            } else {
-                                                                scope.launch {
-                                                                    snackbarHostState.showSnackbar("Error al eliminar ejercicio ❌")
-                                                                }
-                                                            }
-                                                        }
-                                                    }
-                                                },
-                                                color = MaterialTheme.colorScheme.error,
-                                                contentColor = MaterialTheme.colorScheme.background,
-                                                border = BorderStroke(1.dp, MaterialTheme.colorScheme.error),
-                                                modifier = Modifier.weight(1f).height(50.dp)
-                                            )
+                                                    },
+                                                    color = MaterialTheme.colorScheme.error,
+                                                    contentColor = MaterialTheme.colorScheme.background,
+                                                    border = BorderStroke(1.dp, MaterialTheme.colorScheme.error),
+                                                    modifier = Modifier.weight(1f).height(50.dp)
+                                                )
+                                            }
                                         }
                                     }
                                 }
@@ -240,8 +251,7 @@ fun RoutineDetailScreen(
                         }
                     }
 
-                    // --- Botón de añadir ejercicio SOLO UNA VEZ al final ---
-                    if (((isPredefined && isAdmin) || !isPredefined)) {
+                    if ((isPredefined && isAdmin) || !isPredefined) {
                         if (showAddCard) {
                             AddExerciseCard(
                                 nombre = nombreEjercicio,
@@ -296,8 +306,7 @@ fun RoutineDetailScreen(
                                         if (isPredefined && isAdmin) {
                                             routine?.nombreRutina?.let { nombre ->
                                                 viewModel.addExerciseToPredefinedRoutine(
-                                                    nombre,
-                                                    newExercise
+                                                    nombre, newExercise
                                                 ) { success ->
                                                     if (success) {
                                                         viewModel.fetchPredefinedRoutines { list ->
@@ -315,20 +324,22 @@ fun RoutineDetailScreen(
                                             }
                                         } else if (!isPredefined && routineId != null) {
                                             viewModel.addExerciseToRoutine(
-                                                routineId,
-                                                newExercise
+                                                routineId, newExercise
                                             ) { success ->
                                                 if (success) {
                                                     viewModel.getUserRoutines { list ->
                                                         routine = list.find { it.first == routineId }?.second
                                                     }
-                                                    scope.launch { snackbarHostState.showSnackbar("Ejercicio añadido correctamente ✅") }
+                                                    scope.launch {
+                                                        snackbarHostState.showSnackbar("Ejercicio añadido correctamente ✅")
+                                                    }
                                                 } else {
-                                                    scope.launch { snackbarHostState.showSnackbar("Error al añadir ejercicio ❌") }
+                                                    scope.launch {
+                                                        snackbarHostState.showSnackbar("Error al añadir ejercicio ❌")
+                                                    }
                                                 }
                                             }
                                         }
-                                        // Limpiar form
                                         showAddCard = false
                                         nombreEjercicio = ""
                                         grupoMuscular = ""
@@ -360,4 +371,3 @@ fun RoutineDetailScreen(
         }
     }
 }
-
