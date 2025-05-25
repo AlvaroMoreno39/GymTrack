@@ -1,6 +1,10 @@
 package com.example.gymtrack.ui.screens.RoutineListScreen
 
 import android.annotation.SuppressLint
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -33,6 +37,7 @@ import com.example.gymtrack.ui.theme.FavoriteYellow
 import com.example.gymtrack.ui.theme.LightGray
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -46,11 +51,9 @@ fun RoutineListScreen(
     val scope = rememberCoroutineScope()
     val isAdmin = FirebaseAuth.getInstance().currentUser?.email == "admin@gymtrack.com"
 
-    // Carga reactiva de rutinas
     var routines by remember { mutableStateOf<List<Pair<String, RoutineData>>>(emptyList()) }
     var predefinedRoutines by remember { mutableStateOf<List<RoutineData>>(emptyList()) }
 
-    // Carga inicial
     LaunchedEffect(showPredefined) {
         if (showPredefined) {
             viewModel.fetchPredefinedRoutines { list -> predefinedRoutines = list }
@@ -71,24 +74,31 @@ fun RoutineListScreen(
                 subtitle = if (showPredefined) "Rutinas disponibles en la app" else "Entrena con lo que ya tienes"
             )
 
-            AnimatedEntrance {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 20.dp, vertical = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(20.dp)
-                ) {
-                    if (showPredefined) {
-                        items(predefinedRoutines) { rutina ->
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 20.dp, vertical = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(20.dp)
+            ) {
+                if (showPredefined) {
+                    items(predefinedRoutines, key = { it.nombreRutina }) { rutina ->
+                        var visible by remember { mutableStateOf(true) }
+                        AnimatedVisibility(
+                            visible = visible,
+                            exit = slideOutVertically(tween(400)) + fadeOut(tween(300))
+                        ) {
                             RoutineCardPredefined(
                                 rutina = rutina,
                                 isAdmin = isAdmin,
                                 navController = navController,
                                 viewModel = viewModel,
                                 onDeleted = {
-                                    // Recarga después de eliminar
-                                    viewModel.fetchPredefinedRoutines { updated -> predefinedRoutines = updated }
-                                    scope.launch { snackbarHostState.showSnackbar("Rutina eliminada ✅") }
+                                    visible = false
+                                    scope.launch {
+                                        delay(400)
+                                        viewModel.fetchPredefinedRoutines { updated -> predefinedRoutines = updated }
+                                        snackbarHostState.showSnackbar("Rutina eliminada ✅")
+                                    }
                                 },
                                 onAdded = {
                                     scope.launch { snackbarHostState.showSnackbar("Rutina añadida correctamente ✅") }
@@ -98,8 +108,14 @@ fun RoutineListScreen(
                                 }
                             )
                         }
-                    } else {
-                        items(routines, key = { it.first }) { (id_rutina, rutina) ->
+                    }
+                } else {
+                    items(routines, key = { it.first }) { (id_rutina, rutina) ->
+                        var visible by remember { mutableStateOf(true) }
+                        AnimatedVisibility(
+                            visible = visible,
+                            exit = slideOutVertically(tween(400)) + fadeOut(tween(300))
+                        ) {
                             RoutineCardUser(
                                 id_rutina = id_rutina,
                                 rutina = rutina,
@@ -108,16 +124,20 @@ fun RoutineListScreen(
                                 snackbarHostState = snackbarHostState,
                                 scope = scope,
                                 onDeleted = {
-                                    // Recarga después de eliminar
-                                    viewModel.getUserRoutines { updated -> routines = updated }
+                                    visible = false
+                                    scope.launch {
+                                        delay(400)
+                                        viewModel.getUserRoutines { updated -> routines = updated }
+                                    }
                                 }
                             )
                         }
                     }
-                    item { Spacer(modifier = Modifier.height(100.dp)) }
                 }
+                item { Spacer(modifier = Modifier.height(100.dp)) }
             }
         }
     }
 }
+
 

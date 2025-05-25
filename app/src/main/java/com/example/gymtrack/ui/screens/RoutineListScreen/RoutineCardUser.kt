@@ -1,5 +1,8 @@
 package com.example.gymtrack.ui.screens.RoutineListScreen
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -24,8 +27,14 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -57,16 +66,22 @@ fun RoutineCardUser(
     ) {
         Column(modifier = Modifier.padding(10.dp)) {
             Box(modifier = Modifier.fillMaxWidth()) {
-                // Estrella de favoritos
+                // ⭐ Estrella con animación solo de color
+                var isFavorite by remember { mutableStateOf(rutina.esFavorita) }
+                val animatedColor by animateColorAsState(
+                    targetValue = if (isFavorite) FavoriteYellow else Color.LightGray,
+                    animationSpec = tween(durationMillis = 300)
+                )
+
                 IconToggleButton(
-                    checked = rutina.esFavorita,
-                    onCheckedChange = { isFavorite ->
-                        viewModel.toggleFavorite(id_rutina, isFavorite) { success ->
+                    checked = isFavorite,
+                    onCheckedChange = { newValue ->
+                        isFavorite = newValue
+                        viewModel.toggleFavorite(id_rutina, newValue) { success ->
                             if (success) {
-                                onDeleted() // Recarga
                                 scope.launch {
                                     snackbarHostState.showSnackbar(
-                                        if (isFavorite) "Añadida a favoritos ⭐" else "Eliminada de favoritos ❌"
+                                        if (newValue) "Añadida a favoritos ⭐" else "Eliminada de favoritos ❌"
                                     )
                                 }
                             } else {
@@ -81,12 +96,13 @@ fun RoutineCardUser(
                         .padding(start = 12.dp)
                 ) {
                     Icon(
-                        imageVector = if (rutina.esFavorita) Icons.Filled.Star else Icons.Outlined.StarBorder,
+                        imageVector = if (isFavorite) Icons.Filled.Star else Icons.Outlined.StarBorder,
                         contentDescription = "Favorita",
-                        tint = if (rutina.esFavorita) FavoriteYellow else LightGray,
+                        tint = animatedColor,
                         modifier = Modifier.size(27.dp)
                     )
                 }
+
                 Column(modifier = Modifier.padding(10.dp)) {
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Icon(
@@ -106,7 +122,7 @@ fun RoutineCardUser(
                     Spacer(modifier = Modifier.height(6.dp))
                     Text(
                         text = "${rutina.ejercicios.size} ejercicio${if (rutina.ejercicios.size == 1) "" else "s"}",
-                        color = LightGray,
+                        color = Color.LightGray,
                         fontSize = 14.sp
                     )
                     Spacer(modifier = Modifier.height(16.dp))
@@ -156,4 +172,5 @@ fun RoutineCardUser(
         }
     }
 }
+
 
