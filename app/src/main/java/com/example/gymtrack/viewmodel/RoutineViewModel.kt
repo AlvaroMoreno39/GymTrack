@@ -11,6 +11,7 @@ import com.google.firebase.Timestamp
 import kotlinx.android.parcel.Parcelize
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import java.util.UUID
 
 /*
 RoutineViewModel.kt
@@ -23,14 +24,16 @@ Todas las operaciones están asociadas al usuario autenticado mediante FirebaseA
 
 @Parcelize
 data class Exercise(
-    val nombre: String = "",              // Nombre del ejercicio
-    val grupoMuscular: String = "",       // Grupo muscular trabajado
-    val tipo: String = "",                // Tipo de ejercicio (fuerza, cardio, etc.)
-    val series: Int = 0,                  // Número de series
-    val reps: Int = 0,                    // Repeticiones por serie
-    val duracion: Int = 0,                // Duración en segundos (si aplica, para cardio)
-    val intensidad: String = "",          // Nivel de intensidad del ejercicio
+    val id: String = UUID.randomUUID().toString(), // <<--- nuevo ID único
+    val nombre: String = "",
+    val grupoMuscular: String = "",
+    val tipo: String = "",
+    val series: Int = 0,
+    val reps: Int = 0,
+    val duracion: Int = 0,
+    val intensidad: String = ""
 ) : Parcelable
+
 
 @Parcelize
 data class RoutineData(
@@ -44,30 +47,23 @@ data class RoutineData(
 
 class RoutineViewModel : ViewModel() {
 
-    // --- Firebase ---
     private val db = FirebaseFirestore.getInstance()
     private val auth = FirebaseAuth.getInstance()
 
-    // --- Rutinas personales ---
+    private val _predefinedRoutines = MutableStateFlow<List<RoutineData>>(emptyList())
+    val predefinedRoutines: StateFlow<List<RoutineData>> get() = _predefinedRoutines
 
-    // Marca una rutina como favorita o elimina esa marca
     fun toggleFavorite(routineId: String, isFavorite: Boolean, onResult: (Boolean) -> Unit) {
-        db.collection("rutinas")
-            .document(routineId)
+        db.collection("rutinas").document(routineId)
             .update("esFavorita", isFavorite)
             .addOnSuccessListener { onResult(true) }
             .addOnFailureListener { onResult(false) }
     }
 
-    // Recupera todas las rutinas del usuario actual desde Firestore
     fun getUserRoutines(onResult: (List<Pair<String, RoutineData>>) -> Unit) {
-        val currentUser = auth.currentUser
-        if (currentUser == null) {
-            Log.e("RoutineViewModel", "❌ No hay usuario logueado al obtener rutinas")
-            return
-        }
+        val user = auth.currentUser ?: return
         db.collection("rutinas")
-            .whereEqualTo("userId", currentUser.uid)
+            .whereEqualTo("userId", user.uid)
             .get()
             .addOnSuccessListener { result ->
                 val routines = result.mapNotNull { doc ->
@@ -76,150 +72,11 @@ class RoutineViewModel : ViewModel() {
                     )
                     doc.id to rutina
                 }
-                Log.d("RoutineViewModel", "✅ Total rutinas obtenidas: ${routines.size}")
                 onResult(routines)
             }
-            .addOnFailureListener {
-                Log.e("RoutineViewModel", "❌ Error al obtener rutinas: ${it.message}")
-            }
+            .addOnFailureListener { onResult(emptyList()) }
     }
 
-    // Guarda una nueva rutina creada por el usuario en la colección 'rutinas'
-    fun saveFullRoutine(
-        nombreRutina: String,
-        ejercicios: List<Exercise>,
-        onResult: (Boolean) -> Unit
-    ) {
-        val currentUser = auth.currentUser
-        if (currentUser == null) {
-            Log.e("RoutineViewModel", "❌ No hay usuario logueado")
-            onResult(false)
-            return
-        }
-        val rutina = RoutineData(
-            nombreRutina = nombreRutina,
-            userId = currentUser.uid,
-            fechaCreacion = Timestamp.now(),
-            ejercicios = ejercicios
-        )
-        db.collection("rutinas")
-            .add(rutina)
-            .addOnSuccessListener {
-                Log.d("RoutineViewModel", "✅ Rutina guardada con éxito")
-                onResult(true)
-            }
-            .addOnFailureListener {
-                Log.e("RoutineViewModel", "❌ Error al guardar rutina: ${it.message}")
-                onResult(false)
-            }
-    }
-
-    // Elimina una rutina existente por su ID
-    fun deleteRoutine(routineId: String, onResult: (Boolean) -> Unit) {
-        db.collection("rutinas")
-            .document(routineId)
-            .delete()
-            .addOnSuccessListener {
-                Log.d("RoutineViewModel", "🗑️ Rutina eliminada correctamente")
-                onResult(true)
-            }
-            .addOnFailureListener {
-                Log.e("RoutineViewModel", "❌ Error al eliminar rutina: ${it.message}")
-                onResult(false)
-            }
-    }
-
-    // Copia una rutina predefinida a la colección personal del usuario
-    fun copyPredefinedRoutineToUser(
-        nombreRutina: String,
-        ejercicios: List<Exercise>,
-        onResult: (Boolean) -> Unit
-    ) {
-        val currentUser = auth.currentUser ?: return
-        val rutina = RoutineData(
-            nombreRutina = nombreRutina,
-            userId = currentUser.uid,
-            fechaCreacion = Timestamp.now(),
-            ejercicios = ejercicios
-        )
-        db.collection("rutinas")
-            .add(rutina)
-            .addOnSuccessListener {
-                Log.d("RoutineViewModel", "📄 Copia de rutina predefinida guardada")
-                onResult(true)
-            }
-            .addOnFailureListener {
-                Log.e("RoutineViewModel", "❌ Error al copiar rutina: ${it.message}")
-                onResult(false)
-            }
-    }
-
-    // Añade un nuevo ejercicio a una rutina existente
-    fun addExerciseToRoutine(routineId: String, nuevoEjercicio: Exercise, onResult: (Boolean) -> Unit) {
-        val docRef = db.collection("rutinas").document(routineId)
-        docRef.get()
-            .addOnSuccessListener { document ->
-                val rutina = document.toObject(RoutineData::class.java)
-                if (rutina != null) {
-                    val ejerciciosActualizados = rutina.ejercicios.toMutableList().apply {
-                        add(nuevoEjercicio)
-                    }
-                    docRef.update("ejercicios", ejerciciosActualizados)
-                        .addOnSuccessListener {
-                            Log.d("RoutineViewModel", "✅ Ejercicio añadido correctamente")
-                            onResult(true)
-                        }
-                        .addOnFailureListener {
-                            Log.e("RoutineViewModel", "❌ Error al actualizar ejercicios: ${it.message}")
-                            onResult(false)
-                        }
-                } else {
-                    Log.e("RoutineViewModel", "❌ Rutina nula al añadir ejercicio")
-                    onResult(false)
-                }
-            }
-            .addOnFailureListener {
-                Log.e("RoutineViewModel", "❌ Error al añadir ejercicio: ${it.message}")
-                onResult(false)
-            }
-    }
-
-    // Elimina un ejercicio de una rutina de usuario por índice
-    fun deleteExerciseFromRoutine(routineId: String, ejercicioIndex: Int, onResult: (Boolean) -> Unit) {
-        val docRef = db.collection("rutinas").document(routineId)
-        docRef.get()
-            .addOnSuccessListener { document ->
-                val rutina = document.toObject(RoutineData::class.java)
-                if (rutina != null && rutina.ejercicios.size > ejercicioIndex) {
-                    val ejerciciosActualizados = rutina.ejercicios.toMutableList().apply {
-                        removeAt(ejercicioIndex)
-                    }
-                    docRef.update("ejercicios", ejerciciosActualizados)
-                        .addOnSuccessListener {
-                            Log.d("RoutineViewModel", "✅ Ejercicio eliminado correctamente")
-                            onResult(true)
-                        }
-                        .addOnFailureListener {
-                            Log.e("RoutineViewModel", "❌ Error al eliminar ejercicio: ${it.message}")
-                            onResult(false)
-                        }
-                } else {
-                    Log.e("RoutineViewModel", "❌ Rutina vacía o índice inválido al eliminar ejercicio")
-                    onResult(false)
-                }
-            }
-            .addOnFailureListener {
-                Log.e("RoutineViewModel", "❌ Error al eliminar ejercicio: ${it.message}")
-                onResult(false)
-            }
-    }
-
-
-    // StateFlow para rutinas predefinidas
-    private val _predefinedRoutines = MutableStateFlow<List<RoutineData>>(emptyList())
-    val predefinedRoutines: StateFlow<List<RoutineData>> get() = _predefinedRoutines
-
-    // Recupera todas las rutinas predefinidas de la colección correspondiente
     fun fetchPredefinedRoutines(onResult: (List<RoutineData>) -> Unit) {
         db.collection("rutinasPredefinidas")
             .get()
@@ -232,19 +89,68 @@ class RoutineViewModel : ViewModel() {
                 _predefinedRoutines.value = routines
                 onResult(routines)
             }
-            .addOnFailureListener {
-                Log.e("RoutineViewModel", "❌ Error al cargar rutinas predefinidas: ${it.message}")
-                onResult(emptyList())
-            }
+            .addOnFailureListener { onResult(emptyList()) }
     }
 
-    // Guarda una rutina predefinida (usado por el administrador)
-    fun savePredefinedRoutine(
-        nombreRutina: String,
-        ejercicios: List<Exercise>,
-        nivel: String,
-        onResult: (Boolean) -> Unit
-    ) {
+    fun saveFullRoutine(nombreRutina: String, ejercicios: List<Exercise>, onResult: (Boolean) -> Unit) {
+        val user = auth.currentUser ?: return onResult(false)
+        val rutina = RoutineData(nombreRutina, user.uid, Timestamp.now(), ejercicios)
+        db.collection("rutinas")
+            .add(rutina)
+            .addOnSuccessListener { onResult(true) }
+            .addOnFailureListener { onResult(false) }
+    }
+
+    fun deleteRoutine(routineId: String, onResult: (Boolean) -> Unit) {
+        db.collection("rutinas").document(routineId)
+            .delete()
+            .addOnSuccessListener { onResult(true) }
+            .addOnFailureListener { onResult(false) }
+    }
+
+    fun copyPredefinedRoutineToUser(nombreRutina: String, ejercicios: List<Exercise>, onResult: (Boolean) -> Unit) {
+        val user = auth.currentUser ?: return onResult(false)
+        val rutina = RoutineData(nombreRutina, user.uid, Timestamp.now(), ejercicios)
+        db.collection("rutinas")
+            .add(rutina)
+            .addOnSuccessListener { onResult(true) }
+            .addOnFailureListener { onResult(false) }
+    }
+
+    fun addExerciseToRoutine(routineId: String, nuevoEjercicio: Exercise, onResult: (Boolean) -> Unit) {
+        val docRef = db.collection("rutinas").document(routineId)
+        db.runTransaction { transaction ->
+            val snapshot = transaction.get(docRef)
+            val rutina = snapshot.toObject(RoutineData::class.java) ?: throw Exception("Rutina no encontrada")
+            val updatedList = rutina.ejercicios + nuevoEjercicio
+            transaction.update(docRef, "ejercicios", updatedList)
+        }.addOnSuccessListener { onResult(true) }
+            .addOnFailureListener { onResult(false) }
+    }
+
+    fun deleteExerciseFromRoutineById(routineId: String, ejercicioId: String, onResult: (Boolean) -> Unit) {
+        val docRef = db.collection("rutinas").document(routineId)
+        db.runTransaction { transaction ->
+            val snapshot = transaction.get(docRef)
+            val rutina = snapshot.toObject(RoutineData::class.java) ?: throw Exception("Rutina no encontrada")
+            val updatedList = rutina.ejercicios.filter { it.id != ejercicioId }
+            transaction.update(docRef, "ejercicios", updatedList)
+        }.addOnSuccessListener { onResult(true) }
+            .addOnFailureListener { onResult(false) }
+    }
+
+    fun updateExerciseInRoutineById(routineId: String, ejercicioId: String, updatedExercise: Exercise, onResult: (Boolean) -> Unit) {
+        val docRef = db.collection("rutinas").document(routineId)
+        db.runTransaction { transaction ->
+            val snapshot = transaction.get(docRef)
+            val rutina = snapshot.toObject(RoutineData::class.java) ?: throw Exception("Rutina no encontrada")
+            val updatedList = rutina.ejercicios.map { if (it.id == ejercicioId) updatedExercise else it }
+            transaction.update(docRef, "ejercicios", updatedList)
+        }.addOnSuccessListener { onResult(true) }
+            .addOnFailureListener { onResult(false) }
+    }
+
+    fun savePredefinedRoutine(nombreRutina: String, ejercicios: List<Exercise>, nivel: String, onResult: (Boolean) -> Unit) {
         val rutina = hashMapOf(
             "nombreRutina" to nombreRutina,
             "userId" to "admin",
@@ -254,57 +160,21 @@ class RoutineViewModel : ViewModel() {
         )
         db.collection("rutinasPredefinidas")
             .add(rutina)
-            .addOnSuccessListener {
-                Log.d("RoutineViewModel", "✅ Rutina predefinida guardada con nivel")
-                onResult(true)
-            }
-            .addOnFailureListener {
-                Log.e("RoutineViewModel", "❌ Error al guardar rutina predefinida: ${it.message}")
-                onResult(false)
-            }
+            .addOnSuccessListener { onResult(true) }
+            .addOnFailureListener { onResult(false) }
     }
 
-    // Elimina una rutina predefinida según su nombre
     fun deletePredefinedRoutine(nombreRutina: String, onResult: (Boolean) -> Unit) {
         db.collection("rutinasPredefinidas")
             .whereEqualTo("nombreRutina", nombreRutina)
             .get()
             .addOnSuccessListener { result ->
-                if (!result.isEmpty) {
-                    val docId = result.documents[0].id
-                    db.collection("rutinasPredefinidas").document(docId)
-                        .delete()
-                        .addOnSuccessListener { onResult(true) }
-                        .addOnFailureListener { onResult(false) }
-                } else {
-                    onResult(false)
-                }
-            }
-            .addOnFailureListener { onResult(false) }
-    }
-
-    // Elimina un ejercicio de una rutina predefinida por índice
-    fun deleteExerciseFromPredefinedRoutine(nombreRutina: String, ejercicioIndex: Int, onResult: (Boolean) -> Unit) {
-        val collection = db.collection("rutinasPredefinidas")
-        collection.whereEqualTo("nombreRutina", nombreRutina)
-            .get()
-            .addOnSuccessListener { result ->
-                if (!result.isEmpty) {
-                    val doc = result.documents[0]
-                    val rutina = doc.toObject(RoutineData::class.java)
-                    if (rutina != null && rutina.ejercicios.size > ejercicioIndex) {
-                        val ejerciciosActualizados = rutina.ejercicios.toMutableList().apply {
-                            removeAt(ejercicioIndex)
-                        }
-                        doc.reference.update("ejercicios", ejerciciosActualizados)
-                            .addOnSuccessListener { onResult(true) }
-                            .addOnFailureListener { onResult(false) }
-                    } else {
-                        onResult(false)
-                    }
-                } else {
-                    onResult(false)
-                }
+                if (result.isEmpty) return@addOnSuccessListener onResult(false)
+                val docId = result.documents[0].id
+                db.collection("rutinasPredefinidas").document(docId)
+                    .delete()
+                    .addOnSuccessListener { onResult(true) }
+                    .addOnFailureListener { onResult(false) }
             }
             .addOnFailureListener { onResult(false) }
     }
@@ -314,81 +184,47 @@ class RoutineViewModel : ViewModel() {
             .whereEqualTo("nombreRutina", nombreRutina)
             .get()
             .addOnSuccessListener { result ->
-                if (!result.isEmpty) {
-                    val doc = result.documents[0]
-                    val rutina = doc.toObject(RoutineData::class.java)
-                    if (rutina != null) {
-                        val ejerciciosActualizados = rutina.ejercicios.toMutableList().apply {
-                            add(nuevoEjercicio)
-                        }
-                        doc.reference.update("ejercicios", ejerciciosActualizados)
-                            .addOnSuccessListener { onResult(true) }
-                            .addOnFailureListener { onResult(false) }
-                    } else {
-                        onResult(false)
-                    }
-                } else {
-                    onResult(false)
-                }
+                if (result.isEmpty) return@addOnSuccessListener onResult(false)
+                val doc = result.documents[0]
+                val rutina = doc.toObject(RoutineData::class.java) ?: return@addOnSuccessListener onResult(false)
+                val updatedList = rutina.ejercicios + nuevoEjercicio
+                doc.reference.update("ejercicios", updatedList)
+                    .addOnSuccessListener { onResult(true) }
+                    .addOnFailureListener { onResult(false) }
             }
             .addOnFailureListener { onResult(false) }
     }
 
-    // Actualiza un ejercicio en una rutina del usuario (por índice)
-    fun updateExerciseInRoutine(
-        routineId: String,
-        index: Int,
-        ejercicio: Exercise,
-        onResult: (Boolean) -> Unit
-    ) {
-        val docRef = db.collection("rutinas").document(routineId)
-        docRef.get()
-            .addOnSuccessListener { document ->
-                val rutina = document.toObject(RoutineData::class.java)
-                if (rutina != null && rutina.ejercicios.size > index) {
-                    val ejerciciosActualizados = rutina.ejercicios.toMutableList().apply {
-                        set(index, ejercicio)
-                    }
-                    docRef.update("ejercicios", ejerciciosActualizados)
-                        .addOnSuccessListener { onResult(true) }
-                        .addOnFailureListener { onResult(false) }
-                } else {
-                    onResult(false)
-                }
-            }
-            .addOnFailureListener { onResult(false) }
-    }
-
-    // Actualiza un ejercicio en una rutina predefinida (por índice)
-    fun updateExerciseInPredefinedRoutine(
-        nombreRutina: String,
-        index: Int,
-        ejercicio: Exercise,
-        onResult: (Boolean) -> Unit
-    ) {
+    fun deleteExerciseFromPredefinedRoutineById(nombreRutina: String, ejercicioId: String, onResult: (Boolean) -> Unit) {
         db.collection("rutinasPredefinidas")
             .whereEqualTo("nombreRutina", nombreRutina)
             .get()
             .addOnSuccessListener { result ->
-                if (!result.isEmpty) {
-                    val doc = result.documents[0]
-                    val rutina = doc.toObject(RoutineData::class.java)
-                    if (rutina != null && rutina.ejercicios.size > index) {
-                        val ejerciciosActualizados = rutina.ejercicios.toMutableList().apply {
-                            set(index, ejercicio)
-                        }
-                        doc.reference.update("ejercicios", ejerciciosActualizados)
-                            .addOnSuccessListener { onResult(true) }
-                            .addOnFailureListener { onResult(false) }
-                    } else {
-                        onResult(false)
-                    }
-                } else {
-                    onResult(false)
-                }
+                if (result.isEmpty) return@addOnSuccessListener onResult(false)
+                val doc = result.documents[0]
+                val rutina = doc.toObject(RoutineData::class.java) ?: return@addOnSuccessListener onResult(false)
+                val updatedList = rutina.ejercicios.filter { it.id != ejercicioId }
+                doc.reference.update("ejercicios", updatedList)
+                    .addOnSuccessListener { onResult(true) }
+                    .addOnFailureListener { onResult(false) }
             }
             .addOnFailureListener { onResult(false) }
     }
 
-
+    fun updateExerciseInPredefinedRoutineById(nombreRutina: String, ejercicioId: String, updatedExercise: Exercise, onResult: (Boolean) -> Unit) {
+        db.collection("rutinasPredefinidas")
+            .whereEqualTo("nombreRutina", nombreRutina)
+            .get()
+            .addOnSuccessListener { result ->
+                if (result.isEmpty) return@addOnSuccessListener onResult(false)
+                val doc = result.documents[0]
+                val rutina = doc.toObject(RoutineData::class.java) ?: return@addOnSuccessListener onResult(false)
+                val updatedList = rutina.ejercicios.map { if (it.id == ejercicioId) updatedExercise else it }
+                doc.reference.update("ejercicios", updatedList)
+                    .addOnSuccessListener { onResult(true) }
+                    .addOnFailureListener { onResult(false) }
+            }
+            .addOnFailureListener { onResult(false) }
+    }
 }
+

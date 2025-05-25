@@ -25,7 +25,7 @@ import com.example.gymtrack.ui.screens.LoginScreen
 import com.example.gymtrack.ui.screens.RegisterRoutineScreen
 import com.example.gymtrack.ui.screens.RegisterScreen
 import com.example.gymtrack.ui.screens.RoutineDetailScreen.RoutineDetailScreen
-import com.example.gymtrack.ui.screens.RoutineListScreen
+import com.example.gymtrack.ui.screens.RoutineListScreen.RoutineListScreen
 import com.example.gymtrack.ui.screens.SettingsScreen.SettingsScreen
 import com.example.gymtrack.ui.screens.TimerScreen
 import com.example.gymtrack.viewmodel.AuthViewModel
