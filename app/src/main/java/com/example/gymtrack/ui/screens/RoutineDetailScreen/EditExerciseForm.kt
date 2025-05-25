@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -22,8 +23,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.gymtrack.ui.components.AnimatedAccessButton
-import com.example.gymtrack.ui.screens.DropDownSelector
+import com.example.gymtrack.ui.components.DropDownSelector
 import com.example.gymtrack.viewmodel.Exercise
+import androidx.compose.runtime.*
+import kotlinx.coroutines.launch
 
 @Composable
 fun EditExerciseForm(
@@ -31,6 +34,7 @@ fun EditExerciseForm(
     gruposMusculares: List<String>,
     tipos: List<String>,
     intensidades: List<String>,
+    snackbarHostState: SnackbarHostState,
     onSave: (Exercise) -> Unit,
     onCancel: () -> Unit
 ) {
@@ -46,8 +50,12 @@ fun EditExerciseForm(
     var showGrupoError by remember { mutableStateOf(false) }
     var showTipoError by remember { mutableStateOf(false) }
     var showIntensidadError by remember { mutableStateOf(false) }
+    var showSeriesError by remember { mutableStateOf(false) }
+    var showRepsError by remember { mutableStateOf(false) }
+    var showDuracionError by remember { mutableStateOf(false) }
 
     val isCardio = tipo.lowercase() == "cardio"
+    val coroutineScope = rememberCoroutineScope()
 
     LaunchedEffect(tipo) {
         if (isCardio) {
@@ -69,67 +77,108 @@ fun EditExerciseForm(
             isError = showNombreError,
             modifier = Modifier.fillMaxWidth()
         )
-        DropDownSelector("Grupo Muscular", gruposMusculares, grupo) {
-            grupo = it; showGrupoError = false
-        }
-        DropDownSelector("Tipo", tipos, tipo) {
-            tipo = it; showTipoError = false
-        }
+        DropDownSelector(
+            label = "Grupo Muscular",
+            options = gruposMusculares,
+            selectedOption = grupo,
+            onOptionSelected = {
+                grupo = it
+                showGrupoError = false
+            },
+            isError = showGrupoError
+        )
+        DropDownSelector(
+            label = "Tipo",
+            options = tipos,
+            selectedOption = tipo,
+            onOptionSelected = {
+                tipo = it
+                showTipoError = false
+            },
+            isError = showTipoError
+        )
         if (isCardio) {
             OutlinedTextField(
                 value = duracion,
-                onValueChange = { duracion = it },
+                onValueChange = { duracion = it; showDuracionError = false },
                 label = { Text("Duración (min)") },
+                isError = showDuracionError,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth()
             )
         } else {
             OutlinedTextField(
                 value = series,
-                onValueChange = { series = it },
+                onValueChange = { series = it; showSeriesError = false },
                 label = { Text("Series") },
+                isError = showSeriesError,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth()
             )
             OutlinedTextField(
                 value = reps,
-                onValueChange = { reps = it },
+                onValueChange = { reps = it; showRepsError = false },
                 label = { Text("Repeticiones") },
+                isError = showRepsError,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 modifier = Modifier.fillMaxWidth()
             )
         }
-        DropDownSelector("Intensidad", intensidades, intensidad) {
-            intensidad = it; showIntensidadError = false
-        }
+
+        DropDownSelector(
+            label = "Intensidad",
+            options = intensidades,
+            selectedOption = intensidad,
+            onOptionSelected = {
+                intensidad = it
+                showIntensidadError = false
+            },
+            isError = showIntensidadError
+        )
+
         Spacer(modifier = Modifier.height(2.dp))
+
         Row {
             AnimatedAccessButton(
                 buttonText = "Guardar",
                 onClick = {
-                    val errores = listOf(
-                        nombre.isBlank(),
-                        grupo.isBlank(),
-                        tipo.isBlank(),
-                        intensidad.isBlank(),
-                        if (isCardio) duracion.isBlank() else series.isBlank() || reps.isBlank()
-                    )
-                    showNombreError = nombre.isBlank()
-                    showGrupoError = grupo.isBlank()
-                    showTipoError = tipo.isBlank()
-                    showIntensidadError = intensidad.isBlank()
-                    if (errores.any { it }) return@AnimatedAccessButton
+                    val errorNombre = nombre.isBlank()
+                    val errorGrupo = grupo.isBlank()
+                    val errorTipo = tipo.isBlank()
+                    val errorIntensidad = intensidad.isBlank()
+                    val errorSeries = !isCardio && (series.toIntOrNull() == null || series.toInt() <= 0)
+                    val errorReps = !isCardio && (reps.toIntOrNull() == null || reps.toInt() <= 0)
+                    val errorDuracion = isCardio && (duracion.toIntOrNull() == null || duracion.toInt() <= 0)
+
+                    showNombreError = errorNombre
+                    showGrupoError = errorGrupo
+                    showTipoError = errorTipo
+                    showIntensidadError = errorIntensidad
+                    showSeriesError = errorSeries
+                    showRepsError = errorReps
+                    showDuracionError = errorDuracion
+
+                    if (errorNombre || errorGrupo || errorTipo || errorIntensidad || errorSeries || errorReps || errorDuracion) {
+                        coroutineScope.launch {
+                            snackbarHostState.showSnackbar("⚠️ Completa todos los campos y usa valores mayores que 0")
+                        }
+                        return@AnimatedAccessButton
+                    }
 
                     val ejercicioEditado = Exercise(
                         nombre = nombre,
                         grupoMuscular = grupo,
                         tipo = tipo,
-                        series = if (!isCardio) series.toIntOrNull() ?: 0 else 0,
-                        reps = if (!isCardio) reps.toIntOrNull() ?: 0 else 0,
-                        duracion = if (isCardio) duracion.toIntOrNull() ?: 0 else 0,
+                        series = if (!isCardio) series.toInt() else 0,
+                        reps = if (!isCardio) reps.toInt() else 0,
+                        duracion = if (isCardio) duracion.toInt() else 0,
                         intensidad = intensidad
                     )
                     onSave(ejercicioEditado)
+
+                    coroutineScope.launch {
+                        snackbarHostState.showSnackbar("✅ Ejercicio guardado con éxito")
+                    }
                 },
                 color = MaterialTheme.colorScheme.onBackground,
                 contentColor = MaterialTheme.colorScheme.background,
@@ -148,3 +197,4 @@ fun EditExerciseForm(
         }
     }
 }
+
