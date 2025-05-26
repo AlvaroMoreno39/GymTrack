@@ -1,7 +1,6 @@
-package com.example.gymtrack.ui.screens
+package com.example.gymtrack.ui.screens.TimerScreen
 
 import android.content.Context
-import android.media.MediaPlayer
 import android.os.Build
 import android.os.CountDownTimer
 import android.os.VibrationEffect
@@ -15,8 +14,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import kotlinx.coroutines.launch
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,7 +25,6 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.ui.text.style.TextAlign
 import com.example.gymtrack.ui.components.AnimatedAccessButton
 import com.example.gymtrack.ui.components.FancySnackbarHost
 import com.example.gymtrack.ui.components.ScreenHeader
@@ -348,44 +344,3 @@ fun TimerScreen(navController: NavHostController) {
     }
 }
 
-/**
- * RoundBlackButton
- * Botón circular animado, usado para los tiempos predefinidos del temporizador.
- */
-@Composable
-fun RoundBlackButton(
-    label: String,
-    onClick: () -> Unit
-) {
-    Surface(
-        shape = CircleShape,
-        color = MaterialTheme.colorScheme.onBackground,
-        modifier = Modifier
-            .size(80.dp)
-            .clickable { onClick() },
-        shadowElevation = 4.dp
-    ) {
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(4.dp),
-            verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            Text(
-                text = label,
-                color = MaterialTheme.colorScheme.background,
-                fontSize = 20.sp,
-                fontWeight = FontWeight.Bold,
-                textAlign = TextAlign.Center
-            )
-            Text(
-                text = "MIN",
-                color = MaterialTheme.colorScheme.background.copy(alpha = 0.7f),
-                fontSize = 12.sp,
-                fontWeight = FontWeight.Medium,
-                textAlign = TextAlign.Center
-            )
-        }
-    }
-}
