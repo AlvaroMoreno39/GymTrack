@@ -1,6 +1,11 @@
 package com.example.gymtrack.ui.screens
 
 import android.annotation.SuppressLint
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -24,6 +29,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FitnessCenter
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.StarBorder
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gymtrack.ui.components.AnimatedAccessButton
 import com.example.gymtrack.ui.components.AnimatedEntrance
@@ -31,6 +37,7 @@ import com.example.gymtrack.ui.components.FancySnackbarHost
 import com.example.gymtrack.ui.components.ScreenHeader
 import com.example.gymtrack.ui.theme.FavoriteYellow
 import com.example.gymtrack.ui.theme.LightGray
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 /**
@@ -44,22 +51,17 @@ import kotlinx.coroutines.launch
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun FavoriteRoutinesScreen(
-    viewModel: RoutineViewModel = viewModel(),   // ViewModel para manejar lógica de rutinas y favoritos
-    navController: NavHostController             // Controlador de navegación para moverse entre pantallas
+    viewModel: RoutineViewModel = viewModel(),
+    navController: NavHostController
 ) {
-    // Scope para lanzar corutinas en la UI (ej: mostrar Snackbars)
     val scope = rememberCoroutineScope()
-    // Estado para manejar los mensajes emergentes visuales
     val snackbarHostState = remember { SnackbarHostState() }
-    // Estado reactivo con la lista de rutinas favoritas (ID y datos de rutina)
     var favorites by remember { mutableStateOf<List<Pair<String, RoutineData>>>(emptyList()) }
 
-    // Lógica de carga inicial: obtiene las rutinas favoritas al montar la pantalla
     LaunchedEffect(Unit) {
         viewModel.getUserRoutines { allRoutines ->
             favorites = allRoutines.filter { it.second.esFavorita }
             if (favorites.isEmpty()) {
-                // Si no hay favoritas, muestra un mensaje con una estrella
                 scope.launch {
                     snackbarHostState.showSnackbar("No tienes rutinas favoritas aún ⭐")
                 }
@@ -68,57 +70,70 @@ fun FavoriteRoutinesScreen(
     }
 
     Scaffold(
-        snackbarHost = { FancySnackbarHost(snackbarHostState) } // Snackbar personalizado animado
+        snackbarHost = { FancySnackbarHost(snackbarHostState) }
     ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
         ) {
-
-            // Cabecera visual común (imagen, título y subtítulo animados)
             ScreenHeader(
                 image = R.drawable.favorite_routines,
                 title = "Tus elegidas",
                 subtitle = "Rutinas que te motivan"
             )
 
-            // Lista animada de rutinas favoritas
-            AnimatedEntrance {
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(horizontal = 20.dp, vertical = 16.dp),
-                    verticalArrangement = Arrangement.spacedBy(20.dp)
-                ) {
-                    // Renderiza cada rutina favorita como una Card
-                    items(favorites, key = { it.first }) { (id_rutina, rutina) ->
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 20.dp, vertical = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(20.dp)
+            ) {
+                items(favorites, key = { it.first }) { (id_rutina, rutina) ->
+                    var isFavorite by remember { mutableStateOf(rutina.esFavorita) }
+                    var visible by remember { mutableStateOf(true) }
+                    val animatedColor by animateColorAsState(
+                        targetValue = if (isFavorite) FavoriteYellow else Color.LightGray,
+                        animationSpec = tween(durationMillis = 300)
+                    )
+
+                    AnimatedVisibility(
+                        visible = visible,
+                        exit = slideOutVertically(tween(400)) + fadeOut(tween(300))
+                    ) {
                         Card(
                             modifier = Modifier.fillMaxWidth(),
                             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                             shape = RoundedCornerShape(16.dp),
-                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background)
+                            colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface)
                         ) {
-                            Column(modifier = Modifier.padding(16.dp)) {
-
+                            Column(modifier = Modifier.padding(10.dp)) {
                                 Box(modifier = Modifier.fillMaxWidth()) {
-                                    // Botón de estrella para marcar/desmarcar favorito
                                     IconToggleButton(
-                                        checked = rutina.esFavorita,
-                                        onCheckedChange = { isFavorite ->
-                                            viewModel.toggleFavorite(id_rutina, isFavorite) { success ->
+                                        checked = isFavorite,
+                                        onCheckedChange = { newValue ->
+                                            isFavorite = newValue
+                                            viewModel.toggleFavorite(id_rutina, newValue) { success ->
                                                 if (success) {
-                                                    // Si se marca/desmarca, recarga la lista filtrando solo favoritas
-                                                    viewModel.getUserRoutines { updated ->
-                                                        favorites = updated.filter { it.second.esFavorita }
-                                                    }
-                                                    scope.launch {
-                                                        snackbarHostState.showSnackbar(
-                                                            if (isFavorite) "Añadida a favoritos ⭐" else "Eliminada de favoritos ❌"
-                                                        )
+                                                    if (!newValue) {
+                                                        // Si se quita de favoritos, activamos animación y quitamos de la lista después
+                                                        visible = false
+                                                        scope.launch {
+                                                            delay(400)
+                                                            viewModel.getUserRoutines { updated ->
+                                                                favorites = updated.filter { it.second.esFavorita }
+                                                            }
+                                                            snackbarHostState.showSnackbar("Eliminada de favoritos ❌")
+                                                        }
+                                                    } else {
+                                                        viewModel.getUserRoutines { updated ->
+                                                            favorites = updated.filter { it.second.esFavorita }
+                                                        }
+                                                        scope.launch {
+                                                            snackbarHostState.showSnackbar("Añadida a favoritos ⭐")
+                                                        }
                                                     }
                                                 } else {
-                                                    // Error al actualizar favorito
                                                     scope.launch {
                                                         snackbarHostState.showSnackbar("Error al actualizar favorito ❌")
                                                     }
@@ -130,15 +145,14 @@ fun FavoriteRoutinesScreen(
                                             .padding(start = 12.dp)
                                     ) {
                                         Icon(
-                                            imageVector = if (rutina.esFavorita) Icons.Filled.Star else Icons.Outlined.StarBorder,
+                                            imageVector = if (isFavorite) Icons.Filled.Star else Icons.Outlined.StarBorder,
                                             contentDescription = "Favorita",
-                                            tint = if (rutina.esFavorita) FavoriteYellow else LightGray,
+                                            tint = animatedColor,
                                             modifier = Modifier.size(27.dp)
                                         )
                                     }
 
-                                    // Contenido principal de la Card (nombre, nº ejercicios, botón de acceso)
-                                    Column(modifier = Modifier.padding(16.dp)) {
+                                    Column(modifier = Modifier.padding(10.dp)) {
                                         Row(verticalAlignment = Alignment.CenterVertically) {
                                             Icon(
                                                 imageVector = Icons.Default.FitnessCenter,
@@ -159,34 +173,35 @@ fun FavoriteRoutinesScreen(
 
                                         Text(
                                             text = "${rutina.ejercicios.size} ejercicio${if (rutina.ejercicios.size == 1) "" else "s"}",
-                                            color = LightGray,
+                                            color = Color.LightGray,
                                             fontSize = 14.sp
                                         )
 
                                         Spacer(modifier = Modifier.height(16.dp))
 
-                                        // Botón animado para ir al detalle de la rutina
                                         AnimatedAccessButton(
                                             buttonText = "Ver rutina",
-                                            onClick = {
-                                                navController.navigate(Screen.RoutineDetail.createRoute(id_rutina))
-                                            },
                                             color = MaterialTheme.colorScheme.onBackground,
                                             contentColor = MaterialTheme.colorScheme.background,
                                             border = BorderStroke(1.dp, MaterialTheme.colorScheme.onBackground),
-                                            modifier = Modifier
-                                                .fillMaxWidth()
-                                                .height(50.dp)
+                                            height = 50.dp,
+                                            fontSize = 16.sp,
+                                            modifier = Modifier.fillMaxWidth(),
+                                            onClick = {
+                                                navController.navigate(
+                                                    Screen.RoutineDetail.createRoute(id_rutina)
+                                                )
+                                            }
                                         )
                                     }
                                 }
                             }
                         }
                     }
-                    // Espacio extra al final para evitar que el último elemento quede oculto
-                    item { Spacer(modifier = Modifier.height(100.dp)) }
                 }
+                item { Spacer(modifier = Modifier.height(100.dp)) }
             }
         }
     }
 }
+
