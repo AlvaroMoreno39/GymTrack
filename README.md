@@ -6,8 +6,9 @@
 GymTrack es una aplicación móvil para gestionar tus rutinas de entrenamiento.  
 Permite crear, editar y seguir rutinas personalizadas, consultar rutinas predefinidas, usar temporizadores de entrenamiento y recibir notificaciones push sobre nuevas rutinas disponibles.
 
-![Pantalla modo claro](screenshots/light_mode.png)  
-![Pantalla modo oscuro](screenshots/dark_mode.png)
+| ![Pantalla modo claro](screenshots/light_mode.png) | ![Pantalla modo oscuro](screenshots/dark_mode.png) |
+|:--:|:--:|
+| **Modo claro** | **Modo oscuro** |
 
 ---
 
