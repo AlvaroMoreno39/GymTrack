@@ -142,5 +142,7 @@ Puedes consultar el archivo LICENSE para más detalles.
 **Email**: [amorenolumbreras@gmail.com](mailto:amorenolumbreras@gmail.com)  
 **Repositorio GitHub**: [https://github.com/AlvaroMoreno39/GymTrack](https://github.com/AlvaroMoreno39/GymTrack)
 
-# 🌟 ¡Gracias por probar GymTrack! Si te gusta el proyecto, no olvides darle ⭐ en GitHub.
+---
+
+## 🌟 ¡Gracias por probar GymTrack! Si te gusta el proyecto, no olvides darle ⭐ en GitHub.
 
