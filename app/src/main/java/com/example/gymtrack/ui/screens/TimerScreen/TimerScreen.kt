@@ -88,8 +88,7 @@ fun TimerScreen(navController: NavHostController) {
 
                 // Vibración adaptada según versión de Android
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    val pattern =
-                        longArrayOf(0, 400, 300, 400, 300, 400)
+                    val pattern = longArrayOf(0, 400, 300, 400, 300, 400)
                     vibrator.vibrate(
                         VibrationEffect.createWaveform(pattern, -1)
                     )

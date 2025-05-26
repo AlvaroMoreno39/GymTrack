@@ -38,44 +38,55 @@ import com.example.gymtrack.ui.components.ScreenHeader
 import com.google.firebase.auth.FirebaseAuth
 import kotlinx.coroutines.delay
 
+/**
+ * RoutineDetailScreen.kt
+ *
+ * Pantalla detallada para visualizar y editar una rutina específica en GymTrack.
+ *
+ * Permite:
+ * - Mostrar ejercicios de la rutina.
+ * - Editar, eliminar o añadir ejercicios.
+ * - Diferenciar rutinas propias (user) y predefinidas (admin).
+ *
+ * Usa:
+ * - Animaciones avanzadas (entrada, rebote, fade).
+ * - Snackbars para feedback.
+ * - ViewModel para acceder a Firebase.
+ * - Componentes reutilizables como AddExerciseCard y EditExerciseForm.
+ */
+
 @OptIn(ExperimentalAnimationApi::class)
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun RoutineDetailScreen(
-    navController: NavHostController,
     viewModel: RoutineViewModel,
     routineId: String? = null,
     routineArg: RoutineData? = null,
     isPredefined: Boolean = false
 ) {
+    // Snackbar para feedback visual
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
+
+    // Comprueba si el usuario actual es admin
     val isAdmin = FirebaseAuth.getInstance().currentUser?.email == "admin@gymtrack.com"
+
+    // Estado principal de la rutina cargada (propia o predefinida)
     var routine by remember { mutableStateOf<RoutineData?>(null) }
+
+    // Controla si se muestra el bloque de añadir ejercicio
     var showAddCard by remember { mutableStateOf(false) }
 
-    var nombreEjercicio by remember { mutableStateOf("") }
-    var grupoMuscular by remember { mutableStateOf("") }
-    var tipo by remember { mutableStateOf("") }
-    var series by remember { mutableStateOf("") }
-    var reps by remember { mutableStateOf("") }
-    var duracion by remember { mutableStateOf("") }
-    var intensidad by remember { mutableStateOf("") }
-
-    var showNombreError by remember { mutableStateOf(false) }
-    var showGrupoError by remember { mutableStateOf(false) }
-    var showTipoError by remember { mutableStateOf(false) }
-    var showIntensidadError by remember { mutableStateOf(false) }
-
+    // Mapas de control de animación por ID de ejercicio
     val visibleMap = remember { mutableStateMapOf<String, Boolean>() }
     val bounceMap = remember { mutableStateMapOf<String, Boolean>() }
 
-    val gruposMusculares =
-        listOf("Pecho", "Espalda", "Piernas", "Hombros", "Bíceps", "Tríceps", "Abdomen")
+    // Opciones fijas para los selectores de formulario
+    val gruposMusculares = listOf("Pecho", "Espalda", "Piernas", "Hombros", "Bíceps", "Tríceps", "Abdomen")
     val tipos = listOf("Fuerza", "Cardio", "Mixto")
     val intensidades = listOf("Baja", "Media", "Alta")
-    val isCardio = tipo.lowercase() == "cardio"
 
+    // Carga inicial de rutina según si viene como argumento o por ID
     LaunchedEffect(routineId, routineArg) {
         if (routineArg != null) {
             routine = routineArg
@@ -329,72 +340,11 @@ fun RoutineDetailScreen(
                                 enter = slideInVertically(initialOffsetY = { -it }) + fadeIn()
                             ) {
                                 AddExerciseCard(
-                                    nombre = nombreEjercicio,
-                                    grupo = grupoMuscular,
-                                    tipo = tipo,
-                                    series = series,
-                                    reps = reps,
-                                    duracion = duracion,
-                                    intensidad = intensidad,
-                                    isCardio = isCardio,
                                     gruposMusculares = gruposMusculares,
                                     tipos = tipos,
                                     intensidades = intensidades,
-                                    showNombreError = showNombreError,
-                                    showGrupoError = showGrupoError,
-                                    showTipoError = showTipoError,
-                                    showIntensidadError = showIntensidadError,
-                                    onNombreChange = {
-                                        nombreEjercicio = it; showNombreError = false
-                                    },
-                                    onGrupoChange = { grupoMuscular = it; showGrupoError = false },
-                                    onTipoChange = {
-                                        tipo = it; showTipoError = false; series = ""; reps =
-                                        ""; duracion = ""
-                                    },
-                                    onDuracionChange = { duracion = it },
-                                    onSeriesChange = { series = it },
-                                    onRepsChange = { reps = it },
-                                    onIntensidadChange = {
-                                        intensidad = it; showIntensidadError = false
-                                    },
-                                    onCancelar = { showAddCard = false },
                                     snackbarHostState = snackbarHostState,
-                                    onAceptar = {
-                                        val errorNombre = nombreEjercicio.isBlank()
-                                        val errorGrupo = grupoMuscular.isBlank()
-                                        val errorTipo = tipo.isBlank()
-                                        val errorIntensidad = intensidad.isBlank()
-                                        val errorSeries =
-                                            !isCardio && (series.toIntOrNull() == null || series.toInt() <= 0)
-                                        val errorReps =
-                                            !isCardio && (reps.toIntOrNull() == null || reps.toInt() <= 0)
-                                        val errorDuracion =
-                                            isCardio && (duracion.toIntOrNull() == null || duracion.toInt() <= 0)
-
-                                        showNombreError = errorNombre
-                                        showGrupoError = errorGrupo
-                                        showTipoError = errorTipo
-                                        showIntensidadError = errorIntensidad
-
-                                        if (errorNombre || errorGrupo || errorTipo || errorIntensidad || errorSeries || errorReps || errorDuracion) {
-                                            scope.launch {
-                                                snackbarHostState.showSnackbar("⚠️ Rellena todos los campos y asegúrate de que series, reps o duración sean mayores que 0")
-                                            }
-                                        }
-
-                                        val newExercise = Exercise(
-                                            nombre = nombreEjercicio,
-                                            grupoMuscular = grupoMuscular,
-                                            tipo = tipo,
-                                            series = if (!isCardio) series.toIntOrNull()
-                                                ?: 0 else 0,
-                                            reps = if (!isCardio) reps.toIntOrNull() ?: 0 else 0,
-                                            duracion = if (isCardio) duracion.toIntOrNull()
-                                                ?: 0 else 0,
-                                            intensidad = intensidad
-                                        )
-
+                                    onAceptar = { newExercise ->
                                         if (isPredefined && isAdmin) {
                                             routine?.nombreRutina?.let { nombre ->
                                                 viewModel.addExerciseToPredefinedRoutine(
@@ -404,8 +354,7 @@ fun RoutineDetailScreen(
                                                     scope.launch {
                                                         if (success) {
                                                             viewModel.fetchPredefinedRoutines { list ->
-                                                                routine =
-                                                                    list.find { it.nombreRutina == nombre }
+                                                                routine = list.find { it.nombreRutina == nombre }
                                                             }
                                                             snackbarHostState.showSnackbar("✅ Ejercicio añadido correctamente")
                                                         } else {
@@ -422,8 +371,7 @@ fun RoutineDetailScreen(
                                                 scope.launch {
                                                     if (success) {
                                                         viewModel.getUserRoutines { list ->
-                                                            routine =
-                                                                list.find { it.first == routineId }?.second
+                                                            routine = list.find { it.first == routineId }?.second
                                                         }
                                                         snackbarHostState.showSnackbar("✅ Ejercicio añadido correctamente")
                                                     } else {
@@ -433,14 +381,11 @@ fun RoutineDetailScreen(
                                             }
                                         }
 
+                                        // Al terminar, oculta la tarjeta
                                         showAddCard = false
-                                        nombreEjercicio = ""
-                                        grupoMuscular = ""
-                                        tipo = ""
-                                        series = ""
-                                        reps = ""
-                                        duracion = ""
-                                        intensidad = ""
+                                    },
+                                    onCancelar = {
+                                        showAddCard = false
                                     }
                                 )
                             }

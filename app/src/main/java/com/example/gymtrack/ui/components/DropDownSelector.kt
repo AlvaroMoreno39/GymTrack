@@ -14,7 +14,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 
-
 /**
  * Selector visual reutilizable para desplegables personalizados con Material3.
  * Recibe la lista de opciones, el valor seleccionado, y la función de cambio.

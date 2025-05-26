@@ -5,47 +5,48 @@ import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
 import androidx.compose.runtime.getValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.gymtrack.navigation.Screen
 import com.example.gymtrack.viewmodel.RoutineData
 import com.example.gymtrack.viewmodel.RoutineViewModel
 import com.example.gymtrack.R
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.FitnessCenter
-import androidx.compose.material.icons.filled.Star
-import androidx.compose.material.icons.outlined.StarBorder
-import com.example.gymtrack.ui.components.AnimatedAccessButton
-import com.example.gymtrack.ui.components.AnimatedEntrance
 import com.example.gymtrack.ui.components.FancySnackbarHost
 import com.example.gymtrack.ui.components.ScreenHeader
-import com.example.gymtrack.ui.theme.FavoriteYellow
-import com.example.gymtrack.ui.theme.LightGray
 import com.google.firebase.auth.FirebaseAuth
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+
+/**
+ * RoutineListScreen.kt
+ *
+ * Pantalla que muestra las rutinas del usuario o las rutinas predefinidas, según el parámetro `showPredefined`.
+ * Permite al usuario:
+ * - Ver sus propias rutinas y acceder a los detalles.
+ * - Ver rutinas predefinidas cargadas en la app.
+ * - Si es administrador, puede eliminar rutinas predefinidas.
+ *
+ * Usa:
+ * - LazyColumn para listar rutinas.
+ * - RoutineCardUser y RoutineCardPredefined como componentes visuales reutilizables.
+ * - Snackbars para mostrar feedback inmediato al usuario.
+ *
+ * Implementado con Jetpack Compose y patrón MVVM usando RoutineViewModel.
+ */
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun RoutineListScreen(
-    navController: NavHostController,
-    viewModel: RoutineViewModel,
-    showPredefined: Boolean
+    navController: NavHostController,         // Controlador de navegación para ir a detalles u otras pantallas
+    viewModel: RoutineViewModel,              // ViewModel que gestiona las rutinas
+    showPredefined: Boolean                   // Si true, muestra rutinas predefinidas; si false, muestra las del usuario
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
@@ -54,6 +55,7 @@ fun RoutineListScreen(
     var routines by remember { mutableStateOf<List<Pair<String, RoutineData>>>(emptyList()) }
     var predefinedRoutines by remember { mutableStateOf<List<RoutineData>>(emptyList()) }
 
+    // Al montar la pantalla, cargamos las rutinas según el tipo
     LaunchedEffect(showPredefined) {
         if (showPredefined) {
             viewModel.fetchPredefinedRoutines { list -> predefinedRoutines = list }
@@ -68,12 +70,14 @@ fun RoutineListScreen(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
         ) {
+            // Cabecera visual con imagen, título y subtítulo
             ScreenHeader(
                 image = if (showPredefined) R.drawable.predefined_routine else R.drawable.my_routines,
                 title = if (showPredefined) "Rutinas predefinidas" else "Tus rutinas",
                 subtitle = if (showPredefined) "Rutinas disponibles en la app" else "Entrena con lo que ya tienes"
             )
 
+            // Lista scrollable de rutinas
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -81,6 +85,7 @@ fun RoutineListScreen(
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
                 if (showPredefined) {
+                    // Mostrar rutinas predefinidas
                     items(predefinedRoutines, key = { it.nombreRutina }) { rutina ->
                         var visible by remember { mutableStateOf(true) }
                         AnimatedVisibility(
@@ -110,6 +115,7 @@ fun RoutineListScreen(
                         }
                     }
                 } else {
+                    // Mostrar rutinas del usuario
                     items(routines, key = { it.first }) { (id_rutina, rutina) ->
                         var visible by remember { mutableStateOf(true) }
                         AnimatedVisibility(
@@ -134,6 +140,7 @@ fun RoutineListScreen(
                         }
                     }
                 }
+                // Espacio final para evitar que el último ítem quede pegado al borde inferior
                 item { Spacer(modifier = Modifier.height(100.dp)) }
             }
         }

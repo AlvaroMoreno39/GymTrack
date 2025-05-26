@@ -32,11 +32,9 @@ import androidx.compose.material.icons.outlined.StarBorder
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.gymtrack.ui.components.AnimatedAccessButton
-import com.example.gymtrack.ui.components.AnimatedEntrance
 import com.example.gymtrack.ui.components.FancySnackbarHost
 import com.example.gymtrack.ui.components.ScreenHeader
 import com.example.gymtrack.ui.theme.FavoriteYellow
-import com.example.gymtrack.ui.theme.LightGray
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
@@ -51,16 +49,17 @@ import kotlinx.coroutines.launch
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun FavoriteRoutinesScreen(
-    viewModel: RoutineViewModel = viewModel(),
-    navController: NavHostController
+    viewModel: RoutineViewModel = viewModel(),     // ViewModel que maneja las rutinas
+    navController: NavHostController               // Controlador de navegación entre pantallas
 ) {
-    val scope = rememberCoroutineScope()
-    val snackbarHostState = remember { SnackbarHostState() }
-    var favorites by remember { mutableStateOf<List<Pair<String, RoutineData>>>(emptyList()) }
+    val scope = rememberCoroutineScope()                       // Scope para lanzar corrutinas (ej. Snackbar)
+    val snackbarHostState = remember { SnackbarHostState() }   // Estado del Snackbar para mensajes flotantes
+    var favorites by remember { mutableStateOf<List<Pair<String, RoutineData>>>(emptyList()) } // Lista de favoritas
 
+    // Al iniciar la pantalla, cargamos las rutinas favoritas del usuario
     LaunchedEffect(Unit) {
         viewModel.getUserRoutines { allRoutines ->
-            favorites = allRoutines.filter { it.second.esFavorita }
+            favorites = allRoutines.filter { it.second.esFavorita } // Filtramos solo las favoritas
             if (favorites.isEmpty()) {
                 scope.launch {
                     snackbarHostState.showSnackbar("No tienes rutinas favoritas aún ⭐")
@@ -77,12 +76,14 @@ fun FavoriteRoutinesScreen(
                 .fillMaxSize()
                 .background(MaterialTheme.colorScheme.background)
         ) {
+            // Cabecera de la pantalla con imagen, título y subtítulo
             ScreenHeader(
                 image = R.drawable.favorite_routines,
                 title = "Tus elegidas",
                 subtitle = "Rutinas que te motivan"
             )
 
+            // Lista scrollable de rutinas favoritas
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
@@ -90,8 +91,8 @@ fun FavoriteRoutinesScreen(
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
                 items(favorites, key = { it.first }) { (id_rutina, rutina) ->
-                    var isFavorite by remember { mutableStateOf(rutina.esFavorita) }
-                    var visible by remember { mutableStateOf(true) }
+                    var isFavorite by remember { mutableStateOf(rutina.esFavorita) } // Estado local para icono
+                    var visible by remember { mutableStateOf(true) }                 // Controla visibilidad (animación al eliminar)
                     val animatedColor by animateColorAsState(
                         targetValue = if (isFavorite) FavoriteYellow else Color.LightGray,
                         animationSpec = tween(durationMillis = 300)
@@ -99,7 +100,7 @@ fun FavoriteRoutinesScreen(
 
                     AnimatedVisibility(
                         visible = visible,
-                        exit = slideOutVertically(tween(400)) + fadeOut(tween(300))
+                        exit = slideOutVertically(tween(400)) + fadeOut(tween(300)) // Animación al eliminar de favoritos
                     ) {
                         Card(
                             modifier = Modifier.fillMaxWidth(),
@@ -109,6 +110,7 @@ fun FavoriteRoutinesScreen(
                         ) {
                             Column(modifier = Modifier.padding(10.dp)) {
                                 Box(modifier = Modifier.fillMaxWidth()) {
+                                    // Botón para marcar/desmarcar favorito
                                     IconToggleButton(
                                         checked = isFavorite,
                                         onCheckedChange = { newValue ->
@@ -116,7 +118,7 @@ fun FavoriteRoutinesScreen(
                                             viewModel.toggleFavorite(id_rutina, newValue) { success ->
                                                 if (success) {
                                                     if (!newValue) {
-                                                        // Si se quita de favoritos, activamos animación y quitamos de la lista después
+                                                        // Si se quita de favoritos, animamos y actualizamos lista
                                                         visible = false
                                                         scope.launch {
                                                             delay(400)
@@ -152,6 +154,7 @@ fun FavoriteRoutinesScreen(
                                         )
                                     }
 
+                                    // Contenido textual de la tarjeta: nombre, ejercicios y botón
                                     Column(modifier = Modifier.padding(10.dp)) {
                                         Row(verticalAlignment = Alignment.CenterVertically) {
                                             Icon(
@@ -179,6 +182,7 @@ fun FavoriteRoutinesScreen(
 
                                         Spacer(modifier = Modifier.height(16.dp))
 
+                                        // Botón para navegar al detalle de la rutina
                                         AnimatedAccessButton(
                                             buttonText = "Ver rutina",
                                             color = MaterialTheme.colorScheme.onBackground,
@@ -199,6 +203,7 @@ fun FavoriteRoutinesScreen(
                         }
                     }
                 }
+                // Espacio final para evitar que el último ítem quede pegado al borde inferior
                 item { Spacer(modifier = Modifier.height(100.dp)) }
             }
         }

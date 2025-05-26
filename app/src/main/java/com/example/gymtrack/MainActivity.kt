@@ -7,10 +7,8 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.animation.Crossfade
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.key
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModelProvider
@@ -20,24 +18,30 @@ import androidx.work.WorkManager
 import com.example.gymtrack.navigation.GymTrackApp
 import com.example.gymtrack.notification.NotificationWorker
 import com.example.gymtrack.notification.createNotificationChannel
-import com.example.gymtrack.ui.theme.GymTrackTheme
 import com.example.gymtrack.viewmodel.ThemeViewModel
 import com.google.firebase.messaging.FirebaseMessaging
 import java.util.concurrent.TimeUnit
+
+/**
+ * MainActivity.kt
+ *
+ * Esta es la actividad principal de la app GymTrack.
+ * Aquí se inicializan los permisos, los canales de notificación, las suscripciones a Firebase Cloud Messaging,
+ * y se configura el sistema de WorkManager para notificaciones periódicas.
+ * Finalmente, carga la UI principal (GymTrackApp) usando Jetpack Compose y tema dinámico (oscuro/claro).
+ */
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        // 1. Solicitar permiso de notificaciones en Android 13+
+        // 1️ Permiso de notificaciones (solo Android 13+)
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            // Comprobar si ya se ha concedido el permiso
             if (ContextCompat.checkSelfPermission(
                     this,
                     android.Manifest.permission.POST_NOTIFICATIONS
                 ) != PackageManager.PERMISSION_GRANTED
             ) {
-                // Si no está concedido, lo solicita al usuario
                 ActivityCompat.requestPermissions(
                     this,
                     arrayOf(android.Manifest.permission.POST_NOTIFICATIONS),
@@ -46,10 +50,10 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        // 2. Crear el canal de notificaciones (obligatorio desde Android 8)
+        // 2️ Crear canal de notificaciones (obligatorio Android 8+)
         createNotificationChannel(this)
 
-        // 3. Suscribirse al topic "nuevas_rutinas" en Firebase Cloud Messaging
+        // 3️ Suscripción al topic "nuevas_rutinas" (Firebase Cloud Messaging)
         FirebaseMessaging.getInstance().subscribeToTopic("nuevas_rutinas")
             .addOnCompleteListener { task ->
                 if (task.isSuccessful) {
@@ -59,7 +63,7 @@ class MainActivity : ComponentActivity() {
                 }
             }
 
-        // 4. Obtener el token de FCM del dispositivo (útil para debug y pruebas manuales)
+        // 4️ Obtener token de dispositivo (útil para debug)
         FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
             if (task.isSuccessful) {
                 Log.d("FCM", "TOKEN: ${task.result}")
@@ -68,30 +72,29 @@ class MainActivity : ComponentActivity() {
             }
         }
 
-        // 5. Programar una notificación diaria (recordatorio/alerta) usando WorkManager
+        // 5️ Programar notificación diaria usando WorkManager
         val workRequest = PeriodicWorkRequestBuilder<NotificationWorker>(
             1, TimeUnit.DAYS
         ).build()
 
-        // Asegura que solo haya **una** notificación diaria programada (no se duplican)
         WorkManager.getInstance(this).enqueueUniquePeriodicWork(
             "daily_gymtrack_notification",
-            ExistingPeriodicWorkPolicy.KEEP, // No la reemplaza si ya está programada
+            ExistingPeriodicWorkPolicy.KEEP, // Evita duplicados si ya existe
             workRequest
         )
 
-        // 6. Arrancar la UI principal de la app con tema dinámico (oscuro/claro)
-        enableEdgeToEdge() // Prepara la app para usar el espacio completo de la pantalla
+        // 6️ Configurar UI principal con tema dinámico
+        enableEdgeToEdge() // Ajusta la app para aprovechar bordes/pantalla completa
         val themeViewModel = ViewModelProvider(this)[ThemeViewModel::class.java]
 
         setContent {
             val darkMode by themeViewModel.darkMode.collectAsState()
             val isReady by themeViewModel.isReady.collectAsState()
 
-            // Solo carga la app cuando el tema está listo (evita flashes raros)
             if (isReady) {
                 GymTrackApp(themeViewModel, darkMode)
             }
         }
     }
 }
+

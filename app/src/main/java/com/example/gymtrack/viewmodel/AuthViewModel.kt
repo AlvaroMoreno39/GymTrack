@@ -68,10 +68,10 @@ class AuthViewModel : ViewModel() {
             auth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener { task ->
                     if (task.isSuccessful) {
-                        _user.value = auth.currentUser
-                        _error.value = null
+                        _user.value = auth.currentUser // Usuario registrado correctamente
+                        _error.value = null            // Limpiar errores anteriores
                     } else {
-                        _error.value = task.exception?.message
+                        _error.value = task.exception?.message // Registrar mensaje de error
                     }
                 }
         }
@@ -87,9 +87,9 @@ class AuthViewModel : ViewModel() {
             auth.sendPasswordResetEmail(email)
                 .addOnCompleteListener { task ->
                     _error.value = if (task.isSuccessful) {
-                        "Correo de recuperación enviado"
+                        "Correo de recuperación enviado" // Confirmación exitosa
                     } else {
-                        task.exception?.message
+                        task.exception?.message         // Mensaje de error en caso de fallo
                     }
                 }
         }
@@ -101,7 +101,7 @@ class AuthViewModel : ViewModel() {
      */
     fun logout() {
         FirebaseAuth.getInstance().signOut()
-        _user.value = null
+        _user.value = null // Usuario desconectado, actualizar estado
     }
 
     /**
@@ -118,3 +118,4 @@ class AuthViewModel : ViewModel() {
         _error.value = null
     }
 }
+

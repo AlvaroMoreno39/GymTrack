@@ -28,16 +28,33 @@ import com.example.gymtrack.viewmodel.Exercise
 import androidx.compose.runtime.*
 import kotlinx.coroutines.launch
 
+/**
+ * EditExerciseForm.kt
+ *
+ * Composable que muestra un formulario editable para modificar los datos de un ejercicio en GymTrack.
+ *
+ * Permite:
+ * - Editar nombre, grupo muscular, tipo, intensidad, series/reps o duración según el tipo (fuerza/cardio).
+ * - Validar todos los campos y marcar errores visuales en rojo si están vacíos o incorrectos.
+ * - Guardar los cambios o cancelar la edición.
+ *
+ * Usa:
+ * - AnimatedAccessButton para botones animados.
+ * - DropDownSelector para selectores personalizados.
+ * - Snackbar para mostrar errores/confirmaciones.
+ */
+
 @Composable
 fun EditExerciseForm(
-    initial: Exercise,
-    gruposMusculares: List<String>,
-    tipos: List<String>,
-    intensidades: List<String>,
-    snackbarHostState: SnackbarHostState,
-    onSave: (Exercise) -> Unit,
-    onCancel: () -> Unit
+    initial: Exercise,                             // Ejercicio inicial a editar
+    gruposMusculares: List<String>,               // Lista de opciones de grupos musculares
+    tipos: List<String>,                          // Lista de tipos (Fuerza, Cardio, Mixto)
+    intensidades: List<String>,                   // Lista de intensidades (Baja, Media, Alta)
+    snackbarHostState: SnackbarHostState,         // Snackbar para mostrar feedback
+    onSave: (Exercise) -> Unit,                   // Callback al guardar
+    onCancel: () -> Unit                          // Callback al cancelar
 ) {
+    // Estados de los campos editables
     var nombre by remember { mutableStateOf(initial.nombre) }
     var grupo by remember { mutableStateOf(initial.grupoMuscular) }
     var tipo by remember { mutableStateOf(initial.tipo) }
@@ -46,6 +63,7 @@ fun EditExerciseForm(
     var duracion by remember { mutableStateOf(if (initial.tipo.lowercase() == "cardio") initial.duracion.toString() else "") }
     var intensidad by remember { mutableStateOf(initial.intensidad) }
 
+    // Estados de error por campo (si está vacío o mal)
     var showNombreError by remember { mutableStateOf(false) }
     var showGrupoError by remember { mutableStateOf(false) }
     var showTipoError by remember { mutableStateOf(false) }
@@ -54,9 +72,11 @@ fun EditExerciseForm(
     var showRepsError by remember { mutableStateOf(false) }
     var showDuracionError by remember { mutableStateOf(false) }
 
+    // Calcula si es cardio dinámicamente
     val isCardio = tipo.lowercase() == "cardio"
     val coroutineScope = rememberCoroutineScope()
 
+    // Al cambiar tipo, resetea campos que no aplican
     LaunchedEffect(tipo) {
         if (isCardio) {
             series = ""
@@ -70,6 +90,7 @@ fun EditExerciseForm(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier.fillMaxWidth()
     ) {
+        // Campo: Nombre
         OutlinedTextField(
             value = nombre,
             onValueChange = { nombre = it; showNombreError = false },
@@ -77,6 +98,8 @@ fun EditExerciseForm(
             isError = showNombreError,
             modifier = Modifier.fillMaxWidth()
         )
+
+        // Selector: Grupo muscular
         DropDownSelector(
             label = "Grupo Muscular",
             options = gruposMusculares,
@@ -87,6 +110,8 @@ fun EditExerciseForm(
             },
             isError = showGrupoError
         )
+
+        // Selector: Tipo
         DropDownSelector(
             label = "Tipo",
             options = tipos,
@@ -97,6 +122,8 @@ fun EditExerciseForm(
             },
             isError = showTipoError
         )
+
+        // Campo: Duración (solo cardio) o Series/Reps (fuerza)
         if (isCardio) {
             OutlinedTextField(
                 value = duracion,
@@ -125,6 +152,7 @@ fun EditExerciseForm(
             )
         }
 
+        // Selector: Intensidad
         DropDownSelector(
             label = "Intensidad",
             options = intensidades,
@@ -138,10 +166,12 @@ fun EditExerciseForm(
 
         Spacer(modifier = Modifier.height(2.dp))
 
+        // Botones Guardar y Cancelar
         Row {
             AnimatedAccessButton(
                 buttonText = "Guardar",
                 onClick = {
+                    // Validación para todos los campos (pone el flag de error)
                     val errorNombre = nombre.isBlank()
                     val errorGrupo = grupo.isBlank()
                     val errorTipo = tipo.isBlank()
@@ -150,6 +180,7 @@ fun EditExerciseForm(
                     val errorReps = !isCardio && (reps.toIntOrNull() == null || reps.toInt() <= 0)
                     val errorDuracion = isCardio && (duracion.toIntOrNull() == null || duracion.toInt() <= 0)
 
+                    // Asignar flags de error para que salgan en rojo
                     showNombreError = errorNombre
                     showGrupoError = errorGrupo
                     showTipoError = errorTipo
@@ -160,11 +191,12 @@ fun EditExerciseForm(
 
                     if (errorNombre || errorGrupo || errorTipo || errorIntensidad || errorSeries || errorReps || errorDuracion) {
                         coroutineScope.launch {
-                            snackbarHostState.showSnackbar("⚠️ Completa todos los campos y usa valores mayores que 0")
+                            snackbarHostState.showSnackbar("⚠️ Completa todos los campos correctamente y usa valores mayores que 0")
                         }
                         return@AnimatedAccessButton
                     }
 
+                    // Si todo es válido, guarda los cambios
                     val ejercicioEditado = Exercise(
                         nombre = nombre,
                         grupoMuscular = grupo,
@@ -197,4 +229,6 @@ fun EditExerciseForm(
         }
     }
 }
+
+
 

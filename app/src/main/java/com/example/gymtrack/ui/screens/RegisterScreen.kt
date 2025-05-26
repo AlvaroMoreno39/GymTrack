@@ -58,8 +58,10 @@ fun RegisterScreen(
 
     // Obtiene contexto para uso interno (por si quieres mostrar Toast o recursos)
     val context = LocalContext.current
+
     // Estado reactivo para mostrar errores de autenticación del ViewModel
     val error by authViewModel.error.collectAsState()
+
     // Estado reactivo para saber si ya hay usuario logueado (tras registrarse)
     val user by authViewModel.user.collectAsState()
 
@@ -83,9 +85,9 @@ fun RegisterScreen(
     val scope = rememberCoroutineScope()
 
     // Validaciones en tiempo real para la contraseña
-    val passwordLengthValid by derivedStateOf { password.length >= 6 }
-    val passwordDigitValid by derivedStateOf { password.any { it.isDigit() } }
-    val passwordSpecialCharValid by derivedStateOf { password.any { !it.isLetterOrDigit() } }
+    val passwordLengthValid by derivedStateOf { password.length >= 6 }                  // Mínimo 6 caracteres
+    val passwordDigitValid by derivedStateOf { password.any { it.isDigit() } }         // Al menos un número
+    val passwordSpecialCharValid by derivedStateOf { password.any { !it.isLetterOrDigit() } } // Al menos un símbolo
     val passwordValid by derivedStateOf {
         passwordLengthValid && passwordDigitValid && passwordSpecialCharValid
     }
@@ -107,7 +109,7 @@ fun RegisterScreen(
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .background(MaterialTheme.colorScheme.background) // Fondo blanco/oscuro
+                .background(MaterialTheme.colorScheme.background) // Fondo blanco/oscuro según tema
         ) {
 
             // Cabecera visual animada
@@ -210,7 +212,7 @@ fun RegisterScreen(
                     }
                     Spacer(modifier = Modifier.height(16.dp))
 
-                    // Campo para confirmar contraseña (igual que el anterior, con su propio icono y validación)
+                    // Campo para confirmar contraseña con icono y validación visual
                     OutlinedTextField(
                         value = confirmPassword,
                         onValueChange = {

@@ -47,26 +47,32 @@ fun ForgotPasswordScreen(
     }
 
     val context = LocalContext.current
-    val error by authViewModel.error.collectAsState() // Observa errores emitidos por AuthViewModel
 
-    var email by remember { mutableStateOf("") }         // Estado del campo email
-    var showEmailError by remember { mutableStateOf(false) } // Controla la visibilidad del error de email
+    // Observa errores emitidos por AuthViewModel
+    val error by authViewModel.error.collectAsState()
 
-    // Valida el formato de email cada vez que cambia
+    // Estado del campo email
+    var email by remember { mutableStateOf("") }
+
+    // Controla si mostrar error visual en el campo email
+    var showEmailError by remember { mutableStateOf(false) }
+
+    // Valida el formato de email usando patrón estándar de Android
     val isValidEmail by derivedStateOf {
         android.util.Patterns.EMAIL_ADDRESS.matcher(email).matches()
     }
 
-    val snackbarHostState = remember { SnackbarHostState() } // Estado del snackbar (avisos)
-    val scope = rememberCoroutineScope()                     // Scope para mostrar snackbars
+    // Estado para mostrar Snackbars (mensajes flotantes)
+    val snackbarHostState = remember { SnackbarHostState() }
+    val scope = rememberCoroutineScope()
 
-    // Scaffold aplica el sistema de mensajes y el layout general
+    // Scaffold aplica la estructura general de la pantalla, incluyendo el sistema de mensajes
     Scaffold(snackbarHost = {
         FancySnackbarHost(snackbarHostState)
     }) { padding ->
         Column(modifier = Modifier.fillMaxSize()) {
 
-            // Cabecera visual animada (imagen, título y subtítulo)
+            // Cabecera visual animada con imagen, título y subtítulo
             ScreenHeader(
                 image = R.drawable.forgot_password,
                 title = if (isChangePassword) "Restablece tu" else "Recupera tu",
@@ -107,7 +113,7 @@ fun ForgotPasswordScreen(
                         )
                     )
 
-                    // Mensaje de error visual bajo el campo email
+                    // Mensaje de error bajo el campo email
                     if (showEmailError) {
                         Text(
                             text = "Introduce un correo electrónico válido",
@@ -134,7 +140,7 @@ fun ForgotPasswordScreen(
                         }
                     }
 
-                    // Si NO es cambio de contraseña, muestra el link de retorno a login
+                    // Si NO es cambio de contraseña, muestra link de retorno a login
                     if (!isChangePassword) {
                         Spacer(modifier = Modifier.height(24.dp))
 
@@ -160,7 +166,7 @@ fun ForgotPasswordScreen(
         }
     }
 
-    // Muestra un Snackbar según el resultado (éxito o error) recibido desde el ViewModel
+    // Escucha los errores o mensajes exitosos y muestra Snackbar correspondiente
     LaunchedEffect(error) {
         error?.let {
             scope.launch {
@@ -173,3 +179,4 @@ fun ForgotPasswordScreen(
         }
     }
 }
+

@@ -33,15 +33,31 @@ import com.example.gymtrack.ui.theme.LightGray
 import com.example.gymtrack.viewmodel.RoutineData
 import com.example.gymtrack.viewmodel.RoutineViewModel
 
+/**
+ * RoutineCardPredefined.kt
+ *
+ * Componente visual para mostrar una tarjeta individual de rutina predefinida en GymTrack.
+ * Incluye:
+ * - Nombre de la rutina, número de ejercicios y etiqueta visual de nivel (principiante, intermedio, avanzado).
+ * - Botón para ver los detalles de la rutina predefinida.
+ * - Si el usuario es administrador:
+ *      → muestra botón para eliminar la rutina predefinida.
+ * - Si el usuario es normal:
+ *      → muestra botón para añadir una copia de la rutina predefinida a sus rutinas personales.
+ *
+ * Usado en RoutineListScreen cuando se activan las rutinas predefinidas.
+ * Implementado en Jetpack Compose combinando Card, animaciones y controles interactivos.
+ */
+
 @Composable
 fun RoutineCardPredefined(
-    rutina: RoutineData,
-    isAdmin: Boolean,
-    navController: NavHostController,
-    viewModel: RoutineViewModel,
-    onDeleted: () -> Unit,
-    onAdded: () -> Unit,
-    onError: () -> Unit
+    rutina: RoutineData,                          // Datos de la rutina (nombre, nivel, ejercicios)
+    isAdmin: Boolean,                             // Si el usuario es admin, puede eliminar; si no, puede añadir
+    navController: NavHostController,             // Navegador para ir al detalle
+    viewModel: RoutineViewModel,                  // ViewModel para operaciones (eliminar, añadir)
+    onDeleted: () -> Unit,                        // Callback cuando se elimina una rutina
+    onAdded: () -> Unit,                          // Callback cuando se añade una rutina al usuario
+    onError: () -> Unit                           // Callback cuando ocurre un error en alguna operación
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -142,3 +158,4 @@ fun RoutineCardPredefined(
         }
     }
 }
+

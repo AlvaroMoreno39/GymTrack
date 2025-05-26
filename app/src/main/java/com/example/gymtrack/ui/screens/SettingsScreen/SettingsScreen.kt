@@ -32,6 +32,22 @@ import com.example.gymtrack.ui.components.ScreenHeader
 import com.example.gymtrack.viewmodel.ThemeViewModel
 import kotlinx.coroutines.launch
 
+/**
+ * SettingsScreen.kt
+ *
+ * Pantalla de ajustes de la app GymTrack.
+ * Permite al usuario:
+ * - Visualizar su cuenta (email),
+ * - Cambiar su contraseña (redirige a la pantalla ForgotPassword en modo cambio),
+ * - Cerrar sesión (deslogándose de FirebaseAuth y navegando al login),
+ * - Activar/desactivar el modo oscuro mediante un switch conectado a ThemeViewModel,
+ * - (Opcional) Probar notificaciones locales usando WorkManager.
+ *
+ * El diseño mantiene la coherencia visual con el resto de la app usando componentes animados,
+ * colores adaptativos y estructura minimalista.
+ * La pantalla está construida en Jetpack Compose y sigue el patrón MVVM.
+ */
+
 @Composable
 fun SettingsScreen(
     navController: NavHostController,           // Controlador de navegación para volver/cambiar de pantalla
@@ -165,3 +181,4 @@ fun SettingsScreen(
         }
     }
 }
+

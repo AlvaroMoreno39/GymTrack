@@ -25,38 +25,53 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.gymtrack.ui.components.AnimatedAccessButton
 import com.example.gymtrack.ui.components.DropDownSelector
+import com.example.gymtrack.viewmodel.Exercise
 import kotlinx.coroutines.launch
+
+/**
+ * AddExerciseCard.kt
+ *
+ * Composable para añadir un nuevo ejercicio en la app GymTrack.
+ *
+ * Permite:
+ * - Introducir nombre, grupo muscular, tipo, intensidad.
+ * - Según el tipo (fuerza/cardio), pedir series y reps o duración.
+ * - Validar todos los campos antes de aceptar, mostrando errores visuales en rojo si están vacíos o incorrectos.
+ * - Cancelar la operación si el usuario cambia de idea.
+ *
+ * Usa:
+ * - DropDownSelector para los campos de selección.
+ * - AnimatedAccessButton para botones estilizados.
+ * - Snackbar para feedback visual de errores.
+ */
 
 @Composable
 fun AddExerciseCard(
-    nombre: String,
-    grupo: String,
-    tipo: String,
-    series: String,
-    reps: String,
-    duracion: String,
-    intensidad: String,
-    isCardio: Boolean,
-    gruposMusculares: List<String>,
-    tipos: List<String>,
-    intensidades: List<String>,
-    showNombreError: Boolean,
-    showGrupoError: Boolean,
-    showTipoError: Boolean,
-    showIntensidadError: Boolean,
-    onNombreChange: (String) -> Unit,
-    onGrupoChange: (String) -> Unit,
-    onTipoChange: (String) -> Unit,
-    onDuracionChange: (String) -> Unit,
-    onSeriesChange: (String) -> Unit,
-    onRepsChange: (String) -> Unit,
-    onIntensidadChange: (String) -> Unit,
-    onCancelar: () -> Unit,
-    onAceptar: () -> Unit,
-    snackbarHostState: SnackbarHostState
+    gruposMusculares: List<String>,              // Opciones de grupo muscular
+    tipos: List<String>,                         // Opciones de tipo
+    intensidades: List<String>,                  // Opciones de intensidad
+    onAceptar: (Exercise) -> Unit,               // Callback al aceptar/guardar (recibe objeto Exercise)
+    onCancelar: () -> Unit,                      // Callback al cancelar
+    snackbarHostState: SnackbarHostState         // Snackbar para mostrar feedback
 ) {
     val coroutineScope = rememberCoroutineScope()
 
+    // Estados internos de los campos
+    var nombre by remember { mutableStateOf("") }
+    var grupo by remember { mutableStateOf("") }
+    var tipo by remember { mutableStateOf("") }
+    var series by remember { mutableStateOf("") }
+    var reps by remember { mutableStateOf("") }
+    var duracion by remember { mutableStateOf("") }
+    var intensidad by remember { mutableStateOf("") }
+
+    val isCardio = tipo.lowercase() == "cardio"
+
+    // Estados de error internos (locales)
+    var showNombreError by remember { mutableStateOf(false) }
+    var showGrupoError by remember { mutableStateOf(false) }
+    var showTipoError by remember { mutableStateOf(false) }
+    var showIntensidadError by remember { mutableStateOf(false) }
     var showSeriesError by remember { mutableStateOf(false) }
     var showRepsError by remember { mutableStateOf(false) }
     var showDuracionError by remember { mutableStateOf(false) }
@@ -71,33 +86,48 @@ fun AddExerciseCard(
             modifier = Modifier.padding(16.dp),
             verticalArrangement = Arrangement.spacedBy(8.dp)
         ) {
+            // Campo: Nombre del ejercicio
             OutlinedTextField(
                 value = nombre,
-                onValueChange = onNombreChange,
+                onValueChange = { nombre = it; showNombreError = false },
                 label = { Text("Nombre del ejercicio") },
                 isError = showNombreError,
                 modifier = Modifier.fillMaxWidth()
             )
+
+            // Selector: Grupo muscular
             DropDownSelector(
                 label = "Grupo Muscular",
                 options = gruposMusculares,
                 selectedOption = grupo,
-                onOptionSelected = onGrupoChange,
+                onOptionSelected = { grupo = it; showGrupoError = false },
                 isError = showGrupoError
             )
 
+            // Selector: Tipo
             DropDownSelector(
                 label = "Tipo",
                 options = tipos,
                 selectedOption = tipo,
-                onOptionSelected = onTipoChange,
+                onOptionSelected = {
+                    tipo = it
+                    showTipoError = false
+                    // Resetea campos al cambiar tipo
+                    if (tipo.lowercase() == "cardio") {
+                        series = ""
+                        reps = ""
+                    } else {
+                        duracion = ""
+                    }
+                },
                 isError = showTipoError
             )
 
+            // Según tipo, muestra duración (cardio) o series/reps (fuerza)
             if (isCardio) {
                 OutlinedTextField(
                     value = duracion,
-                    onValueChange = onDuracionChange,
+                    onValueChange = { duracion = it; showDuracionError = false },
                     label = { Text("Duración (min)") },
                     isError = showDuracionError,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -106,7 +136,7 @@ fun AddExerciseCard(
             } else {
                 OutlinedTextField(
                     value = series,
-                    onValueChange = onSeriesChange,
+                    onValueChange = { series = it; showSeriesError = false },
                     label = { Text("Series") },
                     isError = showSeriesError,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -114,7 +144,7 @@ fun AddExerciseCard(
                 )
                 OutlinedTextField(
                     value = reps,
-                    onValueChange = onRepsChange,
+                    onValueChange = { reps = it; showRepsError = false },
                     label = { Text("Repeticiones") },
                     isError = showRepsError,
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
@@ -122,18 +152,21 @@ fun AddExerciseCard(
                 )
             }
 
+            // Selector: Intensidad
             DropDownSelector(
                 label = "Intensidad",
                 options = intensidades,
                 selectedOption = intensidad,
-                onOptionSelected = onIntensidadChange,
+                onOptionSelected = { intensidad = it; showIntensidadError = false },
                 isError = showIntensidadError
             )
 
+            // Botón: Añadir ejercicio (valida todos los campos)
             AnimatedAccessButton(
                 buttonText = "Añadir ejercicio",
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {
+                    // Validaciones
                     val errorNombre = nombre.isBlank()
                     val errorGrupo = grupo.isBlank()
                     val errorTipo = tipo.isBlank()
@@ -142,21 +175,46 @@ fun AddExerciseCard(
                     val errorReps = !isCardio && (reps.toIntOrNull() == null || reps.toInt() <= 0)
                     val errorDuracion = isCardio && (duracion.toIntOrNull() == null || duracion.toInt() <= 0)
 
+                    // Activar errores visuales
+                    showNombreError = errorNombre
+                    showGrupoError = errorGrupo
+                    showTipoError = errorTipo
+                    showIntensidadError = errorIntensidad
                     showSeriesError = errorSeries
                     showRepsError = errorReps
                     showDuracionError = errorDuracion
 
                     if (errorNombre || errorGrupo || errorTipo || errorIntensidad || errorSeries || errorReps || errorDuracion) {
                         coroutineScope.launch {
-                            snackbarHostState.showSnackbar("⚠️ Completa todos los campos y usa valores mayores que 0")
+                            snackbarHostState.showSnackbar("⚠️ Completa todos los campos correctamente y usa valores mayores que 0")
                         }
                         return@AnimatedAccessButton
                     }
 
-                    onAceptar()
+                    // Crear objeto Exercise y llamar callback onAceptar
+                    val newExercise = Exercise(
+                        nombre = nombre,
+                        grupoMuscular = grupo,
+                        tipo = tipo,
+                        series = if (!isCardio) series.toInt() else 0,
+                        reps = if (!isCardio) reps.toInt() else 0,
+                        duracion = if (isCardio) duracion.toInt() else 0,
+                        intensidad = intensidad
+                    )
+                    onAceptar(newExercise)
+
+                    // Limpia los campos después de añadir
+                    nombre = ""
+                    grupo = ""
+                    tipo = ""
+                    series = ""
+                    reps = ""
+                    duracion = ""
+                    intensidad = ""
                 }
             )
 
+            // Botón: Cancelar operación
             AnimatedAccessButton(
                 buttonText = "Cancelar",
                 onClick = onCancelar,

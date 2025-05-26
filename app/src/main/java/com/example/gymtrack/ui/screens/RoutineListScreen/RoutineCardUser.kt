@@ -1,7 +1,6 @@
 package com.example.gymtrack.ui.screens.RoutineListScreen
 
 import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
@@ -33,7 +32,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -42,21 +40,34 @@ import androidx.navigation.NavHostController
 import com.example.gymtrack.navigation.Screen
 import com.example.gymtrack.ui.components.AnimatedAccessButton
 import com.example.gymtrack.ui.theme.FavoriteYellow
-import com.example.gymtrack.ui.theme.LightGray
 import com.example.gymtrack.viewmodel.RoutineData
 import com.example.gymtrack.viewmodel.RoutineViewModel
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
+/**
+ * RoutineCardUser.kt
+ *
+ * Componente visual para mostrar una tarjeta individual de rutina del usuario en GymTrack.
+ * Incluye:
+ * - Título de la rutina, número de ejercicios.
+ * - Botón estrella para marcar/desmarcar como favorita (con animación de color).
+ * - Botón para navegar al detalle de la rutina.
+ * - Botón para eliminar la rutina (con feedback por Snackbar y actualización de lista).
+ *
+ * Usado en RoutineListScreen para renderizar cada entrada de rutina personalizada del usuario.
+ * Implementado en Jetpack Compose, combinando animaciones, Card y controles interactivos.
+ */
+
 @Composable
 fun RoutineCardUser(
-    id_rutina: String,
-    rutina: RoutineData,
-    navController: NavHostController,
-    viewModel: RoutineViewModel,
-    snackbarHostState: SnackbarHostState,
-    scope: CoroutineScope,
-    onDeleted: () -> Unit
+    id_rutina: String,                            // ID único de la rutina (documento en Firebase)
+    rutina: RoutineData,                          // Datos de la rutina (nombre, ejercicios, etc.)
+    navController: NavHostController,             // Navegador para ir al detalle
+    viewModel: RoutineViewModel,                  // ViewModel para actualizar favoritos o eliminar
+    snackbarHostState: SnackbarHostState,         // Snackbar para feedback visual
+    scope: CoroutineScope,                        // Scope para lanzar corrutinas (Snackbar, delays)
+    onDeleted: () -> Unit                         // Callback que se llama cuando se elimina la rutina
 ) {
     Card(
         modifier = Modifier.fillMaxWidth(),
@@ -172,5 +183,6 @@ fun RoutineCardUser(
         }
     }
 }
+
 
 

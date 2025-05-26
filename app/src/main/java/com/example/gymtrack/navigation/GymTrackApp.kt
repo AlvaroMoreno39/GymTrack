@@ -16,61 +16,61 @@ import com.google.firebase.auth.FirebaseAuth
 /**
  * GymTrackApp.kt
  *
- * Este archivo contiene los componentes de UI principales para la estructura base de la app GymTrack.
- * Aquí se gestiona la navegación principal, la integración del tema claro/oscuro, el menú flotante personalizado
- * y varios componentes reutilizables de UI como botones animados, Snackbars y cabeceras animadas.
+ * Este archivo contiene los componentes principales que definen la estructura base de la app GymTrack.
  *
- * El objetivo es ofrecer una estructura moderna, flexible y coherente para toda la app usando Jetpack Compose.
+ * Integra el tema claro/oscuro (darkMode) usando GymTrackTheme.
+ * Configura el Scaffold principal, incluyendo:
+ *    - un FloatingActionButton (FAB) central que se oculta en pantallas específicas.
+ *    - integración del sistema de navegación a través de GymTrackNavHost.
+ * Usa un Crossfade para animar el cambio de tema (transición suave al cambiar entre claro y oscuro).
+ * Incluye lógica para detectar si el usuario actual es admin (según el correo Firebase) y ajustar comportamientos.
  */
+
 @Composable
 fun GymTrackApp(
-    themeViewModel: ThemeViewModel,
-    darkMode: Boolean
+    themeViewModel: ThemeViewModel,    // ViewModel que gestiona las preferencias de tema
+    darkMode: Boolean                  // Estado actual del modo oscuro
 ) {
-    val navController = rememberNavController()
+    val navController = rememberNavController()                          // Controlador de navegación principal
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route
-    val currentUser = FirebaseAuth.getInstance().currentUser
-    val isAdmin = currentUser?.email == "admin@gymtrack.com"
+    val currentRoute = navBackStackEntry?.destination?.route             // Ruta actual activa
+    val currentUser = FirebaseAuth.getInstance().currentUser             // Usuario actual autenticado (Firebase)
+    val isAdmin = currentUser?.email == "admin@gymtrack.com"            // ¿Es usuario administrador?
 
-    // Lista de rutas en las que NO queremos mostrar el botón flotante del menú (FAB).
-    // Esto incluye las pantallas de Login, Registro y Recuperar contraseña.
+    // Lista de rutas donde NO queremos mostrar el FAB (menú flotante central)
     val noMenuScreens = listOf(
         Screen.Login.route,
         Screen.Register.route,
         Screen.ForgotPassword.route
     )
 
-    // Comprobamos si la ruta actual está en la lista de rutas "prohibidas" o si comienza por alguna de ellas,
-    // incluyendo posibles variantes con parámetros (por ejemplo, "forgot_password?change=true").
-    // De esta forma, nos aseguramos de ocultar el FAB en todas sus variantes.
+    // Determina si el FAB debe ocultarse en la pantalla actual,
+    // considerando variantes con parámetros (como "?change=true").
     val hideFab = noMenuScreens.any { route ->
-        currentRoute == route || // Ruta exacta (ej: "login")
-                currentRoute?.startsWith("$route?") == true || // Variante con parámetros (ej: "forgot_password?change=true")
-                currentRoute?.startsWith("$route/") == true    // Variante con subrutas (si las hubiera)
+        currentRoute == route || currentRoute?.startsWith("$route?") == true || currentRoute?.startsWith("$route/") == true
     }
 
-
-    // Log para pruebas específicamente para ver donde la ruta actual, si se oculta el FAB y si es admin
+    // Debug log para ver en consola la ruta actual, si se oculta el FAB y si el usuario es admin
     Log.d("NAV_DEBUG", "Ruta actual: $currentRoute | Ocultar FAB: $hideFab | Admin: $isAdmin")
 
+    // Aplica transición suave al cambiar entre tema claro y oscuro
     Crossfade(targetState = darkMode, label = "theme") { isDark ->
         GymTrackTheme(darkTheme = isDark) {
             Scaffold(
-                topBar = {},
-                bottomBar = {},
-                // SOLO mostramos el menú flotante si NO estamos en una pantalla prohibida
+                topBar = {},                                   // (opcional) barra superior personalizada
+                bottomBar = {},                                // (opcional) barra inferior personalizada
                 floatingActionButton = {
                     if (!hideFab) {
-                        ShareMenuSample(navController)
+                        ShareMenuSample(navController)         // FAB flotante que abre el menú compartido
                     }
                 },
-                floatingActionButtonPosition = FabPosition.Center,
+                floatingActionButtonPosition = FabPosition.Center,  // Posición centrada para el FAB
                 containerColor = MaterialTheme.colorScheme.background
             ) { innerPadding ->
-                GymTrackNavHost(navController, innerPadding, themeViewModel)
+                GymTrackNavHost(navController, innerPadding, themeViewModel) // Sistema de navegación principal
             }
         }
     }
 }
+
 

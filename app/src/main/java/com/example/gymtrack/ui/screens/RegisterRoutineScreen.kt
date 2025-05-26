@@ -46,13 +46,21 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
     val snackbarHostState = remember { SnackbarHostState() }
     val scope = rememberCoroutineScope()
 
+    // Determina si el usuario actual es administrador (basado en su correo)
     val esAdmin = FirebaseAuth.getInstance().currentUser?.email == "admin@gymtrack.com"
 
+    // Listas de opciones para los drop-down
     val niveles = listOf("Principiante", "Intermedio", "Avanzado")
+    val gruposMusculares = listOf("Pecho", "Espalda", "Piernas", "Hombros", "Bíceps", "Tríceps", "Abdomen")
+    val tipos = listOf("Fuerza", "Cardio", "Mixto")
+    val intensidades = listOf("Baja", "Media", "Alta")
+
+    // Estados del formulario (nivel y rutina)
     var nivelSeleccionado by remember { mutableStateOf("") }
     var showNivelError by remember { mutableStateOf(false) }
-
     var nombreRutina by remember { mutableStateOf("") }
+
+    // Estados para los campos del ejercicio
     var nombreEjercicio by remember { mutableStateOf("") }
     var grupoMuscular by remember { mutableStateOf("") }
     var tipo by remember { mutableStateOf("") }
@@ -61,14 +69,13 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
     var duracion by remember { mutableStateOf("") }
     var intensidad by remember { mutableStateOf("") }
 
+    // Lista de ejercicios añadidos hasta ahora
     var ejercicios by remember { mutableStateOf(mutableListOf<Exercise>()) }
 
+    // Determina si es un ejercicio de cardio (cambia campos visibles)
     val isCardio = tipo.lowercase() == "cardio"
 
-    val gruposMusculares = listOf("Pecho", "Espalda", "Piernas", "Hombros", "Bíceps", "Tríceps", "Abdomen")
-    val tipos = listOf("Fuerza", "Cardio", "Mixto")
-    val intensidades = listOf("Baja", "Media", "Alta")
-
+    // Estados de error por campo
     var showNombreRutinaError by remember { mutableStateOf(false) }
     var showNombreEjercicioError by remember { mutableStateOf(false) }
     var showGrupoMuscularError by remember { mutableStateOf(false) }
@@ -86,6 +93,7 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
                 .background(MaterialTheme.colorScheme.background)
         ) {
 
+            // Encabezado de pantalla con imagen y título
             ScreenHeader(
                 image = R.drawable.register_routine2,
                 title = if (esAdmin) "Crea una rutina predefinida" else "Diseña tu progreso",
@@ -100,6 +108,7 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
                         .verticalScroll(rememberScrollState()),
                     verticalArrangement = Arrangement.spacedBy(16.dp)
                 ) {
+                    // Campo: Nombre de la rutina
                     OutlinedTextField(
                         value = nombreRutina,
                         onValueChange = {
@@ -114,6 +123,7 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
                         Text("Introduce el nombre de la rutina", color = MaterialTheme.colorScheme.error, fontSize = 12.sp, modifier = Modifier.padding(start = 4.dp))
                     }
 
+                    // Campo: Nivel de dificultad (solo admin)
                     if (esAdmin) {
                         DropDownSelector(
                             label = "Nivel de dificultad",
@@ -130,8 +140,10 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
                         }
                     }
 
+                    // Sección para añadir ejercicios
                     Text("Añadir ejercicio", style = MaterialTheme.typography.titleMedium)
 
+                    // Campo: Nombre del ejercicio
                     OutlinedTextField(
                         value = nombreEjercicio,
                         onValueChange = {
@@ -146,6 +158,7 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
                         Text("Introduce el nombre del ejercicio", color = MaterialTheme.colorScheme.error, fontSize = 12.sp, modifier = Modifier.padding(start = 4.dp))
                     }
 
+                    // Drop-down: Grupo muscular
                     DropDownSelector(
                         label = "Grupo Muscular",
                         options = gruposMusculares,
@@ -160,6 +173,7 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
                         Text("Selecciona un grupo muscular", color = MaterialTheme.colorScheme.error, fontSize = 12.sp, modifier = Modifier.padding(start = 4.dp))
                     }
 
+                    // Drop-down: Tipo de ejercicio
                     DropDownSelector(
                         label = "Tipo de Ejercicio",
                         options = tipos,
@@ -174,6 +188,7 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
                         Text("Selecciona un tipo de ejercicio", color = MaterialTheme.colorScheme.error, fontSize = 12.sp, modifier = Modifier.padding(start = 4.dp))
                     }
 
+                    // Campos numéricos: según tipo (cardio usa duración, fuerza usa series y reps)
                     if (isCardio) {
                         OutlinedTextField(
                             value = duracion,
@@ -221,6 +236,7 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
                         }
                     }
 
+                    // Drop-down: Intensidad del ejercicio
                     DropDownSelector(
                         label = "Intensidad",
                         options = intensidades,
@@ -235,6 +251,7 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
                         Text("Selecciona la intensidad", color = MaterialTheme.colorScheme.error, fontSize = 12.sp, modifier = Modifier.padding(start = 4.dp))
                     }
 
+                    // Botón para añadir ejercicio a la lista
                     AnimatedAccessButton(buttonText = "Añadir ejercicio", modifier = Modifier.fillMaxWidth()) {
                         val errorNombreEjercicio = nombreEjercicio.isBlank()
                         val errorGrupoMuscular = grupoMuscular.isBlank()
@@ -280,8 +297,10 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
                         scope.launch { snackbarHostState.showSnackbar("✅ Ejercicio añadido correctamente") }
                     }
 
+                    // Indicador del número de ejercicios añadidos
                     Text("Ejercicios añadidos: ${ejercicios.size}", style = MaterialTheme.typography.bodyLarge, modifier = Modifier.align(Alignment.CenterHorizontally))
 
+                    // Botón para guardar la rutina completa
                     AnimatedAccessButton(buttonText = "Guardar rutina completa", modifier = Modifier.fillMaxWidth()) {
                         val errorNombreRutina = nombreRutina.isBlank()
                         showNombreRutinaError = errorNombreRutina
@@ -319,10 +338,11 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
                         }
                     }
 
-                    Spacer(modifier = Modifier.height(100.dp))
+                    Spacer(modifier = Modifier.height(100.dp)) // Espacio final para evitar que el último botón quede pegado abajo
                 }
             }
         }
     }
 }
+
 

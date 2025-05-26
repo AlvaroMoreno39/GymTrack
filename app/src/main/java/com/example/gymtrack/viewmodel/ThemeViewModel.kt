@@ -15,16 +15,16 @@ import kotlinx.coroutines.launch
 class ThemeViewModel(application: Application) : AndroidViewModel(application) {
 
     // Flow que expone si el modo oscuro está activado o no (se usa para compartir estado entre distintas partes de la app si fuera necesario).
-    private val _darkMode = MutableStateFlow(false)
-    val darkMode: StateFlow<Boolean> = _darkMode
+    private val _darkMode = MutableStateFlow(false)    // Valor mutable interno
+    val darkMode: StateFlow<Boolean> = _darkMode       // Valor expuesto de solo lectura
 
     // Estado mutable que Jetpack Compose puede observar para recomponer automáticamente las UI que dependen del modo oscuro.
-    val darkModeState = mutableStateOf(false)
+    val darkModeState = mutableStateOf(false)          // Se usa dentro de las composables para reaccionar a cambios
 
     // Indica si el valor del modo oscuro se ha cargado desde DataStore.
     // Esto permite evitar usar valores incorrectos antes de que se haya recuperado la preferencia guardada.
-    private val _isReady = MutableStateFlow(false)
-    val isReady: StateFlow<Boolean> = _isReady
+    private val _isReady = MutableStateFlow(false)     // Estado interno mutable
+    val isReady: StateFlow<Boolean> = _isReady         // Estado expuesto de solo lectura para saber si ya está inicializado
 
     // Al inicializar el ViewModel, se lanza una corrutina para leer el valor del modo oscuro guardado en DataStore.
     // Una vez leído, se actualizan tanto el Flow como el estado observable de Compose.
@@ -47,13 +47,13 @@ class ThemeViewModel(application: Application) : AndroidViewModel(application) {
     // Esta función se llama cuando el usuario cambia manualmente el modo oscuro/claro.
     // Actualiza tanto los estados como la preferencia almacenada en DataStore.
     fun toggleDarkMode(enabled: Boolean) {
-        // Actualiza el Flow
+        // Actualiza el Flow (útil para lógicas fuera de Compose)
         _darkMode.value = enabled
 
-        // Actualiza el estado de Compose
+        // Actualiza el estado de Compose (útil para recomponer la interfaz)
         darkModeState.value = enabled
 
-        // Guarda la preferencia de forma persistente
+        // Guarda la preferencia de forma persistente en DataStore
         viewModelScope.launch {
             ThemePreferences.saveDarkMode(getApplication(), enabled)
         }
