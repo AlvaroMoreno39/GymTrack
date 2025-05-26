@@ -41,14 +41,37 @@ git clone https://github.com/AlvaroMoreno39/GymTrack.git
 ```
 
 ### 2️⃣ Abre el proyecto en Android Studio.
-### 3️⃣ Configura Firebase en tu app:
+### 3️⃣ (Opcional) Configura Firebase y Google Cloud.
+Si eres un desarrollador avanzado y quieres conectar tu propia base de datos y notificaciones:
+
 - Crea un proyecto en Firebase Console.
 
 - Descarga el archivo google-services.json y colócalo en la carpeta app/ del proyecto.
 
-- Activa Authentication, Firestore, Cloud Functions y Cloud Messaging en la consola.
+- Activa los servicios que quieras (Authentication, Firestore, Cloud Functions, Cloud Messaging).
 
+⚠ Nota: No es necesario configurar Firebase ni Google Cloud para generar y probar la APK básica.
 ### 4️⃣ Ejecuta el proyecto en un emulador o dispositivo físico.
+
+### 5️⃣ 🔨 Genera el APK para probarlo manualmente.
+Si quieres probar la app sin necesidad de conectarte a Firebase:
+
+- En Android Studio, ve a Build → Build APK(s).
+
+- Cuando termine, haz clic en locate para abrir la carpeta donde se generó el archivo:
+```lua
+app/build/outputs/apk/debug/app-debug.apk
+```
+
+### 6️⃣ 📲 Pasa el APK a tu móvil y ejecútalo.
+Copia el archivo .apk al almacenamiento del móvil (vía cable USB, Google Drive, email, etc.).
+
+En el móvil, activa la opción Permitir instalar apps de orígenes desconocidos.
+
+Abre el APK desde el administrador de archivos del móvil y sigue los pasos para instalarlo.
+
+#### ⚠ Importante: Este paso solo es necesario si la app no está publicada en Google Play Store.
+Si subes GymTrack a Google Play, los usuarios podrán descargarla e instalarla directamente desde la tienda, sin necesidad de transferir el APK manualmente.
 
 ---
 

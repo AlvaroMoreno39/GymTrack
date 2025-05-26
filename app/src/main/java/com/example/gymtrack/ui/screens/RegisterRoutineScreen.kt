@@ -95,7 +95,7 @@ fun RegisterRoutineScreen(viewModel: RoutineViewModel) {
 
             // Encabezado de pantalla con imagen y título
             ScreenHeader(
-                image = R.drawable.register_routine2,
+                image = R.drawable.register_routine,
                 title = if (esAdmin) "Crea una rutina predefinida" else "Diseña tu progreso",
                 subtitle = if (esAdmin) "Crea una rutina para todos" else "Crea tu rutina a medida"
             )
