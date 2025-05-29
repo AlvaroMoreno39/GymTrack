@@ -13,11 +13,11 @@ plugins {
 // CONFIGURACIÓN DEL PROYECTO ANDROID
 // -------------------------------------------
 android {
-    namespace = "com.example.gymtrack"     // Espacio de nombres del paquete principal
+    namespace = "com.alvaromoreno.gymtrack"     // Espacio de nombres del paquete principal
     compileSdk = 35                        // API nivel 35 para compilar (Android 14)
 
     defaultConfig {
-        applicationId = "com.example.gymtrack"      // ID único de la app
+        applicationId = "com.alvaromoreno.gymtrack"      // ID único de la app
         minSdk = 24                                 // Versión mínima de Android (Android 7.0)
         targetSdk = 35                              // API objetivo (Android 14)
         versionCode = 1                             // Código de versión interno

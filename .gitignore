@@ -11,6 +11,7 @@
 /.idea/workspace.xml
 /.idea/navEditor.xml
 /.idea/assetWizardSettings.xml
+/app/google-services.json
 
 # ================================
 # ARCHIVOS DE GRADLE Y COMPILACIÓN
@@ -52,3 +53,4 @@ outputs/
 # ================================
 .DS_Store
 Thumbs.db
+
