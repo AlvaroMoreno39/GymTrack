@@ -1,5 +1,6 @@
 package com.alvaromoreno.gymtrack.ui.screens.SettingsScreen
 
+import android.annotation.SuppressLint
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -45,6 +46,7 @@ import com.alvaromoreno.gymtrack.R
  * La pantalla está construida en Jetpack Compose y sigue el patrón MVVM.
  */
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @Composable
 fun SettingsScreen(
     navController: NavHostController,           // Controlador de navegación para volver/cambiar de pantalla
@@ -61,11 +63,11 @@ fun SettingsScreen(
     // Estructura principal: Scaffold con barra superior personalizada
     Scaffold(
         snackbarHost = { FancySnackbarHost(snackbarHostState) }
-    ) { innerPadding ->
+    ) {
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding)
+                .padding()
                 .background(MaterialTheme.colorScheme.background) // Fondo adaptable a tema claro/oscuro
         ) {
 
