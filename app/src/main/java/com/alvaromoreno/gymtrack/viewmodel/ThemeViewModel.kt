@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.alvaromoreno.gymtrack.ui.theme.ThemePreferences
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 
 // ViewModel encargado de gestionar el tema claro/oscuro de la app GymTrack.
@@ -24,7 +25,7 @@ class ThemeViewModel(application: Application) : AndroidViewModel(application) {
     // Indica si el valor del modo oscuro se ha cargado desde DataStore.
     // Esto permite evitar usar valores incorrectos antes de que se haya recuperado la preferencia guardada.
     private val _isReady = MutableStateFlow(false)     // Estado interno mutable
-    val isReady: StateFlow<Boolean> = _isReady         // Estado expuesto de solo lectura para saber si ya está inicializado
+    val isReady: StateFlow<Boolean> = _isReady // Estado expuesto de solo lectura para saber si ya está inicializado
 
     // Al inicializar el ViewModel, se lanza una corrutina para leer el valor del modo oscuro guardado en DataStore.
     // Una vez leído, se actualizan tanto el Flow como el estado observable de Compose.
