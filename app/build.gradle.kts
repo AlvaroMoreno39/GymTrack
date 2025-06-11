@@ -20,8 +20,8 @@ android {
         applicationId = "com.alvaromoreno.gymtrack"      // ID único de la app
         minSdk = 24                                 // Versión mínima de Android (Android 7.0)
         targetSdk = 35                              // API objetivo (Android 14)
-        versionCode = 1                             // Código de versión interno
-        versionName = "1.0"                         // Nombre visible de la versión
+        versionCode = 2                             // Código de versión interno
+        versionName = "1.0.1"                         // Nombre visible de la versión
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner" // Runner para tests instrumentados
     }

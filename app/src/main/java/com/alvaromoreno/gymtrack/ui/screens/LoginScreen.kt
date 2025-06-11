@@ -96,19 +96,12 @@ fun LoginScreen(
         try {
             val account = task.getResult(ApiException::class.java)
             val credential = GoogleAuthProvider.getCredential(account.idToken, null)
-            FirebaseAuth.getInstance().signInWithCredential(credential)
-                .addOnCompleteListener { loginTask ->
-                    if (loginTask.isSuccessful) {
-                        scope.launch {
-                            snackbarHostState.showSnackbar("Inicio de sesión exitoso ✅")
-                        }
-                        onLoginSuccess()
-                    } else {
-                        Log.e("LOGIN", "Error con Google", loginTask.exception)
-                    }
-                }
+            authViewModel.loginWithGoogleCredential(credential)
         } catch (e: ApiException) {
             Log.e("LOGIN", "Google sign in failed", e)
+            scope.launch {
+                snackbarHostState.showSnackbar("Fallo al iniciar sesión con Google ❌")
+            }
         }
     }
 

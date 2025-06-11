@@ -2,6 +2,7 @@ package com.alvaromoreno.gymtrack.viewmodel
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.auth.AuthCredential
 // Firebase Auth
 import com.google.firebase.auth.FirebaseAuth
 import com.google.firebase.auth.FirebaseUser
@@ -115,5 +116,22 @@ class AuthViewModel : ViewModel() {
     fun clearError() {
         _error.value = null
     }
+
+    /**
+     * Incia sesión con Google
+     */
+    fun loginWithGoogleCredential(credential: AuthCredential) {
+        viewModelScope.launch {
+            auth.signInWithCredential(credential).addOnCompleteListener { task ->
+                if (task.isSuccessful) {
+                    _user.value = auth.currentUser
+                    _error.value = null
+                } else {
+                    _error.value = task.exception?.message
+                }
+            }
+        }
+    }
+
 }
 
